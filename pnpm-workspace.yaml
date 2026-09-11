@@ -1,0 +1,6 @@
+# pnpm 11 reads build approvals here, not package.json. Commit this file with
+# package.json and pnpm-lock.yaml; CI is deliberately non-interactive.
+allowBuilds:
+  esbuild: true
+# Keep dependencies inside the checkout in both local and CI environments.
+enableGlobalVirtualStore: false

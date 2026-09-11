@@ -1,0 +1,501 @@
+"season","week","game_id","offense_play","defense_play","EPA","play_type","home","away","period","clock_minutes","clock_seconds","offense_score","defense_score"
+2025,1,401752665,"Florida State","Alabama",0.00375172329168783,"Kickoff","Florida State","Alabama",1,15,0,0,0
+2025,1,401752665,"Alabama","Florida State",0.350982421315808,"Rush","Florida State","Alabama",1,14,53,0,0
+2025,1,401752665,"Alabama","Florida State",1.24861056175014,"Pass Reception","Florida State","Alabama",1,14,20,0,0
+2025,1,401752665,"Alabama","Florida State",-0.341561648616907,"Rush","Florida State","Alabama",1,13,42,0,0
+2025,1,401752665,"Alabama","Florida State",0.235099381061497,"Rush","Florida State","Alabama",1,13,17,0,0
+2025,1,401752665,"Alabama","Florida State",-1.57478446804701,"Penalty","Florida State","Alabama",1,12,36,0,0
+2025,1,401752665,"Alabama","Florida State",-0.386647891005037,"Rush","Florida State","Alabama",1,12,11,0,0
+2025,1,401752665,"Alabama","Florida State",2.5959127365666,"Rush","Florida State","Alabama",1,11,42,0,0
+2025,1,401752665,"Alabama","Florida State",0.442901224194535,"Rush","Florida State","Alabama",1,10,59,0,0
+2025,1,401752665,"Alabama","Florida State",-1.39401043510475,"Rush","Florida State","Alabama",1,10,18,0,0
+2025,1,401752665,"Alabama","Florida State",1.6396963000033,"Rush","Florida State","Alabama",1,9,40,0,0
+2025,1,401752665,"Alabama","Florida State",0.589359297807581,"Rush","Florida State","Alabama",1,8,58,0,0
+2025,1,401752665,"Alabama","Florida State",-0.186397775562215,"Rush","Florida State","Alabama",1,8,20,0,0
+2025,1,401752665,"Alabama","Florida State",-0.849029286038713,"Pass Incompletion","Florida State","Alabama",1,7,51,0,0
+2025,1,401752665,"Alabama","Florida State",0.00174733135503535,"Timeout","Florida State","Alabama",1,7,51,0,0
+2025,1,401752665,"Alabama","Florida State",1.37552906898732,"Rush","Florida State","Alabama",1,7,44,0,0
+2025,1,401752665,"Alabama","Florida State",1.56142611064077,"Pass Reception","Florida State","Alabama",1,7,11,0,0
+2025,1,401752665,"Alabama","Florida State",-0.533484912992781,"Rush","Florida State","Alabama",1,6,51,0,0
+2025,1,401752665,"Alabama","Florida State",1.12356358103716,"Passing Touchdown","Florida State","Alabama",1,6,10,7,0
+2025,1,401752665,"Alabama","Florida State",0.00601830372196266,"Kickoff","Florida State","Alabama",1,6,10,7,0
+2025,1,401752665,"Florida State","Alabama",-0.569045305678145,"Rush","Florida State","Alabama",1,5,58,0,7
+2025,1,401752665,"Florida State","Alabama",-0.479494648776945,"Pass Reception","Florida State","Alabama",1,5,35,0,7
+2025,1,401752665,"Florida State","Alabama",2.41218291343597,"Penalty","Florida State","Alabama",1,5,16,0,7
+2025,1,401752665,"Florida State","Alabama",0.938520523519337,"Rush","Florida State","Alabama",1,5,4,0,7
+2025,1,401752665,"Florida State","Alabama",-0.756358183034311,"Penalty","Florida State","Alabama",1,4,32,0,7
+2025,1,401752665,"Florida State","Alabama",-0.233558891182787,"Rush","Florida State","Alabama",1,4,15,0,7
+2025,1,401752665,"Florida State","Alabama",-0.545565355785571,"Pass Reception","Florida State","Alabama",1,3,55,0,7
+2025,1,401752665,"Florida State","Alabama",0.0064682776256415,"Timeout","Florida State","Alabama",1,3,34,0,7
+2025,1,401752665,"Florida State","Alabama",4.07934370770176,"Pass Reception","Florida State","Alabama",1,3,18,0,7
+2025,1,401752665,"Florida State","Alabama",1.99602495035219,"Rushing Touchdown","Florida State","Alabama",1,3,4,7,7
+2025,1,401752665,"Florida State","Alabama",0.00481724395026917,"Kickoff","Florida State","Alabama",1,3,4,7,7
+2025,1,401752665,"Alabama","Florida State",-0.898715043238093,"Rush","Florida State","Alabama",1,2,51,7,7
+2025,1,401752665,"Alabama","Florida State",3.14701549131913,"Pass Reception","Florida State","Alabama",1,2,20,7,7
+2025,1,401752665,"Alabama","Florida State",0.00777931957497602,"Pass Reception","Florida State","Alabama",1,2,0,7,7
+2025,1,401752665,"Alabama","Florida State",-0.201985281566351,"Rush","Florida State","Alabama",1,1,20,7,7
+2025,1,401752665,"Alabama","Florida State",1.19297275523888,"Pass Reception","Florida State","Alabama",1,0,31,7,7
+2025,1,401752665,"Alabama","Florida State",0.0646376344240487,"Pass Reception","Florida State","Alabama",1,0,1,7,7
+2025,1,401752665,"Alabama","Florida State",NA,"End Period","Florida State","Alabama",1,0,0,7,7
+2025,1,401752665,"Alabama","Florida State",-1.32465483645293,"Pass Reception","Florida State","Alabama",2,14,55,7,7
+2025,1,401752665,"Alabama","Florida State",-0.371890828708141,"Penalty","Florida State","Alabama",2,14,25,7,7
+2025,1,401752665,"Alabama","Florida State",-2.05822376250761,"Sack","Florida State","Alabama",2,13,57,7,7
+2025,1,401752665,"Alabama","Florida State",-1.73984407484859,"Field Goal Missed","Florida State","Alabama",2,13,12,7,7
+2025,1,401752665,"Florida State","Alabama",-0.340184780107241,"Pass Reception","Florida State","Alabama",2,13,0,7,7
+2025,1,401752665,"Florida State","Alabama",-0.625279892430085,"Pass Reception","Florida State","Alabama",2,12,23,7,7
+2025,1,401752665,"Florida State","Alabama",2.24481173450392,"Pass Reception","Florida State","Alabama",2,11,47,7,7
+2025,1,401752665,"Florida State","Alabama",-0.59046454062516,"Rush","Florida State","Alabama",2,11,32,7,7
+2025,1,401752665,"Florida State","Alabama",-0.160494493629355,"Rush","Florida State","Alabama",2,11,3,7,7
+2025,1,401752665,"Florida State","Alabama",1.25228276168514,"Rush","Florida State","Alabama",2,10,23,7,7
+2025,1,401752665,"Florida State","Alabama",-0.317859184395787,"Rush","Florida State","Alabama",2,9,46,7,7
+2025,1,401752665,"Florida State","Alabama",3.46944265445487,"Rushing Touchdown","Florida State","Alabama",2,9,13,14,7
+2025,1,401752665,"Florida State","Alabama",-0.00119780863958485,"Kickoff","Florida State","Alabama",2,9,13,14,7
+2025,1,401752665,"Alabama","Florida State",-0.754911323265992,"Pass Incompletion","Florida State","Alabama",2,9,8,7,14
+2025,1,401752665,"Alabama","Florida State",-0.591367550778299,"Rush","Florida State","Alabama",2,8,52,7,14
+2025,1,401752665,"Alabama","Florida State",-1.05521229175052,"Pass Incompletion","Florida State","Alabama",2,8,37,7,14
+2025,1,401752665,"Alabama","Florida State",0.373949979871806,"Punt","Florida State","Alabama",2,8,23,7,14
+2025,1,401752665,"Florida State","Alabama",0.994493013492086,"Pass Reception","Florida State","Alabama",2,8,5,14,7
+2025,1,401752665,"Florida State","Alabama",-0.715932075731947,"Rush","Florida State","Alabama",2,7,39,14,7
+2025,1,401752665,"Florida State","Alabama",1.42905343614836,"Rush","Florida State","Alabama",2,7,5,14,7
+2025,1,401752665,"Florida State","Alabama",-0.346498681510714,"Rush","Florida State","Alabama",2,6,27,14,7
+2025,1,401752665,"Florida State","Alabama",1.03201677746985,"Rush","Florida State","Alabama",2,5,47,14,7
+2025,1,401752665,"Florida State","Alabama",-0.477898991559221,"Rush","Florida State","Alabama",2,5,12,14,7
+2025,1,401752665,"Florida State","Alabama",-0.385375516127903,"Rush","Florida State","Alabama",2,4,28,14,7
+2025,1,401752665,"Florida State","Alabama",-1.34754020282892,"Pass Incompletion","Florida State","Alabama",2,3,50,14,7
+2025,1,401752665,"Florida State","Alabama",-0.0110048922847727,"Timeout","Florida State","Alabama",2,3,50,14,7
+2025,1,401752665,"Florida State","Alabama",1.75946602807895,"Field Goal Good","Florida State","Alabama",2,3,44,17,7
+2025,1,401752665,"Florida State","Alabama",-0.00798907823914596,"Kickoff","Florida State","Alabama",2,3,44,17,7
+2025,1,401752665,"Alabama","Florida State",0.173661485412911,"Rush","Florida State","Alabama",2,3,33,7,17
+2025,1,401752665,"Alabama","Florida State",-0.435836815447617,"Rush","Florida State","Alabama",2,3,13,7,17
+2025,1,401752665,"Alabama","Florida State",1.04688785207651,"Pass Reception","Florida State","Alabama",2,2,25,7,17
+2025,1,401752665,"Alabama","Florida State",0.115648640236365,"Pass Reception","Florida State","Alabama",2,1,59,7,17
+2025,1,401752665,"Alabama","Florida State",-0.412213637453513,"Pass Incompletion","Florida State","Alabama",2,1,52,7,17
+2025,1,401752665,"Alabama","Florida State",-0.580214077107486,"Rush","Florida State","Alabama",2,1,44,7,17
+2025,1,401752665,"Alabama","Florida State",-0.00887759514936431,"Timeout","Florida State","Alabama",2,1,44,7,17
+2025,1,401752665,"Alabama","Florida State",-1.28150808345097,"Punt","Florida State","Alabama",2,1,36,7,17
+2025,1,401752665,"Florida State","Alabama",-0.0504764298127315,"Rush","Florida State","Alabama",2,1,26,17,7
+2025,1,401752665,"Florida State","Alabama",-0.0432796696138522,"Rush","Florida State","Alabama",2,1,17,17,7
+2025,1,401752665,"Florida State","Alabama",0.312861362099023,"Rush","Florida State","Alabama",2,0,36,17,7
+2025,1,401752665,"Florida State","Alabama",-0.180015392388466,"Rush","Florida State","Alabama",2,0,30,17,7
+2025,1,401752665,"Florida State","Alabama",-0.891702075827264,"Rush","Florida State","Alabama",2,0,15,17,7
+2025,1,401752665,"Florida State","Alabama",NA,"End of Half","Florida State","Alabama",2,0,0,17,7
+2025,1,401752665,"Alabama","Florida State",-0.91071799295287,"Kickoff Return (Offense)","Florida State","Alabama",3,15,0,7,17
+2025,1,401752665,"Florida State","Alabama",0.67837416444678,"Rush","Florida State","Alabama",3,14,44,17,7
+2025,1,401752665,"Florida State","Alabama",0.45069201573875,"Rush","Florida State","Alabama",3,14,19,17,7
+2025,1,401752665,"Florida State","Alabama",-0.540463475653036,"Rush","Florida State","Alabama",3,13,37,17,7
+2025,1,401752665,"Florida State","Alabama",-1.12571997504459,"Pass Incompletion","Florida State","Alabama",3,13,9,17,7
+2025,1,401752665,"Florida State","Alabama",-0.607862595697012,"Penalty","Florida State","Alabama",3,13,9,17,7
+2025,1,401752665,"Florida State","Alabama",-0.37545271107497,"Pass Reception","Florida State","Alabama",3,12,35,17,7
+2025,1,401752665,"Florida State","Alabama",0.519891463342272,"Punt","Florida State","Alabama",3,12,19,17,7
+2025,1,401752665,"Alabama","Florida State",-0.947311424106143,"Pass Incompletion","Florida State","Alabama",3,12,11,7,17
+2025,1,401752665,"Alabama","Florida State",3.46032465691851,"Pass Reception","Florida State","Alabama",3,12,3,7,17
+2025,1,401752665,"Alabama","Florida State",-0.498149797766826,"Pass Reception","Florida State","Alabama",3,11,24,7,17
+2025,1,401752665,"Alabama","Florida State",-0.503438123529179,"Pass Reception","Florida State","Alabama",3,11,24,7,17
+2025,1,401752665,"Alabama","Florida State",-2.03614593371713,"Pass Incompletion","Florida State","Alabama",3,10,31,7,17
+2025,1,401752665,"Alabama","Florida State",-2.32971720688199,"Pass Reception","Florida State","Alabama",3,10,22,7,17
+2025,1,401752665,"Florida State","Alabama",3.77769564267969,"Pass Reception","Florida State","Alabama",3,10,0,17,7
+2025,1,401752665,"Florida State","Alabama",1.00380431921151,"Rushing Touchdown","Florida State","Alabama",3,9,45,24,7
+2025,1,401752665,"Florida State","Alabama",0.00769611659137082,"Kickoff","Florida State","Alabama",3,9,45,24,7
+2025,1,401752665,"Alabama","Florida State",-0.16672334694991,"Rush","Florida State","Alabama",3,9,31,7,24
+2025,1,401752665,"Alabama","Florida State",-1.29584911416574,"Penalty","Florida State","Alabama",3,9,18,7,24
+2025,1,401752665,"Alabama","Florida State",4.57555914463106,"Pass Reception","Florida State","Alabama",3,8,59,7,24
+2025,1,401752665,"Alabama","Florida State",-0.849544692749062,"Pass Incompletion","Florida State","Alabama",3,8,25,7,24
+2025,1,401752665,"Alabama","Florida State",-1.28482118249919,"Rush","Florida State","Alabama",3,8,14,7,24
+2025,1,401752665,"Alabama","Florida State",3.26664020050879,"Pass Reception","Florida State","Alabama",3,7,45,7,24
+2025,1,401752665,"Alabama","Florida State",-0.458095270908432,"Rush","Florida State","Alabama",3,7,21,7,24
+2025,1,401752665,"Alabama","Florida State",-0.998522050860639,"Pass Incompletion","Florida State","Alabama",3,6,59,7,24
+2025,1,401752665,"Alabama","Florida State",-1.78247347205396,"Pass Incompletion","Florida State","Alabama",3,6,54,7,24
+2025,1,401752665,"Alabama","Florida State",3.8225109455085,"Penalty","Florida State","Alabama",3,6,49,7,24
+2025,1,401752665,"Alabama","Florida State",-0.629800648365402,"Pass Incompletion","Florida State","Alabama",3,6,45,7,24
+2025,1,401752665,"Alabama","Florida State",-0.941762601557812,"Pass Incompletion","Florida State","Alabama",3,6,40,7,24
+2025,1,401752665,"Alabama","Florida State",-0.26977870751334,"Penalty","Florida State","Alabama",3,6,40,7,24
+2025,1,401752665,"Alabama","Florida State",-1.11459706738873,"Fumble Recovery (Own)","Florida State","Alabama",3,6,7,7,24
+2025,1,401752665,"Alabama","Florida State",1.84173387764484,"Field Goal Good","Florida State","Alabama",3,5,59,10,24
+2025,1,401752665,"Alabama","Florida State",0.00368662025231292,"Kickoff","Florida State","Alabama",3,5,59,10,24
+2025,1,401752665,"Florida State","Alabama",0.078266745015487,"Rush","Florida State","Alabama",3,5,49,24,10
+2025,1,401752665,"Florida State","Alabama",-1.04925923213932,"Pass Incompletion","Florida State","Alabama",3,5,19,24,10
+2025,1,401752665,"Florida State","Alabama",2.80754654496792,"Rush","Florida State","Alabama",3,5,0,24,10
+2025,1,401752665,"Florida State","Alabama",0.00780805619660851,"Rush","Florida State","Alabama",3,4,29,24,10
+2025,1,401752665,"Florida State","Alabama",-0.671273132698996,"Rush","Florida State","Alabama",3,4,0,24,10
+2025,1,401752665,"Florida State","Alabama",-1.82863024590102,"Pass Incompletion","Florida State","Alabama",3,3,24,24,10
+2025,1,401752665,"Florida State","Alabama",-1.12914596612652,"Punt","Florida State","Alabama",3,3,16,24,10
+2025,1,401752665,"Alabama","Florida State",-1.86293627348906,"Sack","Florida State","Alabama",3,3,3,10,24
+2025,1,401752665,"Alabama","Florida State",-0.89025448152625,"Pass Incompletion","Florida State","Alabama",3,2,51,10,24
+2025,1,401752665,"Alabama","Florida State",0.0149320652829892,"Timeout","Florida State","Alabama",3,2,51,10,24
+2025,1,401752665,"Alabama","Florida State",-0.215051279807793,"Rush","Florida State","Alabama",3,2,32,10,24
+2025,1,401752665,"Alabama","Florida State",0.355623525632205,"Punt Team Fumble Recovery","Florida State","Alabama",3,1,56,10,24
+2025,1,401752665,"Alabama","Florida State",0.964721680896366,"Penalty","Florida State","Alabama",3,1,48,10,24
+2025,1,401752665,"Alabama","Florida State",-0.32139990114811,"Rush","Florida State","Alabama",3,1,38,10,24
+2025,1,401752665,"Alabama","Florida State",-0.978286026849377,"Pass Incompletion","Florida State","Alabama",3,1,9,10,24
+2025,1,401752665,"Alabama","Florida State",-1.83375810793853,"Pass Incompletion","Florida State","Alabama",3,1,4,10,24
+2025,1,401752665,"Alabama","Florida State",-2.89844883266396,"Pass Incompletion","Florida State","Alabama",3,0,55,10,24
+2025,1,401752665,"Florida State","Alabama",-0.974730085759817,"Rush","Florida State","Alabama",3,0,46,24,10
+2025,1,401752665,"Florida State","Alabama",-0.722312935537846,"Rush","Florida State","Alabama",3,0,11,24,10
+2025,1,401752665,"Florida State","Alabama",NA,"End Period","Florida State","Alabama",3,0,0,24,10
+2025,1,401752665,"Florida State","Alabama",-2.14333147803897,"Sack","Florida State","Alabama",4,14,55,24,10
+2025,1,401752665,"Florida State","Alabama",0.112046034095473,"Punt","Florida State","Alabama",4,14,16,24,10
+2025,1,401752665,"Alabama","Florida State",-0.358986756106698,"Pass Reception","Florida State","Alabama",4,14,3,10,24
+2025,1,401752665,"Alabama","Florida State",2.5252433916188,"Pass Reception","Florida State","Alabama",4,13,37,10,24
+2025,1,401752665,"Alabama","Florida State",-0.330031786514998,"Pass Reception","Florida State","Alabama",4,12,57,10,24
+2025,1,401752665,"Alabama","Florida State",0.435350405917163,"Rush","Florida State","Alabama",4,12,19,10,24
+2025,1,401752665,"Alabama","Florida State",0.593485390705711,"Rush","Florida State","Alabama",4,11,56,10,24
+2025,1,401752665,"Alabama","Florida State",1.09841230539675,"Pass Reception","Florida State","Alabama",4,11,32,10,24
+2025,1,401752665,"Alabama","Florida State",1.5916847247354,"Passing Touchdown","Florida State","Alabama",4,11,0,17,24
+2025,1,401752665,"Alabama","Florida State",-0.0050210476884418,"Kickoff","Florida State","Alabama",4,11,0,17,24
+2025,1,401752665,"Florida State","Alabama",-0.323262331865585,"Rush","Florida State","Alabama",4,10,50,24,17
+2025,1,401752665,"Florida State","Alabama",0.276326894915812,"Rush","Florida State","Alabama",4,10,20,24,17
+2025,1,401752665,"Florida State","Alabama",-1.08512675446793,"Rush","Florida State","Alabama",4,9,54,24,17
+2025,1,401752665,"Florida State","Alabama",1.95066517540946,"Rush","Florida State","Alabama",4,9,9,24,17
+2025,1,401752665,"Florida State","Alabama",-0.707251926776074,"Pass Incompletion","Florida State","Alabama",4,8,45,24,17
+2025,1,401752665,"Florida State","Alabama",-0.881448470013081,"Rush","Florida State","Alabama",4,8,38,24,17
+2025,1,401752665,"Florida State","Alabama",2.4766030019295,"Penalty","Florida State","Alabama",4,8,30,24,17
+2025,1,401752665,"Florida State","Alabama",-0.516458059452848,"Rush","Florida State","Alabama",4,8,21,24,17
+2025,1,401752665,"Florida State","Alabama",-0.0346095295352886,"Timeout","Florida State","Alabama",4,8,21,24,17
+2025,1,401752665,"Florida State","Alabama",1.70182880716485,"Rush","Florida State","Alabama",4,8,0,24,17
+2025,1,401752665,"Florida State","Alabama",0.0173457413730622,"Rush","Florida State","Alabama",4,7,36,24,17
+2025,1,401752665,"Florida State","Alabama",2.52178972885215,"Rushing Touchdown","Florida State","Alabama",4,7,17,31,17
+2025,1,401752665,"Florida State","Alabama",-0.00222798388246448,"Kickoff","Florida State","Alabama",4,7,17,31,17
+2025,1,401752665,"Alabama","Florida State",1.28955995708188,"Pass Reception","Florida State","Alabama",4,7,0,17,31
+2025,1,401752665,"Alabama","Florida State",-0.83484649587847,"Pass Incompletion","Florida State","Alabama",4,6,47,17,31
+2025,1,401752665,"Alabama","Florida State",-1.482813046528,"Pass Incompletion","Florida State","Alabama",4,6,46,17,31
+2025,1,401752665,"Alabama","Florida State",-1.07367765061982,"Penalty","Florida State","Alabama",4,6,46,17,31
+2025,1,401752665,"Alabama","Florida State",3.05975319180047,"Pass Reception","Florida State","Alabama",4,6,28,17,31
+2025,1,401752665,"Alabama","Florida State",-0.681219519874206,"Pass Incompletion","Florida State","Alabama",4,6,13,17,31
+2025,1,401752665,"Alabama","Florida State",-0.813502742406645,"Pass Incompletion","Florida State","Alabama",4,6,7,17,31
+2025,1,401752665,"Alabama","Florida State",-1.08925344264654,"Pass Incompletion","Florida State","Alabama",4,5,55,17,31
+2025,1,401752665,"Alabama","Florida State",-1.90501517118043,"Rush","Florida State","Alabama",4,5,39,17,31
+2025,1,401752665,"Florida State","Alabama",-0.610089274532325,"Rush","Florida State","Alabama",4,5,30,31,17
+2025,1,401752665,"Florida State","Alabama",0.859157743494996,"Rush","Florida State","Alabama",4,4,37,31,17
+2025,1,401752665,"Florida State","Alabama",-0.387279583164434,"Rush","Florida State","Alabama",4,3,53,31,17
+2025,1,401752665,"Florida State","Alabama",-0.997978417327733,"Rush","Florida State","Alabama",4,3,6,31,17
+2025,1,401752665,"Florida State","Alabama",-0.217795798324647,"Rush","Florida State","Alabama",4,2,20,31,17
+2025,1,401752665,"Florida State","Alabama",0.0187138507558022,"Timeout","Florida State","Alabama",4,2,20,31,17
+2025,1,401752665,"Florida State","Alabama",1.19875575835458,"Rush","Florida State","Alabama",4,2,0,31,17
+2025,1,401752665,"Florida State","Alabama",-0.638116795879964,"Rush","Florida State","Alabama",4,1,45,31,17
+2025,1,401752665,"Florida State","Alabama",-0.628678333607198,"Rush","Florida State","Alabama",4,1,8,31,17
+2025,1,401752665,"Florida State","Alabama",-1.49951844132512,"Rush","Florida State","Alabama",4,0,30,31,17
+2025,1,401752665,"Florida State","Alabama",NA,"End of Game","Florida State","Alabama",4,0,0,31,17
+2025,1,401752666,"Alabama A&M","Arkansas",0.191925989667655,"Kickoff Return (Offense)","Arkansas","Alabama A&M",1,14,54,0,0
+2025,1,401752666,"Arkansas","Alabama A&M",1.15452500686136,"Pass Reception","Arkansas","Alabama A&M",1,14,42,0,0
+2025,1,401752666,"Arkansas","Alabama A&M",0.297394344157395,"Rush","Arkansas","Alabama A&M",1,14,10,0,0
+2025,1,401752666,"Arkansas","Alabama A&M",0.893854366889538,"Pass Reception","Arkansas","Alabama A&M",1,13,33,0,0
+2025,1,401752666,"Arkansas","Alabama A&M",0.0146024671056972,"Rush","Arkansas","Alabama A&M",1,13,3,0,0
+2025,1,401752666,"Arkansas","Alabama A&M",0.625746288033226,"Rush","Arkansas","Alabama A&M",1,12,30,0,0
+2025,1,401752666,"Arkansas","Alabama A&M",0.486814261760201,"Rush","Arkansas","Alabama A&M",1,11,56,0,0
+2025,1,401752666,"Arkansas","Alabama A&M",-0.186351978317099,"Rush","Arkansas","Alabama A&M",1,11,15,0,0
+2025,1,401752666,"Arkansas","Alabama A&M",-0.578735118524776,"Pass Reception","Arkansas","Alabama A&M",1,10,38,0,0
+2025,1,401752666,"Arkansas","Alabama A&M",3.263840392698,"Passing Touchdown","Arkansas","Alabama A&M",1,10,3,7,0
+2025,1,401752666,"Alabama A&M","Arkansas",0.923814354612289,"Timeout","Arkansas","Alabama A&M",1,10,3,0,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.00639881640545503,"Kickoff","Arkansas","Alabama A&M",1,10,3,7,0
+2025,1,401752666,"Alabama A&M","Arkansas",1.61873031216196,"Pass Reception","Arkansas","Alabama A&M",1,9,51,0,7
+2025,1,401752666,"Alabama A&M","Arkansas",-0.417552517584053,"Penalty","Arkansas","Alabama A&M",1,9,37,0,7
+2025,1,401752666,"Alabama A&M","Arkansas",1.02124542097755,"Pass Reception","Arkansas","Alabama A&M",1,9,24,0,7
+2025,1,401752666,"Alabama A&M","Arkansas",0.71027603637074,"Rush","Arkansas","Alabama A&M",1,8,50,0,7
+2025,1,401752666,"Alabama A&M","Arkansas",1.3518201153745,"Pass Reception","Arkansas","Alabama A&M",1,8,15,0,7
+2025,1,401752666,"Alabama A&M","Arkansas",-0.192878586953811,"Penalty","Arkansas","Alabama A&M",1,7,58,0,7
+2025,1,401752666,"Alabama A&M","Arkansas",0.821982743139374,"Pass Reception","Arkansas","Alabama A&M",1,7,30,0,7
+2025,1,401752666,"Alabama A&M","Arkansas",0.596156728863495,"Rush","Arkansas","Alabama A&M",1,6,59,0,7
+2025,1,401752666,"Alabama A&M","Arkansas",1.52395605428566,"Rushing Touchdown","Arkansas","Alabama A&M",1,6,28,7,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.258897361685427,"Timeout","Arkansas","Alabama A&M",1,6,28,7,7
+2025,1,401752666,"Alabama A&M","Arkansas",0.6342478789794,"Kickoff Return (Offense)","Arkansas","Alabama A&M",1,6,22,7,7
+2025,1,401752666,"Arkansas","Alabama A&M",2.07858984020934,"Pass Reception","Arkansas","Alabama A&M",1,5,59,7,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.804616111435135,"Rush","Arkansas","Alabama A&M",1,5,31,7,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.56490581921488,"Pass Incompletion","Arkansas","Alabama A&M",1,5,0,7,7
+2025,1,401752666,"Arkansas","Alabama A&M",-1.23996701021919,"Rush","Arkansas","Alabama A&M",1,4,46,7,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.00703980206468557,"Timeout","Arkansas","Alabama A&M",1,4,46,7,7
+2025,1,401752666,"Arkansas","Alabama A&M",-2.35265782378825,"Sack","Arkansas","Alabama A&M",1,4,13,7,7
+2025,1,401752666,"Arkansas","Alabama A&M",3.32999349708631,"Field Goal Good","Arkansas","Alabama A&M",1,3,37,10,7
+2025,1,401752666,"Alabama A&M","Arkansas",0.883035735524859,"Timeout","Arkansas","Alabama A&M",1,3,37,7,10
+2025,1,401752666,"Arkansas","Alabama A&M",0.0033648009945435,"Kickoff","Arkansas","Alabama A&M",1,3,37,10,7
+2025,1,401752666,"Alabama A&M","Arkansas",1.03901835221708,"Pass Reception","Arkansas","Alabama A&M",1,3,29,7,10
+2025,1,401752666,"Alabama A&M","Arkansas",-1.66528197336956,"Penalty","Arkansas","Alabama A&M",1,3,2,7,10
+2025,1,401752666,"Alabama A&M","Arkansas",0.329899517070905,"Rush","Arkansas","Alabama A&M",1,2,43,7,10
+2025,1,401752666,"Alabama A&M","Arkansas",-1.23843932846607,"Penalty","Arkansas","Alabama A&M",1,2,27,7,10
+2025,1,401752666,"Alabama A&M","Arkansas",-1.69107893966785,"Penalty","Arkansas","Alabama A&M",1,1,44,7,10
+2025,1,401752666,"Alabama A&M","Arkansas",-1.40457053508104,"Pass Incompletion","Arkansas","Alabama A&M",1,1,44,7,10
+2025,1,401752666,"Alabama A&M","Arkansas",0.448046134421029,"Punt","Arkansas","Alabama A&M",1,1,36,7,10
+2025,1,401752666,"Arkansas","Alabama A&M",1.22360602815683,"Pass Reception","Arkansas","Alabama A&M",1,1,23,10,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.384220957687315,"Penalty","Arkansas","Alabama A&M",1,1,4,10,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.843850777787782,"Pass Incompletion","Arkansas","Alabama A&M",1,0,55,10,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.511209444182383,"Pass Reception","Arkansas","Alabama A&M",1,0,45,10,7
+2025,1,401752666,"Arkansas","Alabama A&M",NA,"Timeout","Arkansas","Alabama A&M",1,0,24,10,7
+2025,1,401752666,"Arkansas","Alabama A&M",NA,"End Period","Arkansas","Alabama A&M",1,0,0,10,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.599790553341846,"Rush","Arkansas","Alabama A&M",2,14,52,10,7
+2025,1,401752666,"Arkansas","Alabama A&M",1.16994723414883,"Pass Reception","Arkansas","Alabama A&M",2,14,40,10,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.659322606289152,"Pass Incompletion","Arkansas","Alabama A&M",2,14,23,10,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.23858811818571,"Rush","Arkansas","Alabama A&M",2,14,15,10,7
+2025,1,401752666,"Arkansas","Alabama A&M",4.018501898272,"Passing Touchdown","Arkansas","Alabama A&M",2,13,41,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.00206737365828458,"Kickoff","Arkansas","Alabama A&M",2,13,41,17,7
+2025,1,401752666,"Alabama A&M","Arkansas",-0.149153336516482,"Rush","Arkansas","Alabama A&M",2,13,34,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",1.88637774936896,"Pass Reception","Arkansas","Alabama A&M",2,13,10,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",-0.817282167663061,"Pass Incompletion","Arkansas","Alabama A&M",2,12,35,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",2.00039094406933,"Pass Reception","Arkansas","Alabama A&M",2,12,28,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",-0.314901321324795,"Penalty","Arkansas","Alabama A&M",2,12,4,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",-0.501145266311553,"Rush","Arkansas","Alabama A&M",2,11,36,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",-1.33711460838836,"Rush","Arkansas","Alabama A&M",2,10,59,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",-1.11111005008016,"Pass Reception","Arkansas","Alabama A&M",2,10,13,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",-1.43669083785486,"Punt","Arkansas","Alabama A&M",2,9,30,7,17
+2025,1,401752666,"Arkansas","Alabama A&M",-0.141469700212201,"Timeout","Arkansas","Alabama A&M",2,9,30,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.599107931354411,"Pass Reception","Arkansas","Alabama A&M",2,9,16,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.832207978084695,"Pass Incompletion","Arkansas","Alabama A&M",2,8,49,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",2.47856277151458,"Pass Reception","Arkansas","Alabama A&M",2,8,39,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.194240757914568,"Rush","Arkansas","Alabama A&M",2,8,13,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.319071313370404,"Pass Reception","Arkansas","Alabama A&M",2,7,46,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.187414087471972,"Rush","Arkansas","Alabama A&M",2,7,15,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.865465780551962,"Rush","Arkansas","Alabama A&M",2,6,42,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",-1.50361257151259,"Sack","Arkansas","Alabama A&M",2,5,59,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.0452974885789746,"Punt","Arkansas","Alabama A&M",2,5,30,17,7
+2025,1,401752666,"Alabama A&M","Arkansas",0.00980150155687443,"Timeout","Arkansas","Alabama A&M",2,5,30,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",-0.505142575182048,"Pass Incompletion","Arkansas","Alabama A&M",2,5,24,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",1.35805345303111,"Pass Reception","Arkansas","Alabama A&M",2,5,12,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",-0.563332444234066,"Pass Incompletion","Arkansas","Alabama A&M",2,4,51,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",-0.638877653140874,"Pass Incompletion","Arkansas","Alabama A&M",2,4,47,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",-0.707423687347652,"Pass Incompletion","Arkansas","Alabama A&M",2,4,43,7,17
+2025,1,401752666,"Alabama A&M","Arkansas",-0.47782332804574,"Punt","Arkansas","Alabama A&M",2,4,32,7,17
+2025,1,401752666,"Arkansas","Alabama A&M",-0.498312495171795,"Rush","Arkansas","Alabama A&M",2,4,22,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.626373041607828,"Pass Incompletion","Arkansas","Alabama A&M",2,3,54,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",2.30845442746483,"Rush","Arkansas","Alabama A&M",2,3,41,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",1.70552518868142,"Pass Reception","Arkansas","Alabama A&M",2,3,7,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.102292731670516,"Rush","Arkansas","Alabama A&M",2,2,36,17,7
+2025,1,401752666,"Arkansas","Alabama A&M",2.20390182290265,"Passing Touchdown","Arkansas","Alabama A&M",2,2,12,24,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.275760107124346,"Kickoff Return (Offense)","Arkansas","Alabama A&M",2,2,5,24,7
+2025,1,401752666,"Alabama A&M","Arkansas",-0.244083854275951,"Pass Incompletion","Arkansas","Alabama A&M",2,2,0,7,24
+2025,1,401752666,"Alabama A&M","Arkansas",-0.00658723039237002,"Timeout","Arkansas","Alabama A&M",2,2,0,7,24
+2025,1,401752666,"Alabama A&M","Arkansas",0.194852844340257,"Rush","Arkansas","Alabama A&M",2,1,51,7,24
+2025,1,401752666,"Alabama A&M","Arkansas",0.205901076219021,"Timeout","Arkansas","Alabama A&M",2,1,15,7,24
+2025,1,401752666,"Alabama A&M","Arkansas",-0.595179563828033,"Rush","Arkansas","Alabama A&M",2,1,12,7,24
+2025,1,401752666,"Alabama A&M","Arkansas",-1.38546000452501,"Punt","Arkansas","Alabama A&M",2,1,5,7,24
+2025,1,401752666,"Arkansas","Alabama A&M",-0.306357634483732,"Pass Incompletion","Arkansas","Alabama A&M",2,1,0,24,7
+2025,1,401752666,"Arkansas","Alabama A&M",1.19146843015572,"Pass Reception","Arkansas","Alabama A&M",2,0,51,24,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.353517811131663,"Penalty","Arkansas","Alabama A&M",2,0,40,24,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.377013806347208,"Pass Incompletion","Arkansas","Alabama A&M",2,0,36,24,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.494311918989358,"Pass Reception","Arkansas","Alabama A&M",2,0,29,24,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.359292304422062,"Penalty","Arkansas","Alabama A&M",2,0,24,24,7
+2025,1,401752666,"Arkansas","Alabama A&M",-2.22766350663775,"Timeout","Arkansas","Alabama A&M",2,0,14,24,7
+2025,1,401752666,"Arkansas","Alabama A&M",2.86965078641788,"Pass Reception","Arkansas","Alabama A&M",2,0,13,24,7
+2025,1,401752666,"Arkansas","Alabama A&M",2.72404030151054,"Passing Touchdown","Arkansas","Alabama A&M",2,0,6,31,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.445981814901133,"Kickoff Team Fumble Recovery","Arkansas","Alabama A&M",2,0,4,31,7
+2025,1,401752666,"Arkansas","Alabama A&M",0,"Rush","Arkansas","Alabama A&M",2,0,0,31,7
+2025,1,401752666,"Arkansas","Alabama A&M",NA,"End of Half","Arkansas","Alabama A&M",2,0,0,31,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.369395233736022,"Kickoff Return (Offense)","Arkansas","Alabama A&M",3,14,54,31,7
+2025,1,401752666,"Alabama A&M","Arkansas",-0.159400638927733,"Rush","Arkansas","Alabama A&M",3,14,46,7,31
+2025,1,401752666,"Alabama A&M","Arkansas",-1.03775642361168,"Pass Incompletion","Arkansas","Alabama A&M",3,14,30,7,31
+2025,1,401752666,"Alabama A&M","Arkansas",-1.14701848398826,"Pass Incompletion","Arkansas","Alabama A&M",3,14,23,7,31
+2025,1,401752666,"Alabama A&M","Arkansas",0.495620923262296,"Punt","Arkansas","Alabama A&M",3,14,15,7,31
+2025,1,401752666,"Arkansas","Alabama A&M",0.504005024168312,"Rush","Arkansas","Alabama A&M",3,14,9,31,7
+2025,1,401752666,"Arkansas","Alabama A&M",1.27086968368735,"Pass Reception","Arkansas","Alabama A&M",3,13,28,31,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.163696199783217,"Rush","Arkansas","Alabama A&M",3,12,56,31,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.517234798633229,"Pass Reception","Arkansas","Alabama A&M",3,12,22,31,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.332099473684154,"Rush","Arkansas","Alabama A&M",3,11,47,31,7
+2025,1,401752666,"Arkansas","Alabama A&M",2.20114221051885,"Passing Touchdown","Arkansas","Alabama A&M",3,11,7,38,7
+2025,1,401752666,"Alabama A&M","Arkansas",0.948557336004387,"Timeout","Arkansas","Alabama A&M",3,11,7,7,38
+2025,1,401752666,"Arkansas","Alabama A&M",0.00542740753540016,"Kickoff","Arkansas","Alabama A&M",3,11,7,38,7
+2025,1,401752666,"Alabama A&M","Arkansas",0.965214522520115,"Rush","Arkansas","Alabama A&M",3,10,57,7,38
+2025,1,401752666,"Alabama A&M","Arkansas",-1.09767946037965,"Rush","Arkansas","Alabama A&M",3,10,27,7,38
+2025,1,401752666,"Alabama A&M","Arkansas",-1.06432127317971,"Pass Incompletion","Arkansas","Alabama A&M",3,9,56,7,38
+2025,1,401752666,"Alabama A&M","Arkansas",-1.62559947831566,"Sack","Arkansas","Alabama A&M",3,9,50,7,38
+2025,1,401752666,"Alabama A&M","Arkansas",0.0535972494672357,"Punt","Arkansas","Alabama A&M",3,9,1,7,38
+2025,1,401752666,"Arkansas","Alabama A&M",-1.13609956044291,"Timeout","Arkansas","Alabama A&M",3,9,1,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.442899414369737,"Rush","Arkansas","Alabama A&M",3,8,53,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",-1.43429311110675,"Rush","Arkansas","Alabama A&M",3,8,20,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",1.61291259154863,"Rush","Arkansas","Alabama A&M",3,7,39,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.308147411555184,"Penalty","Arkansas","Alabama A&M",3,7,18,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.0102689504717555,"Rush","Arkansas","Alabama A&M",3,7,12,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.431109444665287,"Rush","Arkansas","Alabama A&M",3,6,36,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.398440665682557,"Rush","Arkansas","Alabama A&M",3,6,4,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.445574022411667,"Rush","Arkansas","Alabama A&M",3,5,25,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",1.20008959934304,"Pass Reception","Arkansas","Alabama A&M",3,4,47,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.0561607684702725,"Pass Reception","Arkansas","Alabama A&M",3,4,24,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.28885720218561,"Rush","Arkansas","Alabama A&M",3,3,47,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.975655605856278,"Rush","Arkansas","Alabama A&M",3,3,18,38,7
+2025,1,401752666,"Arkansas","Alabama A&M",1.04920523244547,"Passing Touchdown","Arkansas","Alabama A&M",3,2,53,45,7
+2025,1,401752666,"Alabama A&M","Arkansas",1.39749776676108,"Timeout","Arkansas","Alabama A&M",3,2,53,7,38
+2025,1,401752666,"Arkansas","Alabama A&M",-0.454064609232083,"Kickoff","Arkansas","Alabama A&M",3,2,53,45,7
+2025,1,401752666,"Alabama A&M","Arkansas",-0.137026451751502,"Pass Reception","Arkansas","Alabama A&M",3,2,41,7,45
+2025,1,401752666,"Alabama A&M","Arkansas",-0.786055541885764,"Rush","Arkansas","Alabama A&M",3,1,59,7,45
+2025,1,401752666,"Alabama A&M","Arkansas",1.99440833108547,"Pass Reception","Arkansas","Alabama A&M",3,1,19,7,45
+2025,1,401752666,"Alabama A&M","Arkansas",0.661041455668965,"Rush","Arkansas","Alabama A&M",3,1,5,7,45
+2025,1,401752666,"Alabama A&M","Arkansas",1.77673130183189,"Rush","Arkansas","Alabama A&M",3,0,31,7,45
+2025,1,401752666,"Alabama A&M","Arkansas",0.24489239376461,"Rush","Arkansas","Alabama A&M",3,0,0,7,45
+2025,1,401752666,"Alabama A&M","Arkansas",NA,"End Period","Arkansas","Alabama A&M",3,0,0,7,45
+2025,1,401752666,"Alabama A&M","Arkansas",0.00193917037971603,"Timeout","Arkansas","Alabama A&M",4,15,0,7,45
+2025,1,401752666,"Alabama A&M","Arkansas",-1.13006158870734,"Pass Incompletion","Arkansas","Alabama A&M",4,14,53,7,45
+2025,1,401752666,"Alabama A&M","Arkansas",-5.50355186185625,"Fumble Recovery (Opponent)","Arkansas","Alabama A&M",4,14,45,7,45
+2025,1,401752666,"Arkansas","Alabama A&M",-0.484603260154211,"Timeout","Arkansas","Alabama A&M",4,14,45,45,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.126143292097944,"Rush","Arkansas","Alabama A&M",4,14,36,45,7
+2025,1,401752666,"Arkansas","Alabama A&M",1.26026715264053,"Rush","Arkansas","Alabama A&M",4,14,4,45,7
+2025,1,401752666,"Arkansas","Alabama A&M",1.87720068191916,"Passing Touchdown","Arkansas","Alabama A&M",4,13,51,52,7
+2025,1,401752666,"Alabama A&M","Arkansas",1.32905437308122,"Timeout","Arkansas","Alabama A&M",4,13,51,7,45
+2025,1,401752666,"Arkansas","Alabama A&M",-0.436102098993629,"Kickoff","Arkansas","Alabama A&M",4,13,51,52,7
+2025,1,401752666,"Alabama A&M","Arkansas",-0.794829882670901,"Pass Incompletion","Arkansas","Alabama A&M",4,13,47,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",2.4085252861192,"Pass Reception","Arkansas","Alabama A&M",4,13,40,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.906431759619337,"Pass Incompletion","Arkansas","Alabama A&M",4,13,17,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.714123207698742,"Pass Reception","Arkansas","Alabama A&M",4,13,6,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-1.44075247422645,"Pass Incompletion","Arkansas","Alabama A&M",4,12,29,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.0318480925029312,"Punt","Arkansas","Alabama A&M",4,12,19,7,52
+2025,1,401752666,"Arkansas","Alabama A&M",-1.99840899297667,"Timeout","Arkansas","Alabama A&M",4,12,19,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",1.25157441670587,"Pass Reception","Arkansas","Alabama A&M",4,12,8,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.0195145344255399,"Rush","Arkansas","Alabama A&M",4,11,46,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.838481384316883,"Rush","Arkansas","Alabama A&M",4,11,12,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.783336592053915,"Pass Incompletion","Arkansas","Alabama A&M",4,10,44,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.242256260801804,"Rush","Arkansas","Alabama A&M",4,10,29,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.620619746648386,"Punt","Arkansas","Alabama A&M",4,9,53,52,7
+2025,1,401752666,"Alabama A&M","Arkansas",-1.61686649814255,"Rush","Arkansas","Alabama A&M",4,9,34,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.312781909388108,"Rush","Arkansas","Alabama A&M",4,9,4,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",0.0376238128565181,"Timeout","Arkansas","Alabama A&M",4,8,28,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.109508534534253,"Pass Reception","Arkansas","Alabama A&M",4,8,15,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.0533995141588743,"Punt","Arkansas","Alabama A&M",4,7,36,7,52
+2025,1,401752666,"Arkansas","Alabama A&M",-0.263775753885594,"Penalty","Arkansas","Alabama A&M",4,7,36,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.153502380384512,"Rush","Arkansas","Alabama A&M",4,7,28,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.643430573524076,"Rush","Arkansas","Alabama A&M",4,6,55,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",-1.0777653786127,"Pass Incompletion","Arkansas","Alabama A&M",4,6,21,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.669069894245581,"Punt","Arkansas","Alabama A&M",4,6,13,52,7
+2025,1,401752666,"Alabama A&M","Arkansas",0.0383856634723574,"Rush","Arkansas","Alabama A&M",4,6,5,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.400535144093871,"Rush","Arkansas","Alabama A&M",4,5,20,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.348924483153378,"Pass Reception","Arkansas","Alabama A&M",4,4,35,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.0399167214683662,"Punt","Arkansas","Alabama A&M",4,3,52,7,52
+2025,1,401752666,"Arkansas","Alabama A&M",-1.23778619706172,"Rush","Arkansas","Alabama A&M",4,3,37,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.033261396123546,"Timeout","Arkansas","Alabama A&M",4,3,7,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.228137542464774,"Rush","Arkansas","Alabama A&M",4,2,56,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",-0.661416296056778,"Pass Incompletion","Arkansas","Alabama A&M",4,2,29,52,7
+2025,1,401752666,"Arkansas","Alabama A&M",0.194967563281045,"Punt","Arkansas","Alabama A&M",4,2,18,52,7
+2025,1,401752666,"Alabama A&M","Arkansas",1.27029372927706,"Rush","Arkansas","Alabama A&M",4,2,13,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.00917945151713206,"Timeout","Arkansas","Alabama A&M",4,2,0,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.192816096631737,"Rush","Arkansas","Alabama A&M",4,1,51,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",-0.239947459469782,"Rush","Arkansas","Alabama A&M",4,1,9,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",0,"Rush","Arkansas","Alabama A&M",4,0,0,7,52
+2025,1,401752666,"Alabama A&M","Arkansas",NA,"End of Game","Arkansas","Alabama A&M",4,0,0,7,52
+2025,1,401752667,"Auburn","Baylor",0.0107145393117906,"Kickoff","Baylor","Auburn",1,15,0,0,0
+2025,1,401752667,"Baylor","Auburn",-1.10422991522231,"Pass Reception","Baylor","Auburn",1,14,40,0,0
+2025,1,401752667,"Baylor","Auburn",-1.10869621895299,"Pass Incompletion","Baylor","Auburn",1,14,29,0,0
+2025,1,401752667,"Baylor","Auburn",-0.353480154148731,"Penalty","Baylor","Auburn",1,14,29,0,0
+2025,1,401752667,"Baylor","Auburn",3.81956207567159,"Pass Reception","Baylor","Auburn",1,14,19,0,0
+2025,1,401752667,"Baylor","Auburn",2.54991754039436,"Rush","Baylor","Auburn",1,13,51,0,0
+2025,1,401752667,"Baylor","Auburn",-1.05223645073141,"Sack","Baylor","Auburn",1,13,20,0,0
+2025,1,401752667,"Baylor","Auburn",1.56622977780958,"Pass Reception","Baylor","Auburn",1,13,1,0,0
+2025,1,401752667,"Baylor","Auburn",1.38213790554668,"Rush","Baylor","Auburn",1,12,24,0,0
+2025,1,401752667,"Baylor","Auburn",-0.681270439922325,"Pass Incompletion","Baylor","Auburn",1,12,18,0,0
+2025,1,401752667,"Baylor","Auburn",1.42857949949667,"Rush","Baylor","Auburn",1,12,8,0,0
+2025,1,401752667,"Baylor","Auburn",-0.561472068519988,"Rush","Baylor","Auburn",1,11,46,0,0
+2025,1,401752667,"Baylor","Auburn",-0.862968178499078,"Rush","Baylor","Auburn",1,11,14,0,0
+2025,1,401752667,"Baylor","Auburn",-1.46530013403599,"Pass Incompletion","Baylor","Auburn",1,10,40,0,0
+2025,1,401752667,"Baylor","Auburn",1.08402664489731,"Field Goal Good","Baylor","Auburn",1,10,36,3,0
+2025,1,401752667,"Baylor","Auburn",0.00368545816286747,"Kickoff","Baylor","Auburn",1,10,36,3,0
+2025,1,401752667,"Auburn","Baylor",-0.929773608355381,"Rush","Baylor","Auburn",1,10,29,0,3
+2025,1,401752667,"Auburn","Baylor",-1.10275288070079,"Pass Incompletion","Baylor","Auburn",1,10,1,0,3
+2025,1,401752667,"Auburn","Baylor",-1.23736123965242,"Rush","Baylor","Auburn",1,9,38,0,3
+2025,1,401752667,"Auburn","Baylor",0.404940519539332,"Punt","Baylor","Auburn",1,9,14,0,3
+2025,1,401752667,"Baylor","Auburn",-0.870690590053822,"Rush","Baylor","Auburn",1,9,8,3,0
+2025,1,401752667,"Baylor","Auburn",4.01093886727169,"Pass Reception","Baylor","Auburn",1,8,33,3,0
+2025,1,401752667,"Baylor","Auburn",-0.0514324466355465,"Rush","Baylor","Auburn",1,8,23,3,0
+2025,1,401752667,"Baylor","Auburn",-0.269619394398084,"Rush","Baylor","Auburn",1,7,36,3,0
+2025,1,401752667,"Baylor","Auburn",-1.5439701920419,"Rush","Baylor","Auburn",1,6,58,3,0
+2025,1,401752667,"Baylor","Auburn",-2.30862743180378,"Pass Incompletion","Baylor","Auburn",1,6,27,3,0
+2025,1,401752667,"Auburn","Baylor",-0.12877495851154,"Rush","Baylor","Auburn",1,6,21,0,3
+2025,1,401752667,"Auburn","Baylor",1.5663099331811,"Rush","Baylor","Auburn",1,5,44,0,3
+2025,1,401752667,"Auburn","Baylor",-0.360298932689111,"Rush","Baylor","Auburn",1,5,2,0,3
+2025,1,401752667,"Auburn","Baylor",-1.08599607846121,"Pass Incompletion","Baylor","Auburn",1,4,30,0,3
+2025,1,401752667,"Auburn","Baylor",2.5638575213872,"Rush","Baylor","Auburn",1,4,18,0,3
+2025,1,401752667,"Auburn","Baylor",0.0102995167845874,"Timeout","Baylor","Auburn",1,4,18,0,3
+2025,1,401752667,"Auburn","Baylor",0.612645870210383,"Pass Reception","Baylor","Auburn",1,3,51,0,3
+2025,1,401752667,"Auburn","Baylor",0.315200606741668,"Rush","Baylor","Auburn",1,3,39,0,3
+2025,1,401752667,"Auburn","Baylor",-0.397131321541061,"Penalty","Baylor","Auburn",1,3,12,0,3
+2025,1,401752667,"Auburn","Baylor",-0.113189546273067,"Penalty","Baylor","Auburn",1,2,54,0,3
+2025,1,401752667,"Auburn","Baylor",-0.243400333907603,"Rush","Baylor","Auburn",1,2,23,0,3
+2025,1,401752667,"Auburn","Baylor",2.95347077580669,"Pass Reception","Baylor","Auburn",1,1,56,0,3
+2025,1,401752667,"Auburn","Baylor",0.903739109650181,"Rush","Baylor","Auburn",1,1,42,0,3
+2025,1,401752667,"Auburn","Baylor",-0.302702552289675,"Rush","Baylor","Auburn",1,1,17,0,3
+2025,1,401752667,"Auburn","Baylor",2.56123826197214,"Rushing Touchdown","Baylor","Auburn",1,0,34,7,3
+2025,1,401752667,"Auburn","Baylor",0.866928315256823,"Kickoff Return (Offense)","Baylor","Auburn",1,0,28,7,3
+2025,1,401752667,"Baylor","Auburn",NA,"End Period","Baylor","Auburn",1,0,0,3,7
+2025,1,401752667,"Baylor","Auburn",-0.533821805360929,"Rush","Baylor","Auburn",1,0,0,3,7
+2025,1,401752667,"Baylor","Auburn",-1.71241209669144,"Sack","Baylor","Auburn",2,14,53,3,7
+2025,1,401752667,"Baylor","Auburn",-1.36298656656849,"Pass Incompletion","Baylor","Auburn",2,14,21,3,7
+2025,1,401752667,"Baylor","Auburn",-0.534566435869108,"Punt","Baylor","Auburn",2,14,14,3,7
+2025,1,401752667,"Auburn","Baylor",0.852952908350658,"Pass Reception","Baylor","Auburn",2,13,58,7,3
+2025,1,401752667,"Auburn","Baylor",-0.0174764755280079,"Rush","Baylor","Auburn",2,13,36,7,3
+2025,1,401752667,"Auburn","Baylor",0.627318211919242,"Rush","Baylor","Auburn",2,12,59,7,3
+2025,1,401752667,"Auburn","Baylor",0.739025265284168,"Rush","Baylor","Auburn",2,12,15,7,3
+2025,1,401752667,"Auburn","Baylor",0.0367535000442816,"Rush","Baylor","Auburn",2,11,33,7,3
+2025,1,401752667,"Auburn","Baylor",0.584750643730494,"Rush","Baylor","Auburn",2,11,2,7,3
+2025,1,401752667,"Auburn","Baylor",1.88679960851017,"Rushing Touchdown","Baylor","Auburn",2,10,29,14,3
+2025,1,401752667,"Auburn","Baylor",0.000738781689846979,"Kickoff","Baylor","Auburn",2,10,29,14,3
+2025,1,401752667,"Baylor","Auburn",0.951919095617665,"Pass Reception","Baylor","Auburn",2,10,18,3,14
+2025,1,401752667,"Baylor","Auburn",-0.164778156669899,"Rush","Baylor","Auburn",2,10,0,3,14
+2025,1,401752667,"Baylor","Auburn",-0.300325698734973,"Rush","Baylor","Auburn",2,9,20,3,14
+2025,1,401752667,"Baylor","Auburn",-1.66720655132481,"Pass Incompletion","Baylor","Auburn",2,8,50,3,14
+2025,1,401752667,"Baylor","Auburn",1.10922904550983,"Pass Incompletion","Baylor","Auburn",2,8,43,3,14
+2025,1,401752667,"Baylor","Auburn",3.50152956606292,"Penalty","Baylor","Auburn",2,8,43,3,14
+2025,1,401752667,"Auburn","Baylor",0.284251681225463,"Rush","Baylor","Auburn",2,8,35,14,3
+2025,1,401752667,"Auburn","Baylor",0.142846075019843,"Rush","Baylor","Auburn",2,8,3,14,3
+2025,1,401752667,"Auburn","Baylor",0.895680858886541,"Pass Reception","Baylor","Auburn",2,7,44,14,3
+2025,1,401752667,"Auburn","Baylor",-0.439672632937297,"Pass Incompletion","Baylor","Auburn",2,7,13,14,3
+2025,1,401752667,"Auburn","Baylor",-0.650345438273238,"Rush","Baylor","Auburn",2,7,5,14,3
+2025,1,401752667,"Auburn","Baylor",-0.544986547394019,"Pass Reception","Baylor","Auburn",2,6,15,14,3
+2025,1,401752667,"Auburn","Baylor",0.179944659409295,"Field Goal Good","Baylor","Auburn",2,5,45,17,3
+2025,1,401752667,"Auburn","Baylor",-0.00372175498422017,"Kickoff","Baylor","Auburn",2,5,45,17,3
+2025,1,401752667,"Baylor","Auburn",0.98911754518561,"Pass Reception","Baylor","Auburn",2,5,32,3,17
+2025,1,401752667,"Baylor","Auburn",0.69906893281895,"Rush","Baylor","Auburn",2,5,12,3,17
+2025,1,401752667,"Baylor","Auburn",0.634852021301739,"Pass Reception","Baylor","Auburn",2,4,48,3,17
+2025,1,401752667,"Baylor","Auburn",-0.040456558725642,"Pass Reception","Baylor","Auburn",2,4,32,3,17
+2025,1,401752667,"Baylor","Auburn",-0.610246657058644,"Pass Incompletion","Baylor","Auburn",2,4,8,3,17
+2025,1,401752667,"Baylor","Auburn",-0.620805570232607,"Rush","Baylor","Auburn",2,4,1,3,17
+2025,1,401752667,"Baylor","Auburn",-1.22276952493063,"Pass Incompletion","Baylor","Auburn",2,3,28,3,17
+2025,1,401752667,"Baylor","Auburn",6.73022129451576,"Passing Touchdown","Baylor","Auburn",2,3,21,10,17
+2025,1,401752667,"Baylor","Auburn",-0.0272360475959368,"Kickoff","Baylor","Auburn",2,3,21,10,17
+2025,1,401752667,"Auburn","Baylor",0.436555049324636,"Pass Reception","Baylor","Auburn",2,3,6,17,10
+2025,1,401752667,"Auburn","Baylor",-0.126918700800451,"Rush","Baylor","Auburn",2,2,0,17,10
+2025,1,401752667,"Auburn","Baylor",-0.245016670020892,"Rush","Baylor","Auburn",2,2,0,17,10
+2025,1,401752667,"Auburn","Baylor",-0.0217760346330207,"Timeout","Baylor","Auburn",2,2,0,17,10
+2025,1,401752667,"Auburn","Baylor",-0.190666029695275,"Rush","Baylor","Auburn",2,1,53,17,10
+2025,1,401752667,"Auburn","Baylor",0.201043600595851,"Rush","Baylor","Auburn",2,1,41,17,10
+2025,1,401752667,"Auburn","Baylor",0.145080568995635,"Rush","Baylor","Auburn",2,1,35,17,10
+2025,1,401752667,"Auburn","Baylor",-0.916318888749734,"Fumble Recovery (Own)","Baylor","Auburn",2,1,1,17,10
+2025,1,401752667,"Auburn","Baylor",-0.0183718393666447,"Timeout","Baylor","Auburn",2,1,1,17,10
+2025,1,401752667,"Auburn","Baylor",-0.257328553514395,"Pass Incompletion","Baylor","Auburn",2,0,53,17,10
+2025,1,401752667,"Auburn","Baylor",-0.26039586070127,"Rush","Baylor","Auburn",2,0,47,17,10
+2025,1,401752667,"Auburn","Baylor",-0.00794435630837603,"Timeout","Baylor","Auburn",2,0,47,17,10
+2025,1,401752667,"Auburn","Baylor",-1.25284180460581,"Punt","Baylor","Auburn",2,0,38,17,10
+2025,1,401752667,"Baylor","Auburn",-0.24942768146772,"Pass Incompletion","Baylor","Auburn",2,0,33,10,17
+2025,1,401752667,"Baylor","Auburn",-0.491348967355833,"Sack","Baylor","Auburn",2,0,27,10,17
+2025,1,401752667,"Baylor","Auburn",-0.00333545226003998,"Timeout","Baylor","Auburn",2,0,27,10,17
+2025,1,401752667,"Baylor","Auburn",0.146035966389444,"Pass Reception","Baylor","Auburn",2,0,21,10,17
+2025,1,401752667,"Baylor","Auburn",1.04342963475388,"Penalty","Baylor","Auburn",2,0,14,10,17
+2025,1,401752667,"Baylor","Auburn",-0.27085897903762,"Pass Incompletion","Baylor","Auburn",2,0,8,10,17
+2025,1,401752667,"Baylor","Auburn",-0.011800147958491,"Timeout","Baylor","Auburn",2,0,8,10,17
+2025,1,401752667,"Baylor","Auburn",-1.11010207811574,"Pass Incompletion","Baylor","Auburn",2,0,4,10,17
+2025,1,401752667,"Baylor","Auburn",0,"Pass Reception","Baylor","Auburn",2,0,0,10,17
+2025,1,401752667,"Baylor","Auburn",NA,"End of Half","Baylor","Auburn",2,0,0,10,17
+2025,1,401752667,"Baylor","Auburn",0.00313064302558885,"Kickoff","Baylor","Auburn",3,15,0,10,17
+2025,1,401752667,"Auburn","Baylor",-0.145831697241982,"Rush","Baylor","Auburn",3,14,54,17,10
+2025,1,401752667,"Auburn","Baylor",1.28433503031357,"Rush","Baylor","Auburn",3,14,21,17,10
+2025,1,401752667,"Auburn","Baylor",-0.324274691029367,"Rush","Baylor","Auburn",3,13,47,17,10
+2025,1,401752667,"Auburn","Baylor",1.21693594419904,"Rush","Baylor","Auburn",3,12,58,17,10
+2025,1,401752667,"Auburn","Baylor",0.217643363062162,"Rush","Baylor","Auburn",3,12,25,17,10
+2025,1,401752667,"Auburn","Baylor",-0.935399316387694,"Pass Incompletion","Baylor","Auburn",3,11,48,17,10
+2025,1,401752667,"Auburn","Baylor",-1.97576034038988,"Pass Incompletion","Baylor","Auburn",3,11,40,17,10
+2025,1,401752667,"Auburn","Baylor",-0.778128645981271,"Penalty","Baylor","Auburn",3,11,31,17,10
+2025,1,401752667,"Auburn","Baylor",1.02939209424729,"Punt","Baylor","Auburn",3,11,23,17,10
+2025,1,401752667,"Baylor","Auburn",1.6227409630041,"Pass Reception","Baylor","Auburn",3,11,4,10,17
+2025,1,401752667,"Baylor","Auburn",-0.757548846827168,"Rush","Baylor","Auburn",3,10,34,10,17
+2025,1,401752667,"Baylor","Auburn",-1.12664056341139,"Pass Incompletion","Baylor","Auburn",3,10,6,10,17
+2025,1,401752667,"Baylor","Auburn",-1.3373480596923,"Pass Incompletion","Baylor","Auburn",3,10,1,10,17
+2025,1,401752667,"Baylor","Auburn",0.723638258104425,"Punt","Baylor","Auburn",3,9,52,10,17
+2025,1,401752667,"Auburn","Baylor",1.50983855877196,"Rush","Baylor","Auburn",3,9,43,17,10
+2025,1,401752667,"Auburn","Baylor",-0.589395864832797,"Rush","Baylor","Auburn",3,9,16,17,10
+2025,1,401752667,"Auburn","Baylor",1.28465619900123,"Pass Reception","Baylor","Auburn",3,8,26,17,10
+2025,1,401752667,"Auburn","Baylor",0.434240383669309,"Rush","Baylor","Auburn",3,8,0,17,10
+2025,1,401752667,"Auburn","Baylor",0.0754138700643239,"Pass Reception","Baylor","Auburn",3,7,31,17,10
+2025,1,401752667,"Auburn","Baylor",0.444618308281765,"Rush","Baylor","Auburn",3,7,9,17,10
+2025,1,401752667,"Auburn","Baylor",-0.122460156975834,"Pass Reception","Baylor","Auburn",3,6,52,17,10
+2025,1,401752667,"Auburn","Baylor",1.61468920959356,"Rush","Baylor","Auburn",3,6,17,17,10
+2025,1,401752667,"Auburn","Baylor",0.550006033489435,"Rushing Touchdown","Baylor","Auburn",3,5,40,24,10
+2025,1,401752667,"Auburn","Baylor",0.00689573128632676,"Kickoff","Baylor","Auburn",3,5,40,24,10
+2025,1,401752667,"Baylor","Auburn",-0.748538795232077,"Rush","Baylor","Auburn",3,5,27,10,24
+2025,1,401752667,"Baylor","Auburn",2.66329007416315,"Pass Reception","Baylor","Auburn",3,4,54,10,24
+2025,1,401752667,"Baylor","Auburn",-0.856727909315778,"Penalty","Baylor","Auburn",3,4,35,10,24
+2025,1,401752667,"Baylor","Auburn",-0.940598076807448,"Pass Incompletion","Baylor","Auburn",3,4,11,10,24
+2025,1,401752667,"Baylor","Auburn",4.08856233758449,"Pass Reception","Baylor","Auburn",3,3,52,10,24
+2025,1,401752667,"Baylor","Auburn",-0.580249842780665,"Penalty","Baylor","Auburn",3,3,20,10,24
+2025,1,401752667,"Baylor","Auburn",0.74577507465315,"Pass Reception","Baylor","Auburn",3,3,5,10,24
+2025,1,401752667,"Baylor","Auburn",-0.00974770378999823,"Rush","Baylor","Auburn",3,2,33,10,24

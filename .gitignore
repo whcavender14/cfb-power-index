@@ -1,0 +1,21 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.Renviron
+.Rhistory
+.RData
+.Rproj.user/
+.DS_Store
+playwright-report/
+test-results/
+# Research inputs stay local; weekly caches are persisted by Actions/cache.
+cfb_data/*
+!cfb_data/teams_*.rds
+!cfb_data/ratings_*.rds
+!cfb_data/production_ratings_*.rds
+/cfb_data_v2/
+/cfb_data_v3/
+/outputs/

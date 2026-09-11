@@ -1,0 +1,133 @@
+name: CFB Power Index
+
+on:
+  push:
+    branches: [main, master]
+  schedule:
+    # Monday 09:00 UTC, August–January. January belongs to the previous season.
+    - cron: '0 9 * 8-12,1 1'
+  workflow_dispatch:
+    inputs:
+      refresh_data:
+        description: Run R ratings and simulations before deployment
+        type: boolean
+        default: true
+      season:
+        description: 'Season override (blank = calendar season; January uses previous year)'
+        type: string
+        required: false
+
+concurrency:
+  group: cfb-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    permissions:
+      contents: write
+    env:
+      CFB_DATA_DIR: cfb_data
+      REFRESH: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.refresh_data) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - name: Select season
+        env:
+          REQUESTED_SEASON: ${{ inputs.season }}
+        run: |
+          season="$REQUESTED_SEASON"
+          if [ -z "$season" ]; then
+            season=$(date -u +%Y)
+            if [ "$(date -u +%m)" = '01' ]; then season=$((season - 1)); fi
+          fi
+          [[ "$season" =~ ^20[0-9]{2}$ ]] || { echo 'Invalid season'; exit 1; }
+          echo "CFB_SEASON=$season" >> "$GITHUB_ENV"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Verify pnpm build-script policy
+        run: node scripts/check-pnpm-config.mjs
+      - run: pnpm install --frozen-lockfile
+      - uses: r-lib/actions/setup-r@v2
+        if: env.REFRESH == 'true'
+        with:
+          r-version: '4.4.3'
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        if: env.REFRESH == 'true'
+        with:
+          packages: |
+            any::dplyr
+            any::tidyr
+            any::purrr
+            any::tibble
+            any::rlang
+            any::ggplot2
+            any::jsonlite
+            any::Matrix
+            any::quantreg
+            any::cfbfastR
+            sportsdataverse/cfbseedR@4a1c78e184773c22da43c40a9eb999d23283297f
+      - name: Restore weekly model cache
+        if: env.REFRESH == 'true'
+        uses: actions/cache@v4
+        with:
+          path: cfb_data
+          key: cfb-${{ runner.os }}-${{ env.CFB_SEASON }}-${{ hashFiles('run_2026_rankings.R', 'cfb_vCurrent_operations.R', 'cfb_power_ratings_vCurrent.R') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            cfb-${{ runner.os }}-${{ env.CFB_SEASON }}-${{ hashFiles('run_2026_rankings.R', 'cfb_vCurrent_operations.R', 'cfb_power_ratings_vCurrent.R') }}-
+      - name: Restore supplied production simulation inputs
+        if: env.REFRESH == 'true'
+        run: Rscript scripts/restore_pipeline_inputs.R
+      - name: Refresh ratings, attempt simulations, and export
+        if: env.REFRESH == 'true'
+        env:
+          CFBD_API_KEY: ${{ secrets.CFBD_API_KEY }}
+          CFB_REFRESH_SCHEDULE: 'true'
+        run: Rscript scripts/weekly_refresh.R
+      - name: Validate public data
+        run: pnpm test
+      - name: Check schedule and odds normalization
+        if: env.REFRESH == 'true'
+        run: Rscript tests/test_betting_export.R
+      - name: Build static site
+        run: pnpm build
+      - name: Commit refreshed public data and comparison snapshots
+        if: env.REFRESH == 'true'
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/data
+          git add --force "cfb_data/production_ratings_${CFB_SEASON}"*.rds "cfb_data/teams_${CFB_SEASON}.rds"
+          if ! git diff --cached --quiet; then
+            git commit -m "data: refresh CFB ${CFB_SEASON} snapshots"
+            git push origin "HEAD:$DEFAULT_BRANCH"
+          fi
+      # Deploy in this same run: commits made with GITHUB_TOKEN don't trigger push workflows.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - uses: actions/deploy-pages@v4
+        id: deployment
