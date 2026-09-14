@@ -1,4 +1,19 @@
 source('cfb_power_ratings_vCurrent.R')
+V5_FROZEN_FEATURE_FILE <- 'outputs/round4/features.rds'
+V5_FROZEN_FEATURE_FILE_MD5 <- 'f18013897d21334c74af3550b77842fe'
+
+v5_frozen_features <- function(path=V5_FROZEN_FEATURE_FILE) {
+ assert(file.exists(path),'Frozen feature bundle is missing')
+ # key_of() reserializes an R object. That byte stream is not stable across
+ # R releases, so an artifact created on macOS/R 4.3 can fail the self-hash
+ # check after being read on Linux/R 4.4 even though the tracked RDS is exact.
+ # Verify the immutable file bytes here; caller-supplied in-memory bundles
+ # still have to pass the original object-hash check below.
+ assert(identical(unname(tools::md5sum(path)),V5_FROZEN_FEATURE_FILE_MD5),
+        'Frozen feature bundle file checksum mismatch')
+ readRDS(path)
+}
+
 v5_frozen <- function(path='outputs/round4/design_frozen.rds') {
  f<-readRDS(path);assert(f$max_selection_year==2022,'Training lock invalid')
  # assert(all(unname(tools::md5sum(f$model_manifest$path))==f$model_manifest$md5),'Model/preprocessing changed since freeze')
@@ -12,9 +27,14 @@ v5_build <- function(season=2026,as_of=period_start(Sys.time()),candidate=NULL,s
  as_of<-as.POSIXct(as_of,tz='UTC');assert(!is.na(as_of),'Invalid information cutoff')
  schedules<-setNames(lapply(2015:(season-1),v4_schedule),2015:(season-1));history<-v4_history(schedules)
  g<-if(is.null(schedule))v4_schedule(season) else schedule;schedules[[as.character(season)]]<-g;ids<-fbs_ids(g)
- if(is.null(feature_bundle))feature_bundle<-readRDS('outputs/round4/features.rds')
+ frozen_feature_file<-is.null(feature_bundle)
+ if(frozen_feature_file)feature_bundle<-v5_frozen_features()
  features<-v5_validate_features(feature_bundle$features, setNames(lapply(2015:2026,v4_schedule),2015:2026))
- assert(identical(key_of(feature_bundle$features),feature_bundle$hash),'Feature bundle hash mismatch')
+ # Preserve strict self-hash validation for injected bundles. The default
+ # production artifact was already verified byte-for-byte above, avoiding a
+ # false mismatch caused solely by cross-version R serialization.
+ assert(frozen_feature_file || identical(key_of(feature_bundle$features),feature_bundle$hash),
+        'Feature bundle hash mismatch')
  # Production must use the frozen feature snapshot; revised artifacts require a new archive/design.
  assert(identical(feature_bundle$hash,f$feature_hash),'Feature snapshot differs from design')
  spec<-f$specs[[candidate]];par<-f$parameters[[candidate]]
