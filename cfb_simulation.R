@@ -82,13 +82,29 @@ g$away_team <- opponents$team[match(g$away_id, opponents$team_id)]
 
 games <- cfb_games_from_schedule(g)
 
-# Only final results available before the model cutoff remain observed.
-known <- g$final %in% TRUE & g$available_at < cutoff
+# Games played before the cutoff are observed when final. Late Saturday games
+# (kickoff after 00:00 UTC Sunday) fall inside the ratings' 24h availability
+# buffer, so they are excluded from training but their results are real and
+# must not be re-simulated. Later games are always simulated.
+pre_cutoff <- g$kickoff < cutoff
+known <- g$final %in% TRUE & pre_cutoff
 games$result[!known] <- NA_real_
 
-# Do not silently replay an earlier unresolved game with later ratings.
-if (any(is.na(games$result) & g$kickoff < cutoff)) {
-  stop("Unresolved pre-cutoff game: use an earlier ratings snapshot.")
+# Do not silently replay an earlier unresolved game with later ratings. A few
+# non-final pre-cutoff games (cancellations, provider gaps) are dropped; many
+# indicates a broken schedule fetch, so refuse to simulate.
+unresolved <- pre_cutoff & !known
+dropped_game_ids <- g$game_id[unresolved]
+if (any(unresolved)) {
+  if (sum(unresolved) > max(3L, ceiling(0.05 * sum(pre_cutoff)))) {
+    stop("Unresolved pre-cutoff games (", sum(unresolved), " of ",
+         sum(pre_cutoff), "): schedule fetch looks incomplete.")
+  }
+  message("Dropping unresolved pre-cutoff games: ",
+          paste(dropped_game_ids, collapse = ", "))
+  games <- games[!unresolved, ]
+  g <- g[!unresolved, ]
+  known <- known[!unresolved]
 }
 stopifnot(!any(
   g$game_id[is.na(games$result)] %in% attr(ratings, "training_ids")
@@ -184,7 +200,8 @@ sim$simulation_assumptions <- list(
   hfa = simulation_hfa,
   resid_sd = resid_sd,
   fcs_power = fcs_power,
-  selection = "static power rankings"
+  selection = "static power rankings",
+  dropped_game_ids = dropped_game_ids
 )
 
 # Current standings use observed games only.
