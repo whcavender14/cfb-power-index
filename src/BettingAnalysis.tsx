@@ -99,7 +99,6 @@ export default function BettingAnalysis({ ratings }: { ratings: Dataset<Rating> 
     const last = groups[groups.length - 1]
     if (last && last.label === label) last.games.push(g); else groups.push({ label, games: [g] })
   }
-  const quoted = upcoming.filter(g => g.market_spread !== null).length
   const biggest = upcoming.filter(g => g.absolute !== null).sort((a, b) => b.absolute! - a.absolute!)[0]
   const pickSort = (key: SortKey) => setSort({ key, desc: !textKeys.includes(key) })
   const logo = (id: string) => byId.get(id)?.logo_url ?? null
