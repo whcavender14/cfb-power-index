@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { impliedSpread, lineLabel, favoredSide, difference, valueSide, compareValues, signedPoints } from '../src/betting.ts'
+import { impliedSpread, lineLabel, favoredSide, difference, valueSide, compareValues, signedPoints, favoriteLine, valueLine } from '../src/betting.ts'
 
 test('Home handicap, neutral venues, and favored side use the same sign', () => {
   assert.equal(impliedSpread(20,25,false,3),-8)
@@ -31,6 +31,18 @@ test('Signed discrepancy identifies value independently of the outright favorite
   assert.equal(difference(model,null),null)
   assert.equal(valueSide('Home','Away',null),'Data unavailable')
   assert.equal(valueSide('Home','Away',0),'No difference')
+})
+test('Card labels restate home spreads from the favorite and value sides', () => {
+  assert.equal(favoriteLine('Georgia','Arkansas',-25.3),'Georgia -25.3')
+  assert.equal(favoriteLine('Arkansas','Georgia',25.3),'Georgia -25.3')
+  assert.equal(favoriteLine('Home','Away',0.01),'Pick’em')
+  assert.equal(favoriteLine('Home','Away',null),'Data unavailable')
+  // Model home -7, market home -3: delta -4 points to the home side at the market price.
+  assert.equal(valueLine('Home','Away',-4,-3),'Home -3.0')
+  // Model home -7, market home -10: delta +3 points to the away side, who gets +10.
+  assert.equal(valueLine('Home','Away',3,-10),'Away +10.0')
+  assert.equal(valueLine('Home','Away',0,-3),'No difference')
+  assert.equal(valueLine('Home','Away',null,-3),'Data unavailable')
 })
 test('Largest absolute discrepancies first, null always last in either direction', () => {
   assert.deepEqual([null,2,9,0].sort((a,b)=>compareValues(a,b,true)),[9,2,0,null])

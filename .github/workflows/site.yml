@@ -99,6 +99,8 @@ jobs:
       - name: Check schedule and odds normalization
         if: env.REFRESH == 'true'
         run: Rscript tests/test_betting_export.R
+      - name: Mirror team logos for PNG export (same-origin, CORS-safe)
+        run: pnpm logos
       - name: Build static site
         run: pnpm build
       - name: Commit refreshed public data and comparison snapshots
