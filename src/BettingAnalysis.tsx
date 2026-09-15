@@ -47,7 +47,7 @@ export default function BettingAnalysis({ ratings }: { ratings: Dataset<Rating> 
   const [error, setError] = useState(false)
   const [retry, setRetry] = useState(0)
   const [query, setQuery] = useState('')
-  const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: 'absolute', desc: true })
+  const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: 'kickoff', desc: false })
   const [awayId, setAwayId] = useState('')
   const [homeId, setHomeId] = useState('')
   const [neutral, setNeutral] = useState(false)
@@ -115,10 +115,9 @@ export default function BettingAnalysis({ ratings }: { ratings: Dataset<Rating> 
     </SectionHead>
 
     {data && <div className="tiles" aria-label="Board summary">
-      <StatCell label="Games on the board"><span className="stat-value">{upcoming.length}</span></StatCell>
-      <StatCell label="With a market line"><span className="stat-value">{quoted}</span></StatCell>
+      <StatCell label="Yearly model performance (ATS)"><span className="stat-value">—</span><span className="stat-unit">Data unavailable</span></StatCell>
+      <StatCell label="Model performance (Outright)"><span className="stat-value">—</span><span className="stat-unit">Data unavailable</span></StatCell>
       <StatCell label="Largest difference">{biggest ? <><span className="stat-team">{biggest.away_team} at {biggest.home_team}</span><span className="stat-value">{num(biggest.absolute)}</span></> : <span className="stat-team muted">Data unavailable</span>}</StatCell>
-      <StatCell label="Home-field advantage"><span className="stat-value">{hfa === null ? '—' : num(hfa, 2)}</span><span className="stat-unit">pts</span></StatCell>
     </div>}
 
     <div className="board board-plain">
@@ -136,7 +135,7 @@ export default function BettingAnalysis({ ratings }: { ratings: Dataset<Rating> 
           {data && <button type="button" className="btn" onClick={exportCsv} disabled={rows.length === 0}><FileDown size={15} aria-hidden="true" /><span>CSV</span></button>}
         </div>
       </div>
-      <Notice>Large numbers are each team’s <strong>model spread</strong>. <em>Potential value</em> is the side whose market handicap is more favorable than the model’s — a rating discrepancy, not a win probability. Missing ratings or lines stay unavailable.</Notice>
+      <Notice>Large numbers are each team's <strong>power rating</strong>. <em>Potential value</em> is the side whose market handicap is more favorable than the model's — a rating discrepancy, not a win probability. Missing ratings or lines stay unavailable.</Notice>
       {!compatible && !loading && <Notice role="alert">Ratings/HFA snapshot unavailable or out of sync. Refresh the page after the next data publication.</Notice>}
       {stale && <Notice role="alert"><strong>Snapshot is over 24 hours old.</strong> Lines are published snapshots, not a live feed.</Notice>}
     </div>
@@ -174,7 +173,7 @@ export default function BettingAnalysis({ ratings }: { ratings: Dataset<Rating> 
     <section id="methodology" className="method" aria-labelledby="method-title">
       <div className="method-intro"><Kicker index="—">Methodology</Kicker><h2 id="method-title">How the lines work</h2></div>
       <div className="method-cols">
-        <article><h3>One convention, throughout</h3><p>Home line = away power − home power − home-field advantage. Neutral games use zero HFA. A negative line means the home team is favored; cards restate each line from the favorite’s side. The calculator and cards use the same function and the production model’s HFA setting. Games involving a team without a production rating retain their schedule and market line but have no model line.</p></article>
+        <article><h3>One convention, throughout</h3><p>Home line = away power − home power − home-field advantage. Neutral games use zero HFA. A negative line means the home team is favored; cards restate each line from the favorite's side. The calculator and cards use the same function and the production model's HFA setting. Games involving a team without a production rating retain their schedule and market line but have no model line.</p></article>
         <article><h3>Reading the discrepancy</h3><p>Signed Δ = model home line − market home line. For example, a model line of home −7.0 against a market line of home −3.0 gives Δ −4.0, pointing to the home side. This is a rating discrepancy, not a calibrated expected return. One sportsbook quote is chosen per game; its name appears beside the line. The next provider week with future games is selected at export time.</p></article>
       </div>
       <details className="glossary"><summary>Field definitions</summary><dl>{fields.map(f => <div key={f.key}><dt>{f.label}</dt><dd>{f.explanation}</dd></div>)}</dl></details>
@@ -195,11 +194,10 @@ function GameCard({ g, logo }: { g: Analyzed; logo: (id: string) => string | nul
   const side = (who: 'away' | 'home') => {
     const name = who === 'away' ? g.away_team : g.home_team
     const rating = who === 'away' ? g.away_rating : g.home_rating
-    const spread = g.model === null ? null : who === 'home' ? g.model : -g.model
     return <div className={`game-team${favorite === who ? ' is-fav' : ''}`}>
       <TeamLogo name={name} src={logo(who === 'away' ? g.away_team_id : g.home_team_id)} size={40} />
-      <div className="game-name"><span className="team-name">{name}</span><span className="game-sub">{who === 'away' ? 'Away' : g.neutral_site ? 'Home · neutral' : 'Home'} · Pwr {rating === null ? '—' : signed(rating)}</span></div>
-      <span className="game-proj" aria-label={`${name} model spread ${spread === null ? 'unavailable' : pickem ? 'pick’em' : signedPoints(spread)}`}>{spread === null ? '—' : pickem ? 'PK' : signed(spread)}</span>
+      <div className="game-name"><span className="team-name">{name}</span><span className="game-sub">{who === 'away' ? 'Away' : g.neutral_site ? 'Home · neutral' : 'Home'}</span></div>
+      <span className="game-proj" aria-label={`${name} power rating ${rating === null ? 'unavailable' : signedPoints(rating)}`}>{rating === null ? '—' : signed(rating)}</span>
     </div>
   }
   const value = display(valueLine(g.home_team, g.away_team, g.delta, g.market_spread))
@@ -211,7 +209,7 @@ function GameCard({ g, logo }: { g: Analyzed; logo: (id: string) => string | nul
         <small>Gap</small>{g.absolute === null ? '—' : num(g.absolute)}
       </span>
     </header>
-    <div className="game-teams"><div className="game-colhead" aria-hidden="true">Model spread</div>{side('away')}{side('home')}</div>
+    <div className="game-teams"><div className="game-colhead" aria-hidden="true">Power ratings</div>{side('away')}{side('home')}</div>
     <dl className="game-compare">
       <div><dt>Market{g.market_provider && <em>{g.market_provider}</em>}</dt><dd>{g.market_spread === null ? 'No quote' : display(favoriteLine(g.home_team, g.away_team, g.market_spread))}</dd></div>
       <div className="is-model"><dt>Model</dt><dd>{display(favoriteLine(g.home_team, g.away_team, g.model))}</dd></div>
