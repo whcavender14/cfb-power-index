@@ -1,5 +1,7 @@
 node_modules/
 dist/
+# Mirrored team logos for the PNG export; fetched by `pnpm logos` and in CI.
+public/logos/
 *.tsbuildinfo
 .env
 .env.*
