@@ -6,6 +6,7 @@
 library(dplyr)
 library(cfbseedR)
 suppressPackageStartupMessages(source("cfb_vCurrent_operations.R"))
+suppressPackageStartupMessages(source("scripts/cfb_dynamic_playoffs.R"))
 
 # ---------------------------------------------------------------------------
 # 1. Load production ratings
@@ -125,6 +126,8 @@ stopifnot(
 teams <- ratings %>%
   transmute(team_id, team, conference = conf, division = "fbs")
 
+fbs_teams <- teams$team
+
 teams <- bind_rows(
   teams,
   opponents %>%
@@ -135,12 +138,6 @@ teams <- bind_rows(
       division = "fcs"
     )
 )
-
-# Explicit FBS rankings keep added FCS teams below every FBS team.
-# This is a static power-based selection assumption, not a committee model.
-rankings <- ratings %>%
-  arrange(desc(power_rating), team) %>%
-  transmute(team, rank = row_number())
 
 # Capture constants locally for chunked/future execution.
 cfb_power_results <- local({
@@ -182,17 +179,18 @@ simulations_verify_fct(
 )
 
 set.seed(1434)
-sim <- cfb_simulations(
+sim <- cfb_dynamic_simulations(
   games = games,
   teams = teams,
+  eligible_teams = fbs_teams,
   simulations = 1000L,
   playoff_seeds = 12L,
   compute_results = cfb_power_results,
-  rankings = rankings,
   autobid = "2026",
-  tiebreaker_depth = "POINTS",
-  sim_include = "POST"
+  tiebreaker_depth = "POINTS"
 )
+
+assert_dynamic_playoff_output(sim, eligible_teams = fbs_teams)
 
 sim$model_metadata <- model_metadata
 sim$ratings <- ratings
@@ -200,7 +198,7 @@ sim$simulation_assumptions <- list(
   hfa = simulation_hfa,
   resid_sd = resid_sd,
   fcs_power = fcs_power,
-  selection = "static power rankings",
+  selection = "dynamic FBS standings (win pct, SOV, SOS, point differential)",
   dropped_game_ids = dropped_game_ids
 )
 
@@ -211,9 +209,9 @@ standings <- cfb_standings(
   tiebreaker_depth = "POINTS"
 )
 
-seeds <- cfb_playoff_seeds(
+seeds <- cfb_dynamic_playoff_seeds(
   standings,
-  rankings = rankings,
+  eligible_teams = fbs_teams,
   playoff_seeds = 12L,
   autobid = "2026"
 )
@@ -228,7 +226,7 @@ sim$updated_at <- Sys.time()
 sim$as_of <- cutoff
 sim$week <- if (any(known)) max(g$week[known]) else 0L
 sim$simulation_count <- 1000L
-sim$playoff_format <- "12 teams; 2026 automatic bids; static power-based selection"
+sim$playoff_format <- "12 teams; 2026 automatic bids; dynamic standings-based selection"
 sim$wins_scope <- "Overall wins as returned by cfbseedR (includes conference championships)"
 out_dir <- Sys.getenv("CFB_DATA_DIR", "cfb_data")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
