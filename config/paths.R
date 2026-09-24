@@ -75,8 +75,10 @@ PATHS <- list(
   state          = .cfb_env("CFB_DATA_DIR", file.path(PROJECT_ROOT, "output", "state")),
   rankings       = file.path(PROJECT_ROOT, "output", "rankings"),
   graphics       = file.path(PROJECT_ROOT, "output", "graphics"),
-  # Static-site JSON (ratings.json, simulations.json, betting.json). [CFB_PUBLIC_DIR]
-  public_data    = .cfb_env("CFB_PUBLIC_DIR", file.path(PROJECT_ROOT, "output", "public_data")),
+  # Static-site JSON (ratings.json, simulations.json, betting.json). Lives under
+  # public/, not output/: Vite serves it directly and copies it into dist/ on
+  # build, and it is committed so the site always has real data. [CFB_PUBLIC_DIR]
+  public_data    = .cfb_env("CFB_PUBLIC_DIR", file.path(PROJECT_ROOT, "public", "data")),
   dev_runs       = file.path(PROJECT_ROOT, "output", "dev")
 )
 

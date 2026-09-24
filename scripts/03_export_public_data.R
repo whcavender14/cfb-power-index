@@ -2,7 +2,7 @@
 # scripts/03_export_public_data.R — write the static-site JSON files.
 #
 # Reads output/state (production snapshots + simulations) and data/reference
-# (team metadata) and writes output/public_data/{ratings,simulations}.json plus
+# (team metadata) and writes public/data/{ratings,simulations}.json plus
 # per-week archives. Set CFB_EXPORT_BETTING=true to also build betting.json
 # (calls the CFBD API; needs CFBD_API_KEY for market lines).
 # Schema: docs/DATA_CONTRACT.md. The live dashboard itself is NOT part of this

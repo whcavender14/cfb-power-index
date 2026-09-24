@@ -128,7 +128,7 @@ config/paths.R ─┬─► R/model/production_operations.R ──sources──�
                 │
 scripts/01_build_ratings.R ──► v5_build() ──► output/rankings/*.csv, output/state/production_ratings_*.rds
 scripts/02_simulate_season.R ─► v5_build() + cfbseedR ─► output/state/simulations_2026_latest.rds
-scripts/03_export_public_data.R ─► output/public_data/{ratings,simulations}.json   (schema: docs/DATA_CONTRACT.md)
+scripts/03_export_public_data.R ─► public/data/{ratings,simulations}.json   (schema: docs/DATA_CONTRACT.md; served by Vite, committed to the repo)
 scripts/04_archive_prospective_snapshot.R ─► data/prospective/predictions_<time>.csv (+ .md5, read-only)
 R/evaluation/evaluation_helpers.R ─► compares any candidate with data/reference/incumbent_predictions/
 ```
