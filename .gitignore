@@ -26,10 +26,12 @@ Thumbs.db
 *.swo
 *~
 
-# Node (if used for any frontend work)
+# Node / website build
 node_modules/
 package-lock.json
 yarn.lock
+dist/
+*.tsbuildinfo
 
 # Cache directories
 .cache/
