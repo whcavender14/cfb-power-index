@@ -1,0 +1,40 @@
+# R environment
+.Renviron
+.Rhistory
+.Rapp.history
+.RData
+.Rproj.user/
+*.Rproj
+
+# Generated outputs (safe to delete, regenerated on each run)
+output/
+.Rout
+
+# Credentials and environment secrets
+.env
+.env.local
+.env*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (if used for any frontend work)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Cache directories
+.cache/
+__pycache__/
+*.pyc
+
+# iCloud eviction
+*.icloud
