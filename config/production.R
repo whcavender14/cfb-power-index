@@ -35,6 +35,18 @@ PRODUCTION <- list(
   playoff_seeds        = 12L,
   playoff_autobid      = "2026",
 
+  # ---- CFP selection ranking (fitted by scripts/calibrate_cfp_ranking.R) ----
+  # Each simulated season is ranked by the resume score
+  #   coef[wab] * WAB + coef[adj_margin] * adjusted margin + coef[conf_champ] * champion,
+  # WAB = wins minus the wins the benchmark team (Nth-best FBS power rating)
+  # would expect against the same schedule. Rank-ordered logit on the
+  # committee's final top 25, 2018-2025 excluding 2020.
+  cfp_rank_benchmark   = 60L,
+  cfp_rank_margin_cap  = 35,
+  cfp_rank_coef        = c(wab = 1.9887, adj_margin = 0.14943, conf_champ = 1.7923),
+  # FBS teams barred from the CFP (e.g. reclassifying programs). Their games still count.
+  cfp_ineligible_teams = character(0),
+
   # ---- Evaluation conventions -----------------------------------------------
   bootstrap_seed       = 9041L,
   bootstrap_reps       = 2000L,

@@ -12,10 +12,12 @@
 #   3. Games already final before the cutoff keep their real result; every
 #      other game is drawn as margin ~ Normal(home - away + 3.0685, 15.787),
 #      rounded, with ties forbidden.
-#   4. cfbseedR plays the regular season + conference title games; the
-#      12-team CFP field is seeded from each simulated standings table
-#      (win pct, SOV, SOS, point differential; 2026 auto-bid rules) — NOT from
-#      power ratings — then the bracket is simulated.
+#   4. cfbseedR plays the regular season + conference title games. In every
+#      simulation the eligible FBS teams are ranked by a resume score (wins
+#      above a benchmark team on the same schedule, opponent-adjusted margin,
+#      conference title; see config/production.R), NOT by their own power
+#      ratings; cfbseedR seeds the 12-team CFP from that ranking with the 2026
+#      auto-bid rules, then the bracket is simulated.
 #   5. Result saved to <state>/simulations_<season>_latest.rds for the exporter.
 #
 # Run via scripts/02_simulate_season.R (or scripts/run_weekly_pipeline.R).
@@ -98,11 +100,19 @@ run_season_simulation <- function(season = as.integer(Sys.getenv("CFB_SEASON", "
 
   teams <- ratings %>% transmute(team_id, team, conference = conf, division = "fbs")
   fbs_teams <- teams$team
+  if (!all(PRODUCTION$cfp_ineligible_teams %in% fbs_teams)) stop("cfp_ineligible_teams lists a team that is not FBS this season.")
+  cfp_eligible <- setdiff(fbs_teams, PRODUCTION$cfp_ineligible_teams)
   teams <- bind_rows(teams, opponents %>% filter(!fbs) %>%
                        transmute(team_id, team, conference = NA_character_, division = "fcs"))
 
+  team_power <- setNames(opponents$power_rating, opponents$team)
+  cfp_ranking <- list(coef = PRODUCTION$cfp_rank_coef,
+                      benchmark_rating = sort(ratings$power_rating, decreasing = TRUE)[PRODUCTION$cfp_rank_benchmark],
+                      sigma = resid_sd, hfa = simulation_hfa, margin_cap = PRODUCTION$cfp_rank_margin_cap,
+                      team_power = team_power)
+
   cfb_power_results <- local({
-    power <- setNames(opponents$power_rating, opponents$team)
+    power <- team_power
     hfa <- simulation_hfa
     sigma <- resid_sd
     function(teams, games, week_num, ...) {
@@ -124,23 +134,28 @@ run_season_simulation <- function(season = as.integer(Sys.getenv("CFB_SEASON", "
   simulations_verify_fct(cfb_power_results, games = games, teams = teams)
 
   set.seed(PRODUCTION$sim_seed)
-  sim <- cfb_dynamic_simulations(games = games, teams = teams, eligible_teams = fbs_teams,
+  sim <- cfb_dynamic_simulations(games = games, teams = teams, eligible_teams = cfp_eligible,
                                  simulations = simulations, playoff_seeds = PRODUCTION$playoff_seeds,
-                                 compute_results = cfb_power_results, autobid = PRODUCTION$playoff_autobid,
-                                 tiebreaker_depth = "POINTS")
-  assert_dynamic_playoff_output(sim, eligible_teams = fbs_teams)
+                                 compute_results = cfb_power_results, ranking_spec = cfp_ranking,
+                                 autobid = PRODUCTION$playoff_autobid, tiebreaker_depth = "POINTS")
+  assert_dynamic_playoff_output(sim, eligible_teams = cfp_eligible)
+  if (identical(PRODUCTION$playoff_autobid, "2026")) assert_cfp_autobids_2026(sim$standings, cfp_eligible)
 
   sim$model_metadata <- model_metadata
   sim$ratings <- ratings
   sim$simulation_assumptions <- list(hfa = simulation_hfa, resid_sd = resid_sd, fcs_power = fcs_power,
-                                     selection = "dynamic FBS standings (win pct, SOV, SOS, point differential)",
+                                     selection = "dynamic resume ranking per simulation (wins above benchmark, adjusted margin, conference title)",
+                                     cfp_ranking = list(coef = as.list(cfp_ranking$coef),
+                                                        benchmark_rating = cfp_ranking$benchmark_rating,
+                                                        margin_cap = cfp_ranking$margin_cap),
+                                     cfp_ineligible_teams = PRODUCTION$cfp_ineligible_teams,
                                      dropped_game_ids = dropped_game_ids)
   sim$season <- season
   sim$updated_at <- Sys.time()
   sim$as_of <- cutoff
   sim$week <- if (any(known)) max(g$week[known]) else 0L
   sim$simulation_count <- simulations
-  sim$playoff_format <- "12 teams; 2026 automatic bids; dynamic standings-based selection"
+  sim$playoff_format <- "12 teams; 2026 automatic bids; dynamic resume-based selection"
   sim$wins_scope <- "Overall wins as returned by cfbseedR (includes conference championships)"
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
   saveRDS(sim, file.path(out_dir, sprintf("simulations_%d_latest.rds", season)))

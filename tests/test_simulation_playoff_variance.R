@@ -21,8 +21,13 @@ base <- tibble::tibble(
   pd = 0
 )
 
+ranking <- base %>%
+  filter(team %in% teams) %>%
+  mutate(cfp_rank = rank(-win_pct, ties.method = "first"), .by = sim)
+
 seeded <- cfb_dynamic_playoff_seeds(
   base,
+  ranking = ranking,
   eligible_teams = teams,
   playoff_seeds = 12L,
   autobid = "2026"
