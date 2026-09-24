@@ -1,15 +1,23 @@
-import { FileDown } from 'lucide-react'
-import type { Dataset, Simulation } from './data'
+import { useMemo, useState } from 'react'
+import { FileDown, ChartScatter, Trophy } from 'lucide-react'
+import type { Dataset, Rating, Simulation } from './data'
 import TeamBoard, { type Column } from './TeamBoard'
 import { Kicker, Missing, Notice, Probability, SectionHead, Sources, TeamLogo, TeamName } from './ui'
 import { formatUpdated, num, pct, weekLabel, weekSlug } from './format'
 import { toCsv } from './csv'
 import { downloadCsv } from './download'
+import { exportBracketPng, exportPlayoffHuntPng } from './exportPlayoff'
+import { DEFAULT_MODEL, joinTeams } from './playoff'
 
-type Props = { simulations: Dataset<Simulation> | null; loading: boolean; error: boolean; onRetry: () => void }
+type Props = { simulations: Dataset<Simulation> | null; ratings: Dataset<Rating> | null; loading: boolean; error: boolean; onRetry: () => void }
 const wins = (value: number | null) => value === null ? <Missing /> : <span className="num">{num(value)}</span>
 
-export default function SeasonSimulations({ simulations, loading, error, onRetry }: Props) {
+type ImageKind = 'hunt' | 'bracket'
+
+export default function SeasonSimulations({ simulations, ratings, loading, error, onRetry }: Props) {
+  const [exporting, setExporting] = useState<ImageKind | null>(null)
+  const [exportFailed, setExportFailed] = useState<ImageKind | null>(null)
+  const [missingLogos, setMissingLogos] = useState(0)
   const rows = simulations?.teams ?? []
   const hasPreseason = rows.some(r => r.projected_wins_preseason !== null)
   const hasVegas = rows.some(r => r.vegas_win_total_preseason !== null)
@@ -31,6 +39,23 @@ export default function SeasonSimulations({ simulations, loading, error, onRetry
     { key: 'national_title_probability', label: 'Natl. title', short: 'Title', kind: 'stat', tip: 'Fraction of simulated seasons in which the team wins the generated playoff bracket.', sortValue: r => r.national_title_probability, render: r => <Probability value={r.national_title_probability} /> },
   ]
   const phoneStats = 3 + Number(hasPreseason) + Number(hasVegas)
+
+  // The share graphics need both odds and power ratings for the same teams.
+  const playoffTeams = useMemo(() => available && ratings?.status === 'available' ? joinTeams(rows, ratings.teams) : [], [available, rows, ratings])
+  const canRender = !loading && playoffTeams.length >= 12
+  const exportImage = async (kind: ImageKind) => {
+    if (!simulations) return
+    setExporting(kind); setExportFailed(null); setMissingLogos(0)
+    const a = simulations.assumptions
+    const common = { teams: playoffTeams, season: simulations.season, week: simulations.week, updatedAt: simulations.updated_at, asOf: simulations.as_of ?? null, simulations: simulations.simulation_count ?? null }
+    try {
+      const result = kind === 'hunt' ? await exportPlayoffHuntPng(common)
+        : await exportBracketPng({ ...common, model: { hfa: a?.hfa ?? DEFAULT_MODEL.hfa, sigma: a?.resid_sd ?? DEFAULT_MODEL.sigma }, ineligible: a?.cfp_ineligible_teams ?? [] })
+      setMissingLogos(result.total - result.logos)
+    }
+    catch { setExportFailed(kind) }
+    finally { setExporting(null) }
+  }
 
   const exportCsv = () => {
     const sorted = [...rows].sort((a, b) => (b.projected_wins_current ?? -Infinity) - (a.projected_wins_current ?? -Infinity) || a.team.localeCompare(b.team))
@@ -66,8 +91,15 @@ export default function SeasonSimulations({ simulations, loading, error, onRetry
       rows={rows} columns={columns} defaultSort={{ key: 'projected_wins_current', desc: true }} phoneStatColumns={Math.min(3, phoneStats)}
       loading={loading} error={error} onRetry={onRetry}
       notice={!loading && !error && simulations?.status === 'unavailable'
-        ? <Notice><strong>Data unavailable.</strong> No completed simulation output was supplied. Projections and odds will appear after a successful simulation run.</Notice> : null}
-      actions={simulations && <div className="actions"><button type="button" className="btn" onClick={exportCsv}><FileDown size={15} aria-hidden="true" /><span>CSV</span></button></div>}
+        ? <Notice><strong>Data unavailable.</strong> No completed simulation output was supplied. Projections and odds will appear after a successful simulation run.</Notice> : <>
+          {exportFailed && <Notice role="alert">The {exportFailed === 'hunt' ? 'Playoff Hunt' : 'projected playoff'} image could not be generated in this browser. The CSV export still includes every team.</Notice>}
+          {missingLogos > 0 && <Notice role="status">Image exported. {missingLogos} team {missingLogos === 1 ? 'logo was' : 'logos were'} unavailable and shown as initials — run <code>pnpm logos</code> before building to mirror them.</Notice>}
+        </>}
+      actions={simulations && <div className="actions">
+        <button type="button" className="btn" onClick={exportCsv}><FileDown size={15} aria-hidden="true" /><span>CSV</span></button>
+        <button type="button" className="btn" onClick={() => exportImage('hunt')} disabled={!canRender || exporting !== null} title={canRender ? 'Download the Playoff Hunt graphic' : 'Needs simulation odds and power ratings'}><ChartScatter size={15} aria-hidden="true" /><span>{exporting === 'hunt' ? 'Rendering…' : 'Playoff Hunt'}</span></button>
+        <button type="button" className="btn btn-primary" onClick={() => exportImage('bracket')} disabled={!canRender || exporting !== null} title={canRender ? 'Download the projected playoff bracket' : 'Needs simulation odds and power ratings'}><Trophy size={15} aria-hidden="true" /><span>{exporting === 'bracket' ? 'Rendering…' : 'Projected Playoff'}</span></button>
+      </div>}
     />
 
     <section id="methodology" className="method" aria-labelledby="method-title">

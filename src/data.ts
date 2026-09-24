@@ -1,7 +1,7 @@
 export type Team = { season: number; week: number | null; updated_at: string | null; team_id: string; team: string; conference: string | null; logo_url: string | null }
 export type Rating = Team & { power_rating: number | null; offensive_rating: number | null; defensive_rating: number | null; weekly_change: number | null; preseason_change: number | null }
 export type Simulation = Team & { projected_wins_current: number | null; projected_wins_preseason: number | null; playoff_probability: number | null; conference_title_probability: number | null; national_title_probability: number | null; vegas_win_total_preseason: number | null }
-export type Dataset<T> = { schema_version: number; season: number; week: number | null; updated_at: string | null; status: 'available' | 'unavailable'; model: string; teams: T[]; rated_teams?: number; total_teams?: number; defensive_higher_is_better?: boolean; simulation_count?: number | null; playoff_format?: string | null; wins_scope?: string | null; unavailable_reason?: string | null; as_of?: string | null }
+export type Dataset<T> = { schema_version: number; season: number; week: number | null; updated_at: string | null; status: 'available' | 'unavailable'; model: string; teams: T[]; rated_teams?: number; total_teams?: number; defensive_higher_is_better?: boolean; simulation_count?: number | null; playoff_format?: string | null; wins_scope?: string | null; unavailable_reason?: string | null; as_of?: string | null; assumptions?: { hfa?: number; resid_sd?: number; cfp_ineligible_teams?: string[] } }
 
 export async function fetchDataset<T>(name: 'ratings' | 'simulations'): Promise<Dataset<T>> {
   const response = await fetch(`${import.meta.env.BASE_URL}data/${name}.json`)

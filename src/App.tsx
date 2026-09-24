@@ -121,7 +121,7 @@ function App() {
 
     <main id="main" className="wrap main">
       {tab === 'ratings' && <PowerRatings ratings={ratings} ranked={ranked} ranks={ranks} loading={loading} error={!!errors.ratings} onRetry={retryLoad} />}
-      {tab === 'simulations' && <SeasonSimulations simulations={simulations} loading={loading} error={!!errors.simulations} onRetry={retryLoad} />}
+      {tab === 'simulations' && <SeasonSimulations simulations={simulations} ratings={ratings} loading={loading} error={!!errors.simulations} onRetry={retryLoad} />}
       {tab === 'betting' && <BettingAnalysis ratings={ratings} />}
     </main>
 

@@ -1,4 +1,4 @@
-import type { Rating } from './data'
+import type { Rating, Team } from './data'
 import { downloadBlob } from './download'
 import { initials } from './ui'
 
@@ -12,14 +12,14 @@ import { initials } from './ui'
 type Options = { teams: Rating[]; season: number; week: number | null; updatedAt: string | null }
 export type ExportResult = { logos: number; total: number }
 
-const C = {
+export const C = {
   bg: '#f7f4ec', card: '#fffdf8', stripe: '#faf6ee', ink: '#1a1c20', ink2: '#474b53', muted: '#6a6e76',
-  line: '#e6dfd1', navy: '#1c2f55', navyDeep: '#14223f', navySoft: '#e8ecf4', cream: '#f7f4ec',
+  line: '#e6dfd1', faint: '#9c9a93', navy: '#1c2f55', navyLine: '#c5cfe0', navyDeep: '#14223f', navySoft: '#e8ecf4', cream: '#f7f4ec',
   gold: '#b8893a', goldInk: '#8b6520', goldSoft: '#f3e9d4', pos: '#2f6f4e', neg: '#a4433b',
 }
-const DISPLAY = '"Inter Tight", Inter, system-ui, sans-serif'
-const BODY = 'Inter, system-ui, sans-serif'
-const MONO = '"JetBrains Mono", ui-monospace, Menlo, monospace'
+export const DISPLAY = '"Inter Tight", Inter, system-ui, sans-serif'
+export const BODY = 'Inter, system-ui, sans-serif'
+export const MONO = '"JetBrains Mono", ui-monospace, Menlo, monospace'
 const FONTS = [`800 50px ${DISPLAY}`, `700 16px ${DISPLAY}`, `500 14.5px ${BODY}`, `italic 400 13px ${BODY}`, `500 12px ${MONO}`, `600 14.5px ${MONO}`]
 
 async function readAsDataUrl(url: string): Promise<string | null> {
@@ -40,7 +40,7 @@ async function readAsDataUrl(url: string): Promise<string | null> {
   }
 }
 
-export async function loadLogos(teams: Rating[]): Promise<Map<string, HTMLImageElement>> {
+export async function loadLogos(teams: Pick<Team, 'team_id' | 'logo_url'>[]): Promise<Map<string, HTMLImageElement>> {
   const logos = new Map<string, HTMLImageElement>()
   await Promise.all(teams.map(async team => {
     for (const url of [`${import.meta.env.BASE_URL}logos/${encodeURIComponent(team.team_id)}.png`, team.logo_url]) {
@@ -55,7 +55,7 @@ export async function loadLogos(teams: Rating[]): Promise<Map<string, HTMLImageE
   return logos
 }
 
-function fit(ctx: CanvasRenderingContext2D, text: string, max: number) {
+export function fit(ctx: CanvasRenderingContext2D, text: string, max: number) {
   if (ctx.measureText(text).width <= max) return text
   let out = text
   while (out.length > 1 && ctx.measureText(`${out}…`).width > max) out = out.slice(0, -1)
@@ -66,16 +66,16 @@ function fmt(value: number, sign: boolean) {
   const clean = Object.is(rounded, -0) ? 0 : rounded
   return `${sign && clean > 0 ? '+' : ''}${clean.toFixed(1).replace('-', '−')}`
 }
-function spacing(ctx: CanvasRenderingContext2D, value: string) {
+export function spacing(ctx: CanvasRenderingContext2D, value: string) {
   if ('letterSpacing' in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = value
 }
-function rounded(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number | number[]) {
+export function rounded(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number | number[]) {
   ctx.beginPath()
   if (typeof ctx.roundRect === 'function') ctx.roundRect(x, y, w, h, r)
   else ctx.rect(x, y, w, h)
 }
 /** A bordered label chip; returns its width so chips can be laid out right-to-left. */
-function tag(ctx: CanvasRenderingContext2D, text: string, right: number, y: number, fill: string, stroke: string, ink: string) {
+export function tag(ctx: CanvasRenderingContext2D, text: string, right: number, y: number, fill: string, stroke: string, ink: string) {
   spacing(ctx, '1.5px')
   ctx.font = `600 12px ${MONO}`
   const w = ctx.measureText(text).width + 24
@@ -92,18 +92,14 @@ function tag(ctx: CanvasRenderingContext2D, text: string, right: number, y: numb
   return w
 }
 
-export async function exportRankingsPng({ teams, season, week, updatedAt }: Options): Promise<ExportResult> {
-  // Wait for every face used on the canvas, then for any still-pending font work.
+// ── Shared canvas helpers (also used by exportPlayoff.ts) ──────────────────
+/** Waits for every face used on the canvas, then for any still-pending font work. */
+export async function loadFonts() {
   try { await Promise.all(FONTS.map(font => document.fonts.load(font))) } catch { /* system fallback */ }
   await document.fonts.ready
-  const logos = await loadLogos(teams)
-
-  const weekly = teams.some(t => t.weekly_change !== null)
-  const W = 1600, pad = 56, gap = 20, cols = 4, top = 196, headH = 36, rowH = 34
-  const perCol = Math.ceil(teams.length / cols)
-  const colW = (W - pad * 2 - gap * (cols - 1)) / cols
-  const tableBottom = top + headH + perCol * rowH
-  const H = tableBottom + 102
+}
+/** A 2x canvas in logical pixels, pre-filled with the page background. */
+export function createCanvas(W: number, H: number) {
   const scale = 2
   const canvas = document.createElement('canvas')
   canvas.width = W * scale
@@ -116,8 +112,33 @@ export async function exportRankingsPng({ teams, season, week, updatedAt }: Opti
   ctx.textBaseline = 'alphabetic'
   ctx.fillStyle = C.bg
   ctx.fillRect(0, 0, W, H)
-
-  // Masthead: brand mark, wordmark, edition chips
+  return { canvas, ctx }
+}
+export async function savePng(canvas: HTMLCanvasElement, filename: string) {
+  const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'))
+  if (!blob) throw new Error('Image export failed')
+  downloadBlob(blob, filename)
+}
+/** A logo fitted inside a square box centred on (cx, cy), or a monogram disc. */
+export function drawLogo(ctx: CanvasRenderingContext2D, logo: HTMLImageElement | undefined, name: string, cx: number, cy: number, box: number) {
+  if (logo) {
+    const s = Math.min(box / logo.naturalWidth, box / logo.naturalHeight)
+    const w = logo.naturalWidth * s, h = logo.naturalHeight * s
+    ctx.drawImage(logo, cx - w / 2, cy - h / 2, w, h)
+    return
+  }
+  const r = box * 0.46
+  ctx.beginPath()
+  ctx.arc(cx, cy, r, 0, Math.PI * 2)
+  ctx.fillStyle = C.navySoft
+  ctx.fill()
+  ctx.font = `600 ${Math.round(r * 0.78 * 10) / 10}px ${MONO}`
+  ctx.fillStyle = C.navy
+  ctx.textAlign = 'center'
+  ctx.fillText(initials(name), cx, cy + r * 0.28)
+}
+/** Brand mark, kicker, wordmark-sized title, right-aligned chips and the navy/gold rule. */
+export function drawMasthead(ctx: CanvasRenderingContext2D, W: number, pad: number, { kicker, title, chips, updatedAt }: { kicker: string; title: string; chips: [string, string]; updatedAt: string | null }) {
   rounded(ctx, pad, 52, 58, 58, 8)
   ctx.fillStyle = C.navy
   ctx.fill()
@@ -131,15 +152,15 @@ export async function exportRankingsPng({ teams, season, week, updatedAt }: Opti
   spacing(ctx, '2.5px')
   ctx.font = `600 12.5px ${MONO}`
   ctx.fillStyle = C.goldInk
-  ctx.fillText('COLLEGE FOOTBALL · POWER RATINGS', pad + 78, 68)
+  ctx.fillText(kicker, pad + 78, 68)
   spacing(ctx, '-1.2px')
   ctx.font = `800 50px ${DISPLAY}`
   ctx.fillStyle = C.ink
-  ctx.fillText('CFB Power Index', pad + 76, 112)
+  ctx.fillText(title, pad + 76, 112)
   spacing(ctx, '0px')
   let right = W - pad
-  right -= tag(ctx, `${week == null ? 'LATEST' : `WEEK ${week}`} · ${season}`, right, 58, C.navy, C.navy, C.cream) + 10
-  tag(ctx, `ALL ${teams.length} FBS`, right, 58, C.goldSoft, '#dcc491', C.goldInk)
+  right -= tag(ctx, chips[0], right, 58, C.navy, C.navy, C.cream) + 10
+  tag(ctx, chips[1], right, 58, C.goldSoft, '#dcc491', C.goldInk)
   const updated = updatedAt ? new Date(updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).toUpperCase() : 'UNAVAILABLE'
   spacing(ctx, '1.5px')
   ctx.font = `500 12px ${MONO}`
@@ -152,6 +173,32 @@ export async function exportRankingsPng({ teams, season, week, updatedAt }: Opti
   ctx.fillRect(pad, 144, W - pad * 2, 2)
   ctx.fillStyle = C.gold
   ctx.fillRect(pad, 150, 96, 2)
+
+}
+/** Right-aligned "CFB Power Index" signature with its gold underline. */
+export function drawFooterBrand(ctx: CanvasRenderingContext2D, right: number, baseline: number) {
+  ctx.textAlign = 'right'
+  ctx.font = `700 16px ${DISPLAY}`
+  ctx.fillStyle = C.navy
+  ctx.fillText('CFB Power Index', right, baseline)
+  ctx.fillStyle = C.gold
+  ctx.fillRect(right - 24, baseline + 8, 24, 2)
+  ctx.textAlign = 'left'
+}
+
+export async function exportRankingsPng({ teams, season, week, updatedAt }: Options): Promise<ExportResult> {
+  await loadFonts()
+  const logos = await loadLogos(teams)
+
+  const weekly = teams.some(t => t.weekly_change !== null)
+  const W = 1600, pad = 56, gap = 20, cols = 4, top = 196, headH = 36, rowH = 34
+  const perCol = Math.ceil(teams.length / cols)
+  const colW = (W - pad * 2 - gap * (cols - 1)) / cols
+  const tableBottom = top + headH + perCol * rowH
+  const H = tableBottom + 102
+  const { canvas, ctx } = createCanvas(W, H)
+
+  drawMasthead(ctx, W, pad, { kicker: 'COLLEGE FOOTBALL · POWER RATINGS', title: 'CFB Power Index', chips: [`${week == null ? 'LATEST' : `WEEK ${week}`} · ${season}`, `ALL ${teams.length} FBS`], updatedAt })
 
   // Ranking columns
   for (let c = 0; c < cols; c++) {
@@ -254,15 +301,7 @@ export async function exportRankingsPng({ teams, season, week, updatedAt }: Opti
   ctx.font = `italic 400 13px ${BODY}`
   ctx.fillStyle = C.muted
   ctx.fillText(`PWR: opponent-adjusted team strength in points relative to an average FBS team (offense − defense). Δ: change in power rating since ${weekly ? 'the previous week' : 'the preseason baseline'}.`, pad, tableBottom + 68)
-  ctx.textAlign = 'right'
-  ctx.font = `700 16px ${DISPLAY}`
-  ctx.fillStyle = C.navy
-  ctx.fillText('CFB Power Index', W - pad, tableBottom + 68)
-  ctx.fillStyle = C.gold
-  ctx.fillRect(W - pad - 24, tableBottom + 76, 24, 2)
-
-  const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'))
-  if (!blob) throw new Error('Image export failed')
-  downloadBlob(blob, `cfb-power-index-${season}-${week == null ? 'latest' : `week-${String(week).padStart(2, '0')}`}.png`)
+  drawFooterBrand(ctx, W - pad, tableBottom + 68)
+  await savePng(canvas, `cfb-power-index-${season}-${week == null ? 'latest' : `week-${String(week).padStart(2, '0')}`}.png`)
   return { logos: logos.size, total: teams.length }
 }
