@@ -262,12 +262,17 @@ The live site still runs from the **old** repository's GitHub Actions workflow. 
 **Playoff**
 
 - `cfbseedR` simulates the regular season, including conference championship games.
-- `cfb_dynamic_playoff_seeds()` seeds a **12-team CFP from each simulated standings table**:
-  - ranking factors: win %, strength of victory, strength of schedule, point differential;
-  - 2026 automatic-bid rules;
-  - FBS only.
+- `cfb_dynamic_cfp_ranking()` ranks the eligible FBS teams **separately in every simulation** by a resume score:
+  - `1.989 × WAB + 0.149 × adjusted margin + 1.792 × conference champion`;
+  - **WAB** (wins above benchmark) = wins minus the wins the 60th-best FBS team would expect against the same schedule, using the game model's win probabilities. Opponent strength is national (power ratings, FCS = −25), so a loss to a strong team costs little and a win over a weak team earns little;
+  - **adjusted margin** = mean of (margin capped at ±35 + opponent power − home-field adjustment);
+  - title games are left out of WAB and adjusted margin; they count through the champion term.
+- The coefficients are a rank-ordered logit fitted to the committee's final top 25, 2018–2025 excluding 2020 (`scripts/calibrate_cfp_ranking.R`). Held out by season, the score matches 10.9 of the committee's top 12 on average. cfbseedR's default win-%-first order matches 8.4, and on those real seasons it would have put 3.4 G6 teams in the top 12 per year against the committee's 0.4.
+- `cfb_dynamic_playoff_seeds()` hands each simulation's ranking to cfbseedR, which applies the 2026 automatic-bid rules: P4 champions, the highest-ranked G6 team, and Notre Dame if ranked in the top 12. There is no G6 cap and no conference-specific adjustment.
+- FBS only; teams listed in `PRODUCTION$cfp_ineligible_teams` are excluded from selection, but their games still count.
 - The bracket is then simulated.
-- **The CFP field is not chosen by power rating**, and there is no committee model.
+- **The CFP field is not chosen by power rating.** A team's own rating never enters its ranking; ratings only measure opponent strength.
+- `scripts/diagnose_cfp_selection.R` prints expected bids by conference, the number of G6 teams per field, and the ranking around the cut line.
 
 **Run settings and output**
 
