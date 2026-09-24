@@ -83,7 +83,10 @@ jobs:
       - name: Export public data
         if: env.REFRESH == 'true'
         env:
+          CFBD_API_KEY: ${{ secrets.CFBD_API_KEY }}
           CFB_PROJECT_ROOT: ${{ github.workspace }}
+          CFB_REFRESH_SCHEDULE: 'true'
+          CFB_EXPORT_BETTING: 'true'
         run: Rscript scripts/03_export_public_data.R
 
       - name: Validate public data
@@ -102,7 +105,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add output/public_data
+          git add public/data
           if ! git diff --cached --quiet; then
             git commit -m "data: refresh CFB model output"
             git push origin "HEAD:$DEFAULT_BRANCH"
