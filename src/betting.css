@@ -1,0 +1,66 @@
+/* Betting line analysis: game cards and the matchup calculator. */
+.game-group { margin-top: 36px; }
+.day-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; padding: 10px 14px; border: 1px solid var(--line); border-left: 3px solid var(--navy); border-radius: var(--radius-sm); background: var(--surface-2); font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.day-head h3 { margin: 0; font-size: 12.5px; font-weight: 600; letter-spacing: .14em; color: var(--navy); }
+.game-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.game-grid > li { display: flex; min-width: 0; }
+.game { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.game-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 16px 18px 12px; }
+.gap-badge { display: inline-flex; align-items: baseline; gap: 6px; margin-left: auto; height: 28px; padding: 3px 10px 0; border: 1px solid var(--gold-line); border-radius: var(--radius-sm); background: var(--gold-soft); font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--gold-ink); white-space: nowrap; }
+.gap-badge small { font-size: 9.5px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
+.gap-badge.is-empty { background: var(--surface-3); border-color: var(--line); color: var(--muted); }
+.game-teams { position: relative; margin: 0 18px; padding: 4px 0; border-block: 1px solid var(--line); flex: 1; }
+.game-colhead { position: absolute; right: 0; top: 10px; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+.game-team { display: flex; align-items: center; gap: 14px; padding: 16px 0 14px; }
+.game-team + .game-team { border-top: 1px dashed var(--line); }
+.game-name { display: flex; flex-direction: column; min-width: 0; }
+.game-name .team-name { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.game-sub { font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; color: var(--muted); }
+.game-proj { margin-left: auto; padding-left: 12px; font-family: var(--font-mono); font-size: 28px; font-weight: 400; letter-spacing: -.045em; color: var(--faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.is-fav .game-proj { color: var(--navy); font-weight: 600; }
+.game-compare { display: grid; gap: 6px; margin: 0; padding: 14px 18px; }
+.game-compare > div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 7px 10px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.game-compare > div.is-model { background: var(--navy-soft); }
+.game-compare dt { display: inline-flex; align-items: baseline; gap: 8px; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.game-compare .is-model dt { color: var(--navy); }
+.game-compare dt em { font-style: normal; font-weight: 500; letter-spacing: .06em; color: var(--faint); }
+.game-compare dd { margin: 0; font-family: var(--font-mono); font-size: 14px; font-weight: 500; color: var(--ink); text-align: right; overflow-wrap: anywhere; }
+.game-pick { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 18px 16px; border-top: 1px dashed var(--line-strong); }
+.pick-label { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); white-space: nowrap; }
+.pick-label::before { content: ""; width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg); }
+.tag.pick-value { height: 28px; font-size: 12.5px; font-weight: 600; letter-spacing: .02em; text-transform: none; }
+
+.calc { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); margin-top: clamp(48px, 7vw, 80px); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lift); overflow: hidden; }
+.calc-inputs { padding: clamp(22px, 3vw, 36px); }
+.calc-inputs h3 { margin: 14px 0 6px; font-family: var(--font-display); font-size: clamp(26px, 3vw, 34px); font-weight: 800; letter-spacing: -.028em; line-height: 1.1; }
+.calc-inputs > p { margin: 0; color: var(--ink-2); }
+.calc-grid { display: grid; grid-template-columns: 1fr 1fr .75fr; gap: 14px; margin-top: 24px; }
+.calc-result { display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: clamp(22px, 3vw, 36px); background: var(--navy-deep); color: #f7f4ec; border-left: 3px solid var(--gold); }
+.calc-result .micro-label { color: var(--gold); }
+.calc-result strong { font-family: var(--font-mono); font-size: clamp(26px, 3.2vw, 38px); font-weight: 600; letter-spacing: -.03em; line-height: 1.15; }
+.calc-result p { margin: 0; font-size: 15px; color: rgb(247 244 236 / 85%); }
+.calc-meta { display: grid; gap: 4px; margin-top: 12px; padding-top: 14px; border-top: 1px solid rgb(247 244 236 / 18%); font-family: var(--font-mono); font-size: 11.5px; color: rgb(247 244 236 / 70%); }
+
+.glossary { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 16px; }
+.glossary summary { cursor: pointer; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--navy); }
+.glossary dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 40px; margin: 18px 0 0; }
+.glossary dt { font-weight: 600; font-size: 14px; }
+.glossary dd { margin: 2px 0 0; color: var(--ink-2); font-size: 14px; line-height: 1.6; }
+
+@media (max-width: 920px) {
+  .game-grid { grid-template-columns: minmax(0, 1fr); }
+  .calc { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .calc-grid { grid-template-columns: 1fr 1fr; }
+  .calc-grid > label:last-child { grid-column: 1 / -1; }
+  .glossary dl { grid-template-columns: 1fr; }
+  .board-plain .toolbar-filters { grid-template-columns: minmax(0, 1fr) auto; }
+}
+@media (max-width: 520px) {
+  .game-top, .game-compare, .game-pick { padding-inline: 14px; }
+  .game-teams { margin-inline: 14px; }
+  .game-name .team-name { font-size: 18px; }
+  .game-proj { font-size: 26px; }
+  .calc-grid { grid-template-columns: 1fr; }
+}
