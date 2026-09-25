@@ -1,0 +1,16 @@
+item,ok,detail
+"predeclaration hashes (original signed, v2, Amendment 01, v3, Amendment 02)",TRUE,ROUND15_PREDECLARATION.md=9cedb999541d; ROUND15_PREDECLARATION_v2.md=7e076b3ccea1; AMENDMENT_01.md=a5c153b32ba4; ROUND15_PREDECLARATION_v3.md=07b795a47889; AMENDMENT_02.md=246e9a0b7612
+binding text is v3,TRUE,07b795a478891fad4c7046979a57db2787c0536b719870b8b4d37b903554c14a
+"construction freeze CONSTRUCTION_FREEZE_A02 (code, tests, manifests, frozen predictions)",TRUE,37 files; record sha256=32a986fa928c01caca4d204a56f61efde9415dd08544744d5271cc70112de13a
+freeze record hash equals the one recorded in predeclaration.sha256,TRUE,""
+tag round15-construction-final is commit fe345ed and an ancestor of HEAD,TRUE,tag=fe345eda8387 HEAD=749912cdc6fa
+no candidate or build code changed since the construction tag,TRUE,""
+C1 frozen prediction manifest,TRUE,"a70c346ec64d,e94f357ec636"
+C2 frozen prediction manifest,TRUE,"6a38ef01dcba,8a6031a55832"
+C3 frozen prediction manifest,TRUE,"ac2a102e30d6,2b9d5119302b"
+C3 built under Amendment 02 (qb_primary.rds in the freeze; A02 detector in code),TRUE,""
+Round 13 K frozen predictions match the Round 13 freeze manifest,TRUE,"65aeb88400ec,a38d256c9948"
+market lines are the P5 fixed vintage (2026-09-25 pull),TRUE,8f25cbcafe14
+ratings replay (E0) matches its manifest,TRUE,69016cf689e3
+E0 replay reproduced every frozen prediction,TRUE,""
+"G0 (G0a nesting, G0b L1-L6 incl. L3, G0c manifests) all pass",TRUE,g0a_c1_vs_incumbent TRUE;g0a_c2_vs_c1 TRUE;g0a_c3_vs_c2 TRUE;g0bc TRUE;l3 TRUE

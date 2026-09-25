@@ -1,0 +1,4 @@
+step,rule
+1,C1: fails G0-G3 -> not recommended
+2,C2: fails G0-G3 -> not recommended
+3,C3: fails G0-G3 -> not recommended

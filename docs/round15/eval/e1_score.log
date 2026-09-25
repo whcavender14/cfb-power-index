@@ -1,0 +1,33 @@
+Messages d'avis :
+1: le package 'tibble' a 'et'e compil'e avec la version R 4.3.3 
+2: le package 'data.table' a 'et'e compil'e avec la version R 4.3.3 
+provenance verified
+    split games close  open
+   <char> <int> <int> <int>
+1:    dev  3868  3868  1539
+2:   cond  2398  2398  2398
+sigma recorded and hashed before any loss is computed: 1a0ab8826fb838592c9610a9b2322af4a027b0cc6c04bd3d35427423ab132499 
+ dev devK cond 
+ 106   85   65 
+core metrics done
+rating diagnostics done
+market done
+
+VERDICT: INCUMBENT RETAINED 
+Indice : <candidate>
+   candidate     G0     G1     G2     G3 all_gates
+      <char> <lgcl> <lgcl> <lgcl> <lgcl>    <lgcl>
+1:        C1   TRUE  FALSE  FALSE   TRUE     FALSE
+2:        C2   TRUE  FALSE  FALSE   TRUE     FALSE
+3:        C3   TRUE  FALSE  FALSE   TRUE     FALSE
+        layer           dLL          lo95          hi95 upper_lt_0 passes_G2
+       <char>         <num>         <num>         <num>     <lgcl>    <lgcl>
+1: C2 over C1 -0.0055837090 -0.0104946355 -0.0007512145       TRUE     FALSE
+2: C3 over C2  0.0004314395 -0.0007252591  0.0016992007      FALSE     FALSE
+3: C3 over C1 -0.0051522695 -0.0105589206  0.0001190385      FALSE     FALSE
+   established
+        <lgcl>
+1:       FALSE
+2:       FALSE
+3:       FALSE
+results frozen: 30 files

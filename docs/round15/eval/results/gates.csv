@@ -1,0 +1,46 @@
+candidate,gate,threshold,observed,interval,pass
+C1,G1,dLL(X-I) <= -0.0020 and 98.33% upper < 0,-0.00036,"98.33% [-0.00450, +0.00357]",FALSE
+C1,G2a,dMAE <= +0.020 and 95% lower <= 0,-0.1000,"95% [-0.1766, -0.0273]",TRUE
+C1,G2b,dRMSE <= +0.030,-0.0920,"95% [-0.1774, -0.0125]",TRUE
+C1,G2c,dBrier <= 0,-0.00039,"95% [-0.00168, +0.00088]",TRUE
+C1,G2d,"raw slope pooled in [0.90,1.10]; each gp bucket in [0.80,1.20]",pooled 1.037; buckets 0:1.234 1:1.159 2-3:1.033 4-6:0.907 7+:1.021,"",FALSE
+C1,G2e,|P4-vs-G5 bias| <= incumbent's,|4.928| vs I |5.768|,"",TRUE
+C1,G2f,every dev season dLL <= +0.003,2017:-0.0002 2018:+0.0043 2019:-0.0037 2021:-0.0002 2022:-0.0020,"",FALSE
+C1,G2g,gp 0-3 and gp 4+ dLL <= +0.001,gp 0-3:+0.0009 gp 4+:-0.0011,"",TRUE
+C1,G2h,"beta_E(X) >= beta_E(I) - 0.10 and 95% upper >= 0 (close, dev)",beta_E -0.032 vs I -0.008,"95% [-0.160, 0.085]",TRUE
+C1,G3-ll,cond dLL <= +0.001,-0.00182,"95% [-0.00808, +0.00385]",TRUE
+C1,G3-mae,cond dMAE <= +0.030,-0.1089,"95% [-0.2143, -0.0162]",TRUE
+C1,G3-slope,"cond raw pooled slope in [0.90,1.10]",0.998,"",TRUE
+C1,G3-tier,cond |P4-vs-G5 bias| <= incumbent's,|0.586| vs I |3.441|,"",TRUE
+C1,G3-market,cond beta_E(X) >= beta_E(I) - 0.10 (close),beta_E -0.008 vs I 0.017,"95% [-0.166, 0.153]",TRUE
+C1,G0,"integrity (G0a, G0b L1-L6, G0c)",all pass,"",TRUE
+C2,G1,dLL(X-I) <= -0.0020 and 98.33% upper < 0,-0.00595,"98.33% [-0.01276, +0.00054]",FALSE
+C2,G2a,dMAE <= +0.020 and 95% lower <= 0,-0.1379,"95% [-0.2677, -0.0132]",TRUE
+C2,G2b,dRMSE <= +0.030,-0.1437,"95% [-0.2790, -0.0116]",TRUE
+C2,G2c,dBrier <= 0,-0.00282,"95% [-0.00524, -0.00053]",TRUE
+C2,G2d,"raw slope pooled in [0.90,1.10]; each gp bucket in [0.80,1.20]",pooled 0.999; buckets 0:1.191 1:1.141 2-3:1.008 4-6:0.858 7+:0.982,"",TRUE
+C2,G2e,|P4-vs-G5 bias| <= incumbent's,|4.570| vs I |5.768|,"",TRUE
+C2,G2f,every dev season dLL <= +0.003,2017:-0.0052 2018:+0.0055 2019:-0.0115 2021:-0.0069 2022:-0.0115,"",FALSE
+C2,G2g,gp 0-3 and gp 4+ dLL <= +0.001,gp 0-3:-0.0074 gp 4+:-0.0051,"",TRUE
+C2,G2h,"beta_E(X) >= beta_E(I) - 0.10 and 95% upper >= 0 (close, dev)",beta_E -0.023 vs I -0.008,"95% [-0.147, 0.091]",TRUE
+C2,G3-ll,cond dLL <= +0.001,-0.00576,"95% [-0.01356, +0.00213]",TRUE
+C2,G3-mae,cond dMAE <= +0.030,-0.2522,"95% [-0.3970, -0.1125]",TRUE
+C2,G3-slope,"cond raw pooled slope in [0.90,1.10]",0.985,"",TRUE
+C2,G3-tier,cond |P4-vs-G5 bias| <= incumbent's,|0.485| vs I |3.441|,"",TRUE
+C2,G3-market,cond beta_E(X) >= beta_E(I) - 0.10 (close),beta_E 0.226 vs I 0.017,"95% [0.054, 0.405]",TRUE
+C2,G0,"integrity (G0a, G0b L1-L6, G0c)",all pass,"",TRUE
+C3,G1,dLL(X-I) <= -0.0020 and 98.33% upper < 0,-0.00551,"98.33% [-0.01268, +0.00134]",FALSE
+C3,G2a,dMAE <= +0.020 and 95% lower <= 0,-0.1345,"95% [-0.2727, +0.0008]",TRUE
+C3,G2b,dRMSE <= +0.030,-0.1400,"95% [-0.2851, +0.0028]",TRUE
+C3,G2c,dBrier <= 0,-0.00275,"95% [-0.00519, -0.00036]",TRUE
+C3,G2d,"raw slope pooled in [0.90,1.10]; each gp bucket in [0.80,1.20]",pooled 0.979; buckets 0:1.186 1:1.133 2-3:0.993 4-6:0.840 7+:0.956,"",TRUE
+C3,G2e,|P4-vs-G5 bias| <= incumbent's,|4.544| vs I |5.768|,"",TRUE
+C3,G2f,every dev season dLL <= +0.003,2017:-0.0020 2018:+0.0069 2019:-0.0115 2021:-0.0081 2022:-0.0128,"",FALSE
+C3,G2g,gp 0-3 and gp 4+ dLL <= +0.001,gp 0-3:-0.0071 gp 4+:-0.0045,"",TRUE
+C3,G2h,"beta_E(X) >= beta_E(I) - 0.10 and 95% upper >= 0 (close, dev)",beta_E -0.019 vs I -0.008,"95% [-0.142, 0.097]",TRUE
+C3,G3-ll,cond dLL <= +0.001,-0.00647,"95% [-0.01402, +0.00139]",TRUE
+C3,G3-mae,cond dMAE <= +0.030,-0.2568,"95% [-0.3996, -0.1164]",TRUE
+C3,G3-slope,"cond raw pooled slope in [0.90,1.10]",0.974,"",TRUE
+C3,G3-tier,cond |P4-vs-G5 bias| <= incumbent's,|0.496| vs I |3.441|,"",TRUE
+C3,G3-market,cond beta_E(X) >= beta_E(I) - 0.10 (close),beta_E 0.232 vs I 0.017,"95% [0.057, 0.410]",TRUE
+C3,G0,"integrity (G0a, G0b L1-L6, G0c)",all pass,"",TRUE
