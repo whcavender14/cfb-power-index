@@ -1,0 +1,9 @@
+id,check,pass,detail
+L3,every season y-1 (and y-2) result is available before season y's first FBS kickoff,TRUE,""
+L3,last_off/last_def(y) equal the end-of-season y-1 fit for every team,TRUE,n=1299 mismatched=0
+L3,two_off/two_def(y) equal the end-of-season y-2 fit for every team,TRUE,n=1291 mismatched=0
+L3,"conf_off/conf_def(y) are the mean y-1 ratings of the team's season-y conference members, excluding the team",TRUE,n=1262 max|diff|=1.87e-14
+L3,"last_sr(y) comes from the season y-1 end-of-season table (built from season y-1 plays only, cutoff = its last availability + 1 s)",TRUE,""
+L3,promoted(y) is read from the season y-1 FBS schedule,TRUE,n=1310 mismatched=0
+L3,"continuity uses y-1 player stats, the y roster and the April-y draft; recruiting classes y-3..y; coaching as of season y's first kickoff (code)",TRUE,""
+L3,"reconstruction unit tests (continuity, transfers, talent4/bluechip4 class windows, coaching port) pass",TRUE,""
