@@ -1,0 +1,18 @@
+id,check,pass
+L1,C1 prior for 2019 unchanged when 2019+ data are scrambled,TRUE
+L1,C1 variance model and prior scale for 2019 unchanged,TRUE
+L1,"C2 beta, kappa and FCS moments for 2019 unchanged",TRUE
+L1,C1 predictions at a mid-2019 cutoff unchanged when later 2019 results and all later seasons are scrambled (52 games),TRUE
+L1,C2 predictions at a mid-2019 cutoff unchanged when later 2019 results and all later seasons are scrambled (52 games),TRUE
+L1,C3 predictions at a mid-2019 cutoff unchanged when later 2019 results and all later seasons are scrambled (52 games),TRUE
+L6,every inner-tuning set Z(y) is strictly before y and excludes 2020,TRUE
+L6,2023+ prior and scale use training data through 2022 only,TRUE
+L6,2023+ C2/C3 parameters use training data through 2022 only,TRUE
+L2,each candidate asserts every training row is available before its cutoff,TRUE
+L2,result availability is kickoff + 24 h for every game,TRUE
+L4,no candidate or preparation code references market data,TRUE
+L5,no vendor EPA/WP/Elo/rating or market column in any candidate input,TRUE
+L5,the prior's matrix guard rejects market and vendor columns,TRUE
+G0c,C1 manifest hashes verify,TRUE
+G0c,C2 manifest hashes verify,TRUE
+G0c,C3 manifest hashes verify,TRUE
