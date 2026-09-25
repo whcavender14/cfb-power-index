@@ -7,7 +7,7 @@
 #   opt$kf     : multiply lambda_FCS;  opt$flat: rho = 0 and lambda_FCS x 1e4 (every team at its group level)
 #   opt$srlevel: an extra free level column on FBS-vs-non-FBS SR rows only
 suppressPackageStartupMessages({ library(data.table); library(Matrix) })
-s3_opt <- function(...) modifyList(list(shift = 0, divmu = FALSE, level = FALSE, n0 = 0, anchor_fcs = NA_real_, anchor_gap = NA_real_, kf = 1, flat = FALSE, srlevel = FALSE, lowcol = TRUE, pscale = 1, pscale_off = NULL, lam_mult = NULL, fbs_zero = FALSE, influence = FALSE), list(...))
+s3_opt <- function(...) modifyList(list(shift = 0, divmu = FALSE, level = FALSE, n0 = 0, anchor_fcs = NA_real_, anchor_gap = NA_real_, kf = 1, flat = FALSE, srlevel = FALSE, lowcol = TRUE, pscale = 1, pscale_off = NULL, pscale_gp0 = NULL, lam_mult = NULL, fbs_zero = FALSE, influence = FALSE), list(...))
 s3_div_of <- function(dv, y, ids) { x <- dv[season == y][match(ids, team_id), div]; x[is.na(x)] <- "unknown"; fifelse(x == "fcs", "fcs", fifelse(x == "ii", "ii", "low3")) }
 s3_mu_pools <- function(c2, dv, k) { tr <- setdiff(2014:min(k - 1L, 2022L), 2020L)
   cur <- rbindlist(c2$eos_full[as.character(tr)])[fcs == TRUE]; cur[, g := s3_div_of(dv, season[1], team_id), by = season]
@@ -46,12 +46,13 @@ s3_capture <- function(d, y, A, dv, opt, pools = NULL) {
     fi <- match(fcs_teams, fcs_all)
     po <- c(pofb, pof_all[fi]); pd <- c(pdfb, pdf_all[fi])
     gpf <- rows[, .N, by = team_id][match(ids, team_id), N]; gpf[is.na(gpf)] <- 0L
+    if (!is.null(opt$pscale_gp0)) { s0 <- ifelse(gpf == 0, opt$pscale_gp0, 1); po[seq_len(nt)] <- po[seq_len(nt)] * s0; pd[seq_len(nt)] <- pd[seq_len(nt)] * s0 }   # post hoc: scale only while gp = 0
     mm <- if (is.null(opt$lam_mult)) rep(1, nt) else opt$lam_mult[pmin(gpf, length(opt$lam_mult) - 1L) + 1L]
     lo <- c(mm * A$lam$off[match(ids, A$prior$team_id)], rep(lamf[["off"]], length(fi))); ld <- c(mm * A$lam$def[match(ids, A$prior$team_id)], rep(lamf[["def"]], length(fi)))
     te <- as.data.table(d$base$frame)[season == y & cutoff == sn$cutoff]
     fp <- function(o_m, d_m, dL, dLow) data.table(season = y, cutoff = cut, team_id = fcs_all, grp = grp, in_solve = fcs_all %in% fcs_teams,
                                                   first_game_power = (pof_all - o_m) - (pdf_all - d_m) + 2 * dL + 2 * dLow * islow)
-    if (!n) { p <- (pofb - mean(pofb)) - (pdfb - mean(pdfb))
+    if (!n) { s0 <- if (is.null(opt$pscale_gp0)) 1 else opt$pscale_gp0; p <- s0 * ((pofb - mean(pofb)) - (pdfb - mean(pdfb)))
       return(list(pred = te[, .(season, game_id, cutoff = cut, pred_margin = p[match(home_id, ids)] - p[match(away_id, ids)] + H * !neutral)],
                   ent = data.table(season = y, cutoff = cut, team_id = ids, fbs = TRUE, grp = "fbs", power = p, gp = 0L, gp_vs_fbs = 0L),
                   cut = data.table(season = y, cutoff = cut, n_rows = 0L, n_link = 0L, dL = mL, dLow = mLow, prior_level_fcs = prior_level_fcs),
