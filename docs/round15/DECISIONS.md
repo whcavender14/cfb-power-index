@@ -56,3 +56,20 @@ These resolve the open list in `ROUND15_DESIGN.md`. The predeclaration draft (`R
     - **One gap filled at signing:** §6.1 item 7 covers the undefined 2016 inner-season HFA and prior scale, using the
       engine's in-solve HFA rule and an unscaled prior.
     - **Authorized next:** data-preparation steps P1–P5.
+
+## Amendments and construction (2026-09-25)
+
+12. **Amendment 01 approved** (A1 P1 completeness, A2 P4 validation target, A3 2020 prior-season success rate), before
+    any candidate was built. Binding text: `ROUND15_PREDECLARATION_v2.md` (`7e076b3c…4a7c`).
+13. **Construction approvals, before scoring:**
+    - the 2016 inner-season defaults b = 0 (C1) and λ_FCS = λ0 (C2);
+    - the 2017 C3 grid-edge selection q = 2, with the grid not extended;
+    - the two `test_g0.R` fixes;
+    - the name-independent tie rule for the season-to-date lead (A5).
+14. **Amendment 02 (A4):** C3's QB allowance fires on a transition in the game-level primary passer, including a return
+    to a previous starter, instead of on a difference from the season-to-date dropback leader.
+    - Made after construction and before any scoring. No performance result was inspected.
+    - The q_QB grid, the §6.1 procedure and the rest of C3 are unchanged.
+    - C3 is rebuilt from scratch and whatever q_QB is selected is accepted, including 0.
+    - Binding text: `ROUND15_PREDECLARATION_v3.md`.
+    - **Authorized next:** rebuild and integrity checks only. The user authorizes the formal scoring run separately.
