@@ -1,0 +1,18 @@
+Messages d'avis :
+1: le package 'tibble' a 'et'e compil'e avec la version R 4.3.3 
+2: le package 'data.table' a 'et'e compil'e avec la version R 4.3.3 
+ok - continuity: returning + transfer-in counted, drafted excluded, capped at 1.5 
+ok - continuity: players who left are not counted 
+ok - continuity: team without prior FBS production is NA, not 0 
+ok - continuity: uncapped arithmetic 
+ok - continuity: no transfer, plain returning share 
+ok - qb_xfer_in: >=100-attempt passer from another FBS team 
+ok - qb_xfer_in: own returning QB is not a transfer 
+ok - talent4: fewer than 2 of the 4 classes gives NA 
+ok - talent4: mean of classes y-3..y, z-scored within season 
+ok - bluechip4: classes y-3..y only; share of 4-5 star 
+ok - conference level: mean of the other members 
+ok - conference level: FBS independents are NA 
+ok - coaching port equals the frozen incumbent features for 2015-2026 
+
+13 checks passed

@@ -1,0 +1,2 @@
+step,rule,tests_pass,def_agreement_r,def_agreement_n,nmsu_2021_continuity,table_sha256,rows,pass
+P4,"unit tests pass; coverage reported; pooled r(cont_def, vendor def_returning) >= 0.8",TRUE,0.667474152814663,856,TRUE TRUE TRUE,cdf040eac3f2b7b17566363c0ce61891394ffc7a02a5ce744aed89021f8f2a0a,1704,FALSE

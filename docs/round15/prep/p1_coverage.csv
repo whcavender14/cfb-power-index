@@ -1,0 +1,17 @@
+item,metric,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026
+fcs_schedule,fbs_vs_fcs_games_in_this_pull,111,108,105,113,98,112,114,34,117,120,118,121,126,
+fcs_schedule,fcs_teams,127,124,125,125,124,125,126,22,128,130,128,129,129,
+fcs_schedule,fcs_vs_fcs_games,596,639,611,620,629,611,666,19,635,645,635,692,691,
+fcs_schedule,fcs_vs_fcs_with_final_score_share,1,1,1,1,1,1,1,1,1,1,1,1,1,
+fcs_schedule,games,797,824,771,787,773,782,847,59,800,822,811,871,879,
+roster,fbs_teams_missing,0,,,,,,,,,,,,,
+roster,players,14180,,,,,,,,,,,,,
+stats_passing,fbs_teams_missing,0,,,,,,,,,,,,,
+stats_passing,player_id_present_share,1,,,,,,,,,,,,,
+stats_passing,rows,4431,,,,,,,,,,,,,
+stats_receiving,fbs_teams_missing,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+stats_receiving,player_id_present_share,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+stats_receiving,rows,12575,12700,12930,13085,12905,14345,13655,9600,13740,21160,20170,20645,21790,16365
+stats_rushing,fbs_teams_missing,0,0,0,0,0,0,0,1,0,0,0,0,0,0
+stats_rushing,player_id_present_share,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+stats_rushing,rows,9295,9840,10155,10320,10555,11865,10865,7295,10690,16350,15450,16155,17050,11815

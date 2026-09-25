@@ -1,0 +1,2 @@
+step,rule,min_share,worst_season,pass,parser_sha256
+P3,passer parsed on >= 97% of dropbacks in every season 2013-2025,0.976857760307656,2024,TRUE,25f033f600ef17a722261a6f35a2f3211cb14644872d07454de47851716d6876

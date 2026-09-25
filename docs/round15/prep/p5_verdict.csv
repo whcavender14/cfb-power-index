@@ -1,0 +1,2 @@
+step,rule,vintage_utc,game_lines_rows,raw_files,game_lines_sha256,status
+P5,market lines fixed at the 2026-09-25 pull; evaluation-only; recorded with hashes,2026-09-25T00:03Z,9784,18,8f25cbcafe14bb68a398abac520f7dcffcc2052821c4ec5cbe9094fe6601db00,RECORDED (no pass/fail rule)

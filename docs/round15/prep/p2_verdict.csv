@@ -1,0 +1,2 @@
+step,rule,recovery_2025,changed_rows_2013_2024,pass,parser_sha256
+P2,2025 recovery >= 0.90 and 0 changed rows 2013-2024,0.941102756892231,0,TRUE,3b0121b63f4a64d55f1763708ea3f0cebb1c8dd74340a829dfdf9549ab6a6590
