@@ -1,0 +1,2 @@
+# Round 16 scorer freeze (commit 9aca068), 2026-09-25; smoke-tested, real run not performed
+8752d204d2044533c2fa680577cb88b0c2d1f28de4f03d2a745faac9033e39cd  scripts/round16/r16_score.R
