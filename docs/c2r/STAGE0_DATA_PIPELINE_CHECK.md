@@ -152,6 +152,9 @@ on the bias.
 - C2 has no rating for an FCS team that has not yet played, because it is not yet an entity.
 - In development: 561 FBS-vs-FCS games, 207 with the FCS team on 0 games played, 335 in the slice.
 - 2023–25: 365 games, 141 at 0 games played, 212 in the slice.
+- **Erratum (Stage 1).** The 207 and 141 counted games played before kickoff. The right definition is "not rated at
+  the week's cutoff": **226** in development and **153** in 2023–25, so 226 + 335 = 561 and 153 + 212 = 365. See
+  `STAGE1_FCS_DIAGNOSIS.md` §1.
 - So the −10.5 / −11.3 biases describe FCS teams that have already played, which is **mostly FCS-vs-FCS evidence**.
 - A future C2 spec needs a defined rule for the gp-0 FCS game. The obvious one is the prior mean.
 
