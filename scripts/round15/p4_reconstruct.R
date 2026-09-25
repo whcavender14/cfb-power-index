@@ -51,15 +51,22 @@ vars <- setdiff(names(tab), c("season", "team_id", "team"))
 cov <- tab[, c(list(fbs_teams = .N), lapply(.SD, function(v) round(mean(!is.na(v)), 3))), by = season, .SDcols = vars]
 rng <- rbindlist(lapply(vars, function(v) data.table(variable = v, min = min(tab[[v]], na.rm = TRUE), median = median(tab[[v]], na.rm = TRUE), max = max(tab[[v]], na.rm = TRUE))))
 ven <- as.data.table(readRDS(file.path(PATHS$frozen, "cfb_data_v2/returning_2014_2026.rds")))[, .(season, team_id = as.integer(team_id), vendor_def = def_returning)]
-dd <- merge(tab[, .(season, team_id, cont_def)], ven, by = c("season", "team_id"))[is.finite(cont_def) & is.finite(vendor_def)]
-agree <- rbind(dd[, .(scope = "pooled", n = .N, r = cor(cont_def, vendor_def))], dd[, .(scope = as.character(season[1]), n = .N, r = cor(cont_def, vendor_def)), by = season][, !"season"])
+# [Amendment 01 A2] validation target = returning-player component cont_def_own (the vendor's concept); cont_def is unchanged
+own <- rbindlist(lapply(2017:2026, function(y) { F <- fbs(y)
+  tck <- r15_prod(rd(sprintf("stats_player_season_year%d_categorydefensive.rds", y - 1)), "TOT", fbs(y - 1)$team)
+  merge(F, r15_continuity_own(tck, rd(sprintf("roster_year%d_classificationfbs.rds", y)), as.character(draft[year == y, collegeAthleteId]), F$team), by = "team")[, season := y] }))
+dd <- merge(merge(tab[, .(season, team_id, cont_def)], own[, .(season, team_id, cont_def_own = cont_own)], by = c("season", "team_id")), ven, by = c("season", "team_id"))[is.finite(cont_def_own) & is.finite(vendor_def)]
+agree <- rbind(dd[, .(scope = "pooled", n = .N, r_amended_own = cor(cont_def_own, vendor_def), r_original_full = cor(cont_def, vendor_def, use = "complete.obs"))],
+               dd[, .(scope = as.character(season[1]), n = .N, r_amended_own = cor(cont_def_own, vendor_def), r_original_full = cor(cont_def, vendor_def, use = "complete.obs")), by = season][, !"season"])
 tests <- system2("Rscript", "tests/round15/test_reconstruct.R", stdout = TRUE, stderr = TRUE)
 tests_ok <- any(grepl("checks passed", tests)) && !any(grepl("^FAIL|Error|Erreur", tests))
-v <- data.table(step = "P4", rule = "unit tests pass; coverage reported; pooled r(cont_def, vendor def_returning) >= 0.8",
-                tests_pass = tests_ok, def_agreement_r = agree[scope == "pooled", r], def_agreement_n = agree[scope == "pooled", n],
+v <- data.table(step = "P4 (amended A2)", rule = "unit tests pass; coverage reported; pooled r(cont_def_own, vendor def_returning) >= 0.8 (cont_def unchanged)",
+                tests_pass = tests_ok, def_agreement_r = agree[scope == "pooled", r_amended_own], def_agreement_n = agree[scope == "pooled", n],
+                season_range = sprintf("%.3f-%.3f", min(agree[scope != "pooled", r_amended_own]), max(agree[scope != "pooled", r_amended_own])),
+                original_full_r = agree[scope == "pooled", r_original_full],
                 nmsu_2021_continuity = tab[season == 2021 & team == "New Mexico State", paste(is.na(cont_pass), is.na(cont_skill), is.na(cont_def))],
                 table_sha256 = digest::digest(file = f_tab, algo = "sha256"), rows = nrow(tab))
 v[, pass := tests_pass & def_agreement_r >= 0.8]
-fwrite(cov, file.path(out, "p4_coverage_by_season.csv")); fwrite(rng, file.path(out, "p4_ranges.csv")); fwrite(agree, file.path(out, "p4_def_continuity_agreement.csv"))
-writeLines(tests, file.path(out, "p4_test_output.txt")); fwrite(v, file.path(out, "p4_verdict.csv"))
+fwrite(cov, file.path(out, "p4_coverage_by_season.csv")); fwrite(rng, file.path(out, "p4_ranges.csv")); fwrite(agree, file.path(out, "p4_def_continuity_agreement_amended.csv"))
+writeLines(tests, file.path(out, "p4_test_output.txt")); fwrite(v, file.path(out, "p4_verdict_amended.csv"))
 print(cov, width = 250); print(rng); print(agree); print(v)

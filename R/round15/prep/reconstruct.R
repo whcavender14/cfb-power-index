@@ -71,3 +71,14 @@ r15_conf_level <- function(members, last) {
     if (nrow(o)) { m$conf_off[i] <- mean(o$eff_off); m$conf_def[i] <- mean(o$eff_def) } }
   m[, .(team_id, conf_off, conf_def)]
 }
+
+# [Amendment 01 A2] VALIDATION ONLY, never a candidate input: returning-player component of continuity = own-team y-1
+# production of players who were on team i in y-1, are on its y roster and were not drafted in April y, / own y-1 total.
+r15_continuity_own <- function(prod, roster, drafted_ids, teams_y) {
+  r <- unique(as.data.table(roster)[, .(id = as.character(id), team)])
+  own <- prod[, .(den = sum(value)), by = team]
+  num <- merge(prod, r[!id %in% drafted_ids], by = c("id", "team"))[, .(num = sum(value)), by = team]
+  out <- data.table(team = teams_y)[, den := own$den[match(team, own$team)]][, num := num$num[match(team, num$team)]]
+  out[is.na(num) & !is.na(den), num := 0]
+  out[, .(team, cont_own = ifelse(is.finite(den) & den > 0, num / den, NA_real_))]
+}

@@ -6,6 +6,7 @@ ok - continuity: players who left are not counted
 ok - continuity: team without prior FBS production is NA, not 0 
 ok - continuity: uncapped arithmetic 
 ok - continuity: no transfer, plain returning share 
+ok - cont_own: own-team returning production only (transfer-in and drafted excluded) 
 ok - qb_xfer_in: >=100-attempt passer from another FBS team 
 ok - qb_xfer_in: own returning QB is not a transfer 
 ok - talent4: fewer than 2 of the 4 classes gives NA 
@@ -15,4 +16,4 @@ ok - conference level: mean of the other members
 ok - conference level: FBS independents are NA 
 ok - coaching port equals the frozen incumbent features for 2015-2026 
 
-13 checks passed
+14 checks passed

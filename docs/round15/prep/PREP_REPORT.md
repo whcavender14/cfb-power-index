@@ -1,4 +1,39 @@
-# Round 15 data preparation (P1–P5): results against the signed rules
+# Round 15 data preparation (P1–P5): final verdicts
+
+## Final verdicts under Amendment 01 (binding predeclaration v2, SHA-256 `7e076b3c…4a7c`)
+
+| Step | Rule (amended where marked) | Result | Verdict |
+|---|---|---|---|
+| P1 [A1] | Every FBS team-season for which CFBD provides the statistics is present; source gaps confirmed by team-specific queries | Only New Mexico State 2020 is missing (rushing, receiving). Team-specific queries with seasonType both and spring_regular return 0 rows, so it is a confirmed source gap | **PASS** |
+| P2 | 2025 fumble recovery ≥ 90%; 0 changed classifications 2013–2024 | 94.1%; 0 changed | **PASS** |
+| P3 | Passer parsed on ≥ 97% of dropbacks in every season | Minimum 97.7% (2024) | **PASS** |
+| P4 [A2] | Tests pass; coverage reported; pooled r(`cont_def_own`, vendor) ≥ 0.8 | 14/14 tests pass; coverage 95–100%; r = **0.955** (n = 856), 0.861–0.996 by season. The input table is unchanged (SHA-256 `cdf040ea…`) | **PASS** |
+| P5 | Fix and record the market-line vintage | 2026-09-25 pull, 9,784 rows, SHA-256 `8f25cbca…` | RECORDED |
+| A3 | 2020 end-of-season success rate: compatibility criteria (a)–(d) | (a) coverage 0.976 ≥ 0.956; (b) 118.9 plays per game within 102.2–138.2; (c) fumble 98.5%, passer 98.4%; (d) mixed-season input rejected, and the 2020 cutoff (2021-03-08) precedes the first 2021 kickoff | **PASS** |
+
+### Known source gaps and exceptions (these also go into the final methodology)
+
+- **New Mexico State 2020 [A1].**
+  - CFBD provides no 2020 player statistics for the team; its 2020 season was two spring games against non-FBS opponents.
+  - Consequence: NMSU's 2021 `cont_pass`, `cont_skill` and `cont_def` are missing. The team uses the missing-data regime,
+    with no zero-fill, imputation or fabrication.
+- **Defensive-continuity validation [A2].**
+  - The signed check compared the transfer-inclusive `cont_def` against a vendor series that counts returning players
+    only, which gave r = 0.667.
+  - The validation target is now the returning-player component (r = 0.955).
+  - `cont_def` itself is unchanged and still includes transfers.
+- **2020 success rate [A3].**
+  - It is built from 2020-season data only. The three Round 13 "2020 excluded" guards are neutralized, for that one call
+    only, by occurrence-asserted patches.
+  - 2020 remains excluded as a target, response, scoring or tuning outcome season.
+  - The end-of-season SR table for 2013–2025 has SHA-256 `e80f6476…`.
+
+**Status:** preparation is complete and frozen (report SHA-256 in `PREP_REPORT.sha256`). Next is candidate construction
+and G0 only. No scored candidate result is inspected before G0 and the freeze of the tuning selections.
+
+---
+
+## Original P1–P5 run (before Amendment 01), kept for the record
 
 The predeclaration was signed 2026-09-25 (SHA-256 `9cedb999…977f`). No candidate has been built or run, and no Round 15
 outcome has been read. These steps touch data quality only.

@@ -18,6 +18,11 @@ c2 <- r15_continuity(prod, roster, drafted_ids = character(), teams_y = "A", cap
 check(eq(c2$cont, (300 + 50 + 400) / 450), "continuity: uncapped arithmetic")
 check(eq(r15_continuity(prod, roster[id != "4"], character(), "A")$cont, 350 / 450), "continuity: no transfer, plain returning share")
 
+# [A2] returning-player component (validation only): transfers-in and drafted players excluded, no cap
+co <- r15_continuity_own(prod, roster, drafted_ids = "3", teams_y = c("A", "B", "C"))
+check(eq(co[team == "A", cont_own], 300 / 450) && eq(co[team == "B", cont_own], 20 / 420) && is.na(co[team == "C", cont_own]),
+      "cont_own: own-team returning production only (transfer-in and drafted excluded)")
+
 # QB transfer-in
 q <- r15_qb_xfer_in(prod, roster, c("A", "B", "C"))
 check(q[team == "A", qb_xfer_in] == 1 && q[team == "B", qb_xfer_in] == 0, "qb_xfer_in: >=100-attempt passer from another FBS team")
