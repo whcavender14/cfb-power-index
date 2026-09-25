@@ -45,3 +45,14 @@ These resolve the open list in `ROUND15_DESIGN.md`. The predeclaration draft (`R
       (the only basis for claims). Historical ATS never gates or advances a candidate.
     - **G1:** explained in plain terms, with power.
     - **Candidates:** a plain-English summary is added as Appendix A.
+
+## Sign-off (2026-09-25)
+
+11. **Predeclaration signed.** The user formally signed off after revision 4, which states explicitly that every quantity
+    inside the §6.1 tuning procedure is computed as-of-date for its own inner season.
+    - **SHA-256:** `9cedb999541d7cdf7f2a576ed860e09483d2e46e19210f0b59455d913a6a977f` (`predeclaration.sha256`).
+    - **Frozen from now on:** specification, candidate definitions, estimation procedures, grids, metrics, gates and
+      evaluation rules. No result-driven changes.
+    - **One gap filled at signing:** §6.1 item 7 covers the undefined 2016 inner-season HFA and prior scale, using the
+      engine's in-solve HFA rule and an unscaled prior.
+    - **Authorized next:** data-preparation steps P1–P5.

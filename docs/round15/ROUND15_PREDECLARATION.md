@@ -1,10 +1,11 @@
-# Round 15 predeclaration — DRAFT for user sign-off
+# Round 15 predeclaration — SIGNED, binding
 
-**Status: DRAFT. Not hashed, not in force.** No candidate has been built or run, and no Round 15 outcome has been read.
-After your sign-off this file is hashed (SHA-256 into `predeclaration.sha256`) and becomes binding. From then on, any change
-is a dated amendment made before the affected step runs, never after its results.
+**Status: SIGNED by the user on 2026-09-25 (in session). Binding.** At signing, no candidate had been built or run and no
+Round 15 outcome had been read. The SHA-256 of this file is recorded in `predeclaration.sha256`. From now on, any change
+is a dated, hashed amendment made before the affected step runs, never after its results. No specification change may be
+driven by results.
 
-Inputs to this draft:
+Inputs to this predeclaration:
 - `ROUND15_DESIGN.md` (design);
 - `DECISIONS.md` (your decisions);
 - `docs/round15/coverage/` and `docs/round15/replay/` (read-only probes);
@@ -289,15 +290,33 @@ Every grid-chosen hyperparameter θ is selected by this deterministic procedure.
 1. **Inner seasons for target *y*:** Z(*y*) = {2016, …, *y*−1} without 2020.
    - 2017 → {2016}; 2018 → {2016, 2017}; 2019 → {2016–2018}; 2021 → {2016–2019}; 2022 → {2016–2019, 2021}.
    - For 2023–2025, the values selected for target 2022 are used; for the forward freeze, Z = {2016–2019, 2021–2025}.
-2. **Inner predictions.** For each inner season *z* ∈ Z(*y*) and each grid value v:
-   - the candidate predicts every FBS-vs-FBS game of season *z* at its own weekly cutoff, using only information before
-     that cutoff;
-   - θ is set to v;
-   - every other parameter takes the value its frozen procedure gives for target *z*. That means data before *z* only;
-     lower layers' grid parameters are themselves selected on Z(*z*).
-   - So no inner prediction ever uses season *z*'s outcomes or anything later.
-3. **Objective:** winner log-loss pooled over all inner games, with a single σ profiled out for each v (σ at its maximum
-   likelihood on those inner predictions). Lower is better.
+2. **Inner predictions are genuine as-of-date predictions.** For each inner season *z* ∈ Z(*y*) and each grid value v:
+   - The candidate predicts every FBS-vs-FBS game of season *z* at its own weekly cutoff, using only information before
+     that cutoff, exactly as it would for a scored season.
+   - θ is set to v.
+   - **Every other quantity used to predict season *z* is computed as if *z* itself were the target season**, by its own
+     walk-forward rule. Belonging to the tuning sample for a later target *y* never lets data from seasons *z*+1 … *y*−1
+     reach a season-*z* prediction. Concretely, for season *z*:
+
+     | Quantity | Data allowed for season *z* |
+     |---|---|
+     | Preseason prior: coefficients, ridge λ, regimes, b and the turnover variance model | Team-seasons 2014 … *z*−1 (not 2020 as a response) |
+     | Roster and continuity inputs (`cont_*`, transfers, `qb_xfer_in`), recruiting, coaching, conference strength | Their own definitions for season *z* (§4.1): *z*−1 stats and ratings, the *z* roster, the April-*z* draft, classes up to *z* |
+     | Prior scale a_X, prediction HFA H | Seasons 2016 … *z*−1 (the fallback for *z* = 2016 is in item 7) |
+     | SR-to-points mapping α, β | Seasons 2014 … *z*−1 |
+     | Fumble value κ_fum | Seasons 2014 … *z*−1 |
+     | Game-noise σ²_row | Seasons 2014 … *z*−1 |
+     | FCS moments μ_FCS, ρ_FCS, v_FCS | Seasons 2014 … *z*−1 |
+     | Lower layers' grid parameters (for example λ0 when tuning ω) | Their own selections for target *z*, made on Z(*z*) |
+     | In-season evidence | Games and plays of season *z* before each weekly cutoff only |
+
+   - So no inner prediction for season *z* uses season *z*'s later outcomes, or anything from a later season.
+3. **Objective:** winner log-loss pooled over all inner games. For each grid value v, a single σ is profiled out (σ at its
+   maximum likelihood on those inner predictions). Lower is better.
+   - This σ is a **scoring device only**. It is computed after all inner predictions exist and never enters any prediction.
+   - It uses only seasons in Z(*y*), all before the outer target *y*.
+   - It is the only quantity in §6.1 that pools across inner seasons.
+   - Its purpose is to compare grid values on the information in their predictions without an arbitrary scale (§7.1).
 4. **Selection and ties:**
    - v* is the minimizer.
    - Ties within 10⁻⁶ go to the value closest to the nesting value: λ0 → 4, ω → 0, q → 0, q_QB → 0.
@@ -306,9 +325,17 @@ Every grid-chosen hyperparameter θ is selected by this deterministic procedure.
 6. **Fallback (deterministic):** if Z(*y*) is empty, has fewer than 500 FBS-vs-FBS games, or the objective is non-finite
    for every v, θ takes its nesting value. That is λ0 = 4, ω = 0, q = 0, q_QB = 0. Only target 2016, which is never
    scored, meets the empty-set condition.
+7. **Season 2016 as an inner season: HFA and prior scale.** H and a_X are calibrated on earlier seasons' games, and no
+   season before 2016 is available for that. The incumbent likewise defines no 2016 fold. For *z* = 2016 only:
+   - **H(2016)** = the median of the per-season HFA estimates for 2013–2015. This is the engine's own in-solve HFA rule in
+     `v4_components`, computed from those seasons' end-of-season fits.
+   - **a_X(2016)** = 1: the prior is used unscaled, in the same end-of-season points units it was fitted to.
+   - This rule only fills a case the draft left undefined; it adds no tuning. It affects every target whose Z includes
+     2016, which is all development targets.
 
-Non-grid parameters (prior coefficients, ridge λ, b, a_X, α, β, κ_fum, FCS moments, σ²_row, σ_X) are closed-form or
-single-optimum estimates from the data stated in the table above. None is chosen by inspecting development results.
+Non-grid parameters (prior coefficients, ridge λ, b, a_X, α, β, κ_fum, FCS moments, σ²_row) are closed-form or
+single-optimum estimates from the data stated in the tables above. None is chosen by inspecting development results.
+σ_X is the **evaluation** scale of §7.1. It is estimated after all development predictions are frozen and never enters §6.1.
 - **Order of estimation.** Estimation is sequential and nested: C1's parameters first; C2 estimates only its own given C1's;
   C3 estimates only its own given C2's.
 - **Fold 2017.** Inner CV uses 2016 only, the same thin history the incumbent has.
@@ -588,7 +615,7 @@ No threshold, grid or definition here was chosen after seeing any Round 15 resul
 
 **Amendments:** dated and hashed, and only before the step they affect. A failed gate is never "fixed" inside Round 15.
 
-**Sign-off:** ______________________  **Date:** __________
+**Sign-off:** approved by the user in session, 2026-09-25 ("I formally sign off on the Round 15 predeclaration"), after revision 4 (as-of-date wording for §6.1). **Date:** 2026-09-25
 
 ---
 
