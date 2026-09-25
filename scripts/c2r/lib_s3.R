@@ -7,7 +7,7 @@
 #   opt$kf     : multiply lambda_FCS;  opt$flat: rho = 0 and lambda_FCS x 1e4 (every team at its group level)
 #   opt$srlevel: an extra free level column on FBS-vs-non-FBS SR rows only
 suppressPackageStartupMessages({ library(data.table); library(Matrix) })
-s3_opt <- function(...) modifyList(list(shift = 0, divmu = FALSE, level = FALSE, n0 = 0, anchor_fcs = NA_real_, anchor_gap = NA_real_, kf = 1, flat = FALSE, srlevel = FALSE, lowcol = TRUE), list(...))
+s3_opt <- function(...) modifyList(list(shift = 0, divmu = FALSE, level = FALSE, n0 = 0, anchor_fcs = NA_real_, anchor_gap = NA_real_, kf = 1, flat = FALSE, srlevel = FALSE, lowcol = TRUE, pscale = 1, pscale_off = NULL, lam_mult = NULL, fbs_zero = FALSE, influence = FALSE), list(...))
 s3_div_of <- function(dv, y, ids) { x <- dv[season == y][match(ids, team_id), div]; x[is.na(x)] <- "unknown"; fifelse(x == "fcs", "fcs", fifelse(x == "ii", "ii", "low3")) }
 s3_mu_pools <- function(c2, dv, k) { tr <- setdiff(2014:min(k - 1L, 2022L), 2020L)
   cur <- rbindlist(c2$eos_full[as.character(tr)])[fcs == TRUE]; cur[, g := s3_div_of(dv, season[1], team_id), by = season]
@@ -28,7 +28,9 @@ s3_capture <- function(d, y, A, dv, opt, pools = NULL) {
     pof_all <- ifelse(is.finite(lf$eff_off), p2$mu[["off"]] + p2$rho[["off"]] * (lf$eff_off - p2$mu[["off"]]), p2$mu[["off"]]) - opt$shift / 2
     pdf_all <- ifelse(is.finite(lf$eff_def), p2$mu[["def"]] + p2$rho[["def"]] * (lf$eff_def - p2$mu[["def"]]), p2$mu[["def"]]) + opt$shift / 2 }
   isfcs <- grp == "fcs"; islow <- !isfcs
-  pofb <- A$a * A$prior$pre_off[match(ids, A$prior$team_id)]; pdfb <- A$a * A$prior$pre_def[match(ids, A$prior$team_id)]
+  # Stage 4: FBS preseason prior mean scale (pscale), zero-information reference (fbs_zero); precision multiplier by games played (lam_mult)
+  pofb <- (if (is.null(opt$pscale_off)) opt$pscale else opt$pscale_off) * A$a * A$prior$pre_off[match(ids, A$prior$team_id)]; pdfb <- opt$pscale * A$a * A$prior$pre_def[match(ids, A$prior$team_id)]
+  if (opt$fbs_zero) { pofb <- 0 * pofb; pdfb <- 0 * pdfb }
   prior_fbs_level <- mean(pofb - pdfb); prior_level_fcs <- mean((pof_all - pdf_all)[isfcs]) - prior_fbs_level
   prior_gap <- if (any(islow)) mean((pof_all - pdf_all)[islow]) - mean((pof_all - pdf_all)[isfcs]) else 0
   lamL <- 2 * opt$n0 + 1e-4
@@ -43,7 +45,9 @@ s3_capture <- function(d, y, A, dv, opt, pools = NULL) {
     fcs_teams <- intersect(fcs_all, unique(rows$team_id)); ents <- c(as.character(ids), as.character(fcs_teams)); nt <- length(ids); ne <- length(ents); n <- nrow(rows)
     fi <- match(fcs_teams, fcs_all)
     po <- c(pofb, pof_all[fi]); pd <- c(pdfb, pdf_all[fi])
-    lo <- c(A$lam$off[match(ids, A$prior$team_id)], rep(lamf[["off"]], length(fi))); ld <- c(A$lam$def[match(ids, A$prior$team_id)], rep(lamf[["def"]], length(fi)))
+    gpf <- rows[, .N, by = team_id][match(ids, team_id), N]; gpf[is.na(gpf)] <- 0L
+    mm <- if (is.null(opt$lam_mult)) rep(1, nt) else opt$lam_mult[pmin(gpf, length(opt$lam_mult) - 1L) + 1L]
+    lo <- c(mm * A$lam$off[match(ids, A$prior$team_id)], rep(lamf[["off"]], length(fi))); ld <- c(mm * A$lam$def[match(ids, A$prior$team_id)], rep(lamf[["def"]], length(fi)))
     te <- as.data.table(d$base$frame)[season == y & cutoff == sn$cutoff]
     fp <- function(o_m, d_m, dL, dLow) data.table(season = y, cutoff = cut, team_id = fcs_all, grp = grp, in_solve = fcs_all %in% fcs_teams,
                                                   first_game_power = (pof_all - o_m) - (pdf_all - d_m) + 2 * dL + 2 * dLow * islow)
@@ -76,12 +80,22 @@ s3_capture <- function(d, y, A, dv, opt, pools = NULL) {
     pw <- (o - mo) - (dd - md) + c(rep(0, nt), rep(2 * dL, nf)) + 2 * dLow * lowe
     p <- pw[seq_len(nt)]
     pred <- te[, .(season, game_id, cutoff = cut, pred_margin = p[match(home_id, ids)] - p[match(away_id, ids)] + H * !neutral)]
+    inf <- NULL
+    if (opt$influence) {   # exact own-prior influence of every FBS team: response of its rating to a unit shift of its own prior mean
+      R <- sparseMatrix(i = c(1L + seq_len(nt), 1L + ne + seq_len(nt), 1L + seq_len(nt), 1L + ne + seq_len(nt)), j = c(seq_len(nt), seq_len(nt), nt + seq_len(nt), 2L * nt + seq_len(nt)),
+                        x = c(0.5 * lo[seq_len(nt)], -0.5 * ld[seq_len(nt)], lo[seq_len(nt)], ld[seq_len(nt)]), dims = c(nrow(Q), 3L * nt))
+      Sx <- as.matrix(solve(Q, R)); ii <- seq_len(nt)
+      Op <- Sx[1L + ii, ii]; Dp <- Sx[1L + ne + ii, ii]; wpow <- diag(Op) - colMeans(Op) - (diag(Dp) - colMeans(Dp))
+      pb <- as.numeric(solve(Q, c(0, lo[ii] * po[ii], rep(0, nf), ld[ii] * pd[ii], rep(0, nf), if (use_sr) 0, rep(0, length(P) - 1L - 2L * ne - as.integer(use_sr)))))
+      pbp <- (pb[1L + ii] - mean(pb[1L + ii])) - (pb[1L + ne + ii] - mean(pb[1L + ne + ii]))
+      inf <- data.table(season = y, cutoff = cut, team_id = ids, gp = gpf, lam_off = lo[ii], lam_def = ld[ii], w_power = wpow,
+                        w_off = diag(Sx[1L + ii, nt + ii]), w_def = diag(Sx[1L + ne + ii, 2L * nt + ii]), prior_power = (po[ii] - mean(po[ii])) - (pd[ii] - mean(pd[ii])), prior_block = pbp, power = pw[ii]) }
     gp <- rows[, .(gp = .N, gp_vs_fbs = sum(opp_id %in% ids)), by = team_id]
     ent <- data.table(season = y, cutoff = cut, team_id = as.integer(ents), fbs = c(rep(TRUE, nt), rep(FALSE, nf)), grp = c(rep("fbs", nt), grp[fi]), power = pw)
     ent <- merge(ent, gp, by = "team_id", all.x = TRUE)[is.na(gp), `:=`(gp = 0L, gp_vs_fbs = 0L)]
     list(pred = pred, ent = ent, cut = data.table(season = y, cutoff = cut, n_rows = n, n_link = g[xor(home_id %in% ids, away_id %in% ids), .N], dL = dL, dLow = dLow,
                                                   prior_level_fcs = prior_level_fcs, fcs_level = if (any(!lowe[-seq_len(nt)])) mean(pw[nt + which(!islow[fi])]) else NA_real_),
-         fcs_prior = fp(mo, md, dL, dLow))
+         fcs_prior = fp(mo, md, dL, dLow), inf = inf)
   })
 }
 s3_capture_all <- function(d, c1, c2, dv, opt, anchors = NULL, seasons = c2r_S) {
@@ -89,7 +103,7 @@ s3_capture_all <- function(d, c1, c2, dv, opt, anchors = NULL, seasons = c2r_S) 
     if (o$level) { a <- anchors[season == y]; stopifnot(nrow(a) == 1); o$anchor_fcs <- a$fcs; o$anchor_gap <- a$gap }
     s3_capture(d, y, c2r_args(d, c1, c2, y), dv, o, if (o$divmu) s3_mu_pools(c2, dv, keyof(y)) else NULL) }), recursive = FALSE)
   pick <- function(nm) rbindlist(lapply(cap, `[[`, nm), fill = TRUE)
-  list(pred = pick("pred"), ent = pick("ent"), cuts = pick("cut"), fcs_prior = pick("fcs_prior"))
+  list(pred = pick("pred"), ent = pick("ent"), cuts = pick("cut"), fcs_prior = pick("fcs_prior"), inf = pick("inf"))
 }
 
 # End-of-season fit (r15_eos_full: points only, penalty 1 on teams, season HFA) with both group levels free; returns team
