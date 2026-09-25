@@ -74,7 +74,10 @@ forward seasons are pulled after each season into a separate evaluation-only sto
   written, a later model failed).
 - A failed run writes nothing partial. The next scheduled run retries: twice a day for snapshots, twice each Sunday for play pulls.
 
-## 6. Activation (needs your approval)
+## 6. Activation
+
+**Decision (2026-09-25): local Mac job.** It stays **inactive** until the final predeclaration and model freeze are approved.
+
 
 **Recommended: a local schedule on this Mac.**
 - Run `bash scripts/forward/install_launchd.sh <commit>` after approval.

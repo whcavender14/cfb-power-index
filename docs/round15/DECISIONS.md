@@ -32,3 +32,16 @@ These resolve the open list in `ROUND15_DESIGN.md`. The predeclaration draft (`R
 7. **Process.** No thresholds or definitions are tuned to earlier Round 13/14 results, and every place those rounds
    influenced the design is disclosed. No production changes. The user signs off the complete predeclaration before the
    formal experiment begins.
+
+## Follow-up (2026-09-25, before sign-off)
+
+8. **2017 stays in development** and is reported separately (its reconstructed HFA is higher). K comparisons stay on 2018–2022.
+9. **Forward host: the local Mac job**, with every safeguard. It is not activated until the final predeclaration and model freeze are approved.
+10. **Revisions requested before sign-off, now in the draft:**
+    - **Win-probability scale:** model-specific σ, fitted by leave-one-season-out on development and frozen afterwards,
+      replaces the fixed σ = 16. Probe 08 found the fixed σ could reverse comparisons.
+    - **Fumble value:** estimated walk-forward instead of assumed to be 4 points.
+    - **Market evidence:** split into safety (veto), historical signal (descriptive, tests T1–T5) and prospective value
+      (the only basis for claims). Historical ATS never gates or advances a candidate.
+    - **G1:** explained in plain terms, with power.
+    - **Candidates:** a plain-English summary is added as Appendix A.

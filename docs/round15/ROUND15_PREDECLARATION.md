@@ -194,11 +194,21 @@ C2 inherits every C1 parameter unchanged and adds four things:
    - FCS prior mean: `μ_FCS + ρ_FCS·(last-season FCS rating − μ_FCS)`. Prior precision: `λ_FCS = λ0·v̄_FBS / v_FCS`.
      μ_FCS, ρ_FCS and v_FCS all come from training seasons' end-of-season fits.
    - This replaces the engine's default, which shrinks FCS opponents toward 0, i.e. an average FBS team.
-3. **Fumble luck.**
-   - For team A in a game: `L_A = (fumbles lost by A − 0.5·fumbles by A) − (same for the opponent)`.
-   - The score row uses `PF_A + 2·L_A`, and the opponent's row uses `PF_B − 2·L_A`. The margin moves by 4 points per
-     unlucky lost fumble.
-   - The constant 4 is fixed a priori, roughly the expected-points swing of a turnover, and is **not tuned**.
+3. **Fumble luck (revised: the value is estimated, not assumed).**
+   - **Luck measure.** For team A in a game: `L_A = (fumbles lost by A − 0.5·fumbles by A) − (same for the opponent)`.
+     Who recovers a loose ball is close to a coin flip, so `L_A` is the unlucky part of the turnover margin.
+     Interceptions are not included; they depend more on skill.
+   - **Value κ_fum (points of margin per unit of luck).** Estimated walk-forward. For target season *y*, the end-of-season
+     points regression of each training season 2014 … *y*−1 (not 2020) gets one extra unpenalized term, `κ·L` on each
+     team-game margin, alongside the usual team offense and defense effects. κ_fum is the pooled coefficient.
+     - Because recovery luck is independent of team strength, κ is identified cleanly.
+     - Only games before the target season are used; 2023+ uses the value frozen through 2022; forward uses the value
+       re-estimated through 2025.
+   - **Adjustment.** The score row uses `PF_A + (κ_fum/2)·L_A`, and the opponent's row uses `PF_B − (κ_fum/2)·L_A`.
+   - **No override.** The estimate is used as fitted, even if it falls outside a football-plausible range (about 3–6
+     points). Such a value is reported, not overridden.
+   - **Why not 4.** The earlier draft's "4 points" had no project evidence behind it. It was a round-number rule of thumb
+     for a turnover's expected-points swing, not established here.
 4. **Nesting switch (G0).** With ω = 0, no FCS games and L ≡ 0, C2 must equal C1 to ≤ 1e-9.
 
 ### 5.4 Candidate 3 (C3): C2 + within-season dynamics
@@ -224,8 +234,8 @@ C3 inherits every C2 parameter and adds:
 | | C1 | C2 | C3 |
 |---|---|---|---|
 | Question | Does a richer preseason information set beat the incumbent? | Does play-level success rate add information as a measurement of the same strength? | Does modeling real in-season change (injuries, QB changes) beat a static season? |
-| New estimated parameters | Prior coefficients and ridge λ (per side and regime), b, λ0, a_X | α, β, ω, μ_FCS, ρ_FCS, v_FCS | q, q_QB |
-| New fixed constants | Grids, turnover index, `cont` cap 1.5 | Fumble constant 4 | QB ≥ 10 dropbacks |
+| New estimated parameters | Prior coefficients and ridge λ (per side and regime), b, λ0, a_X | α, β, ω, μ_FCS, ρ_FCS, v_FCS, κ_fum | q, q_QB |
+| New fixed constants | Grids, turnover index, `cont` cap 1.5 | Recovery coin-flip 0.5 | QB ≥ 10 dropbacks |
 
 **Excluded from every candidate:** vendor EPA and win probability, vendor ratings, polls, market data, team-specific HFA,
 post-hoc tier offsets, tuned portal weights, coordinators and special teams.
@@ -238,14 +248,18 @@ post-hoc tier offsets, tuned portal weights, coordinators and special teams.
 |---|---|---|---|---|
 | Prior coefficients, ridge λ | C1–C3 | Team-seasons 2014 … *y*−1 (not 2020 as response) | Ridge with forward-chaining CV | No |
 | b (turnover to variance) | C1–C3 | CV residuals from those seasons | OLS of log r² | No |
-| λ0 | C1–C3 | Seasons 2016 … *y*−1 | Inner walk-forward CV: each season's games predicted weekly from its own past only; minimize winner log-loss | No |
+| λ0 | C1–C3 | Seasons 2016 … *y*−1 | Inner walk-forward CV: each season's games predicted weekly from its own past only; minimize winner log-loss, with σ profiled out (set to its MLE on the same inner predictions) | No |
 | a_X (prior scale) | C1–C3 | Games of seasons 2016 … *y*−1 | LAD (incumbent procedure) | No |
 | H | All | Incumbent fold value | Shared | No |
 | α, β | C2–C3 | Training-season games and end-of-season ratings | OLS | No |
 | ω | C2–C3 | Seasons 2016 … *y*−1 | Inner walk-forward CV, log-loss | No |
 | μ_FCS, ρ_FCS, v_FCS | C2–C3 | Training-season end-of-season fits | Moments and OLS | No |
 | q, then q_QB | C3 | Seasons 2016 … *y*−1 | Inner walk-forward CV, log-loss | No |
+| κ_fum (points per unlucky lost fumble) | C2–C3 | Games of seasons 2014 … *y*−1 (not 2020) | Coefficient of fumble luck in the end-of-season points regression (§5.3) | No |
+| σ_X (win-probability scale) | All models | Development: other development seasons. Later: all development | Winner-likelihood MLE (§7.1) | No |
 
+- **Inner CV criterion.** Every inner walk-forward choice (λ0, ω, q, q_QB) uses winner log-loss with σ profiled out on
+  the inner predictions. The choice therefore cannot depend on an arbitrary scale either.
 - **Order of estimation.** Estimation is sequential and nested: C1's parameters first; C2 estimates only its own given C1's;
   C3 estimates only its own given C2's.
 - **Fold 2017.** Inner CV uses 2016 only, the same thin history the incumbent has.
@@ -267,17 +281,33 @@ K's subset, and 65 conditional.
 
 ### 7.1 Part A: power rating
 
-**Converting a rating to a win probability.** The model's predicted home margin is `m = P_home − P_away + H·site`, and
-`p = Φ(m / 16)`, where Φ is the standard normal CDF.
-- **Why σ = 16:** it is the incumbent's out-of-sample residual SD (16.3 development, 15.8 conditional), fixed for every
-  model so that a rating point means the same thing everywhere.
+**Converting a rating to a win probability (revised).** The model's predicted home margin is `m = P_home − P_away + H·site`,
+and `p = Φ(m / σ_X)`, where Φ is the standard normal CDF and **σ_X is estimated separately for each model by one fixed procedure**.
+
+- **Procedure (identical for every model: I, K, C1, C2, C3).** σ_X is the maximum-likelihood value of the winner
+  likelihood on that model's own predictions:
+  - **Development season *y*:** leave-one-season-out. σ_X,y is fit on the model's predictions for the *other* development
+    seasons (2017–2022 excluding *y*; K uses 2018–2022 excluding *y*). The season being scored never calibrates itself.
+  - **2023–2025 and forward:** σ_X is fit once on all of the model's development predictions and frozen. No conditional
+    or forward outcome ever enters.
+  - All σ values are computed in one mechanical step, recorded and hashed before any log-loss or Brier result is computed.
+- **Why not a fixed σ = 16.** The earlier draft fixed σ at 16 (the incumbent's out-of-sample RMSE). Probe 08, which uses
+  only the incumbent and frozen K, shows that choice would decide results:
+  - Round 13 K's Δ log-loss against the incumbent is +0.0027 at σ = 12, −0.0012 at σ = 14, −0.0037 at σ = 16 and −0.0064 at σ = 20.
+  - Each model's best scale differs (incumbent 15.0, K 16.1), so a common fixed σ rewards whichever model's spread happens
+    to suit it.
+  - With the model-specific leave-one-season-out procedure, K's Δ is −0.0033 (SE 0.0010).
+- **What the estimated σ does and does not absorb.** It removes an arbitrary scale choice. A model that is uniformly too
+  compressed or too spread out is not punished twice on the primary metric. Spread miscalibration is judged directly by
+  the calibration-slope guardrail (G2d), and the fitted σ_X values are reported.
 - **Clipping:** p is clipped to [10⁻⁶, 1 − 10⁻⁶].
-- **Example:** a 7-point home favourite gets p = Φ(0.4375) = 0.669.
+- **Example:** with σ_X = 15.5, a 7-point home favourite gets p = Φ(0.452) = 0.674.
 
 **Metrics:**
 - **Winner log-loss (primary).** `L = −[w·ln p + (1 − w)·ln(1 − p)]` with w = 1 if the home team won; the game mean is reported.
-- **Brier (secondary, tie-break):** `(p − w)²`.
-- **Link-scale sensitivities (report only):** σ = 15 and 17, plus AUC of m for home wins.
+- **Brier (secondary, tie-break):** `(p − w)²`, with the same p.
+- **Link-scale sensitivities (report only):** common fixed σ ∈ {14, 16, 18}; and AUC of m for home wins, which does not depend on any scale.
+  If G1's verdict for a candidate differs across these sensitivities, the report says so prominently. It does not change the verdict.
 - **Calibration slope:** `lm(actual − H·site ~ m − H·site)`, pooled and by gp bucket. gp = min(games played) of the two
   teams before the cutoff; buckets 0, 1, 2–3, 4–6, 7+. **The spread target is slope 1, not a rating SD.**
 - **Rating spread:** SD of FBS power ratings at each cutoff, and predicted-margin SD by gp bucket.
@@ -309,37 +339,54 @@ K's subset, and 65 conditional.
 
 **Edge.** `E_c = m − M_c` and `E_o = m − M_o`. The incumbent's edge SD is 4.8 points on development and 4.4 on conditional.
 
-**Test 1: predicting outcomes relative to the market.**
-- Model MAE and log-loss beside the market's own (market log-loss uses `Φ(M_c/16)`).
-- **Encompassing regression:** `actual = a + b_M·M_c + b_m·m`. A positive b_m means the model carries outcome information the close lacks.
-- **Edge calibration (key test):** `actual − M_c = a + β_E·E_c`. β_E is the share of the model's disagreement that is
-  realized: 0 means nothing beyond the market, 1 means fully right, < 0 means worse than nothing.
-- Also reported against the open.
-- Planned precision (SE of β_E): about 0.06 development, 0.07 conditional, 0.10 forward.
+**Isolation.** Market data enter only after every prediction is frozen and hashed. They never touch fitting, feature
+selection, hyperparameter choice or candidate changes (§4.4, test L4). A market result can **stop** a candidate through
+the safety veto; it can never **alter** one.
 
-**Test 2: predicting market movement.**
-- `move = M_c − M_o`.
-- Movement slope β_mv from `move = a + β_mv·E_o`.
-- Share of games with |move| ≥ 0.5 that moved toward the model, i.e. sign(move) = sign(E_o).
-- Mean closing-line value `CLV = sign(E_o)·move`, in points.
-- Open-line seasons only.
+**Three levels of market evidence (never merged):**
 
-**Test 3: beating the spread.**
-- **ATS vs close:** pick sign(E_c). The pick wins if `(actual − M_c)·sign(E_c) > 0`. Pushes and zero-edge games are excluded.
-- **ATS vs open:** the same rule on the opening line.
-- **Edge buckets (fixed now), on |E|:** [0,1), [1,2), [2,3), [3,5), [5,7), ≥ 7 points. For each bucket: n, ATS % with a
-  95% Wilson interval, mean covered margin `(actual − M)·sign(E)`, CLV.
-- **Monotonicity:** logistic slope of ATS win on min(|E|, 10), with a block-bootstrap interval. This answers whether larger
-  disagreements are better.
-- The historical incumbent has 260–860 games per bucket. Forward buckets will be much smaller, with a per-bucket ATS SE of
-  about 2.5–4.5 points.
+| Level | Question | Data | Decision power |
+|---|---|---|---|
+| **M-S: market safety** | Is the candidate's relation to the market no worse than the incumbent's? | Development closes (2017–2022) and 2023–25 closes | Veto only (G2h, G3) |
+| **M-H: historical market signal** | Does disagreement with the market carry incremental information, and more so as disagreement grows? | Development (close: 3,868 games; open: 1,539) and 2023–25 (2,398), reported separately | **None.** Descriptive and supporting |
+| **M-P: prospective market value** | Does the frozen model add information beyond the market, or beat it, going forward? | Post-freeze 2026 plus 2027 (§9) | The only basis for any claim of market value |
 
-**Rule.** No other bucket, threshold or filter may be introduced after results. Any new market slice is labeled
-post hoc and has no decision power.
+Historical ATS never gates or advances a candidate. The 52.38% break-even appears only as a reference line and in the
+forward claim F3c.
+
+**The market-signal tests.** The same five tests are computed for M-H (per split) and M-P, each against the close and,
+where available, against the open. Each reports n, a point estimate and a 95% flat season×week block-bootstrap interval
+(Wilson intervals for proportions).
+
+| # | Test | Definition | "Information grows with disagreement" looks like |
+|---|---|---|---|
+| T1 | **Edge calibration** | OLS `actual − M = a + β_E·E` | β_E > 0. β_E = 1 means the model's disagreement is fully realized; 0 means none is |
+| T2 | **Residual margin by edge size** | Covered margin `c = (actual − M)·sign(E)`: mean c in each predeclared bucket of \|E\|, plus the trend slope γ from OLS `c = a + γ·min(\|E\|, 10)` | Mean c > 0 and rising across buckets; γ > 0 |
+| T3 | **Line movement toward the model** | `move = M_c − M_o`. Slope β_mv from `move = a + β_mv·E_o`; share of \|move\| ≥ 0.5 moves with sign(move) = sign(E_o); mean CLV `sign(E_o)·move` by bucket | β_mv > 0; the toward-model share above 50% and rising with \|E_o\|; CLV > 0 |
+| T4 | **ATS by edge bucket** | Pick sign(E); win if c > 0; pushes and E = 0 excluded. ATS % per bucket and pooled, vs close and vs open | Rising with bucket (read with its interval) |
+| T5 | **Monotonic ATS trend** | Logistic slope of ATS win on min(\|E\|, 10) | Slope > 0 |
+
+- **Buckets (fixed now), on |E| in points:** [0,1), [1,2), [2,3), [3,5), [5,7), ≥ 7. No other bucket, threshold, filter or
+  subset may be added after results; anything added later is labeled post hoc with no decision power.
+- **Also reported:** each model's MAE and log-loss beside the market's own (market σ fit by the same rule as §7.1), and the
+  encompassing regression `actual = a + b_M·M_c + b_m·m`.
+- **Separate questions.** The scorecard keeps these apart:
+  - predicting outcomes: T1, T2 and the encompassing regression;
+  - predicting market movement: T3;
+  - beating the spread: T4, T5.
+- **Planned precision:**
+
+  | Quantity | Development | 2023–25 | Forward |
+  |---|---|---|---|
+  | SE of β_E | ≈ 0.06 | ≈ 0.07 | ≈ 0.10 |
+  | ATS % pooled | ≈ ±0.8 pp | ≈ ±1.0 pp | ≈ ±1.4 pp |
+  | ATS % per bucket | ≈ ±1.7–2.3 pp | ≈ ±2.1–3.1 pp | ≈ ±3–5 pp |
+
+  Bucket-level ATS is therefore descriptive at every stage.
 
 ### 7.4 Report-only sensitivities (no decision power)
 
-- σ = 15 and 17 link scales.
+- Common fixed σ ∈ {14, 16, 18} and AUC (§7.1).
 - Continuity rebuilt from dated departures only (§4.3).
 - Vendor talent composite added to C1's prior.
 - The P4-vs-G5 bias under v10_refined's correction, for context only.
@@ -362,7 +409,24 @@ All thresholds are fixed here. Each candidate X ∈ {C1, C2, C3} is tested again
 - **G0c** — all tests pass, and the input and freeze manifests verify.
 
 **G1: power-rating primary (development, 2017–2022).** Pooled Δ log-loss(X − I) ≤ **−0.0020**, **and** the upper
-bound of the **98.33%** block interval is < 0 (Bonferroni over three candidates).
+bound of the **98.33%** block interval is < 0 (Bonferroni over three candidates). Log-loss uses the model-specific σ of §7.1.
+
+**What G1 means in practice** (from probes 04 and 08; incumbent and K only):
+
+- **Size.** The incumbent's development log-loss is about 0.535. −0.0020 is a 0.37% reduction. At the exchange rate seen
+  between K and the incumbent, it corresponds to roughly −0.04 points of MAE, slightly stricter than Rounds 13–14's
+  −0.030 MAE bar.
+- **Round 13 K under this metric.** K's Δ is −0.0033 (SE 0.0010), which would clear G1.
+- **Power.** With 3,868 development games, the SE for a K-like change is about 0.0009. The Bonferroni condition then
+  needs roughly Δ ≤ −0.0022, so it binds before the −0.0020 threshold does.
+  - A true improvement of −0.0033 (K-sized) passes about 89% of the time; −0.0025 about 64%; −0.0020 about 43%.
+  - A candidate that changes predictions more than K does has a noisier Δ. At twice K's SE, a K-sized gain passes only
+    about 28% of the time.
+- **Why −0.0020 rather than another value.**
+  - At 0, significance alone would decide, so a trivially small but precisely measured gain could pass.
+  - −0.001 behaves almost the same as 0, because the interval condition binds first.
+  - −0.003 would pass a K-sized gain only about 63% of the time.
+  - −0.0020 binds only when a candidate is very close to the incumbent, where it blocks promotion of a gain too small to matter.
 
 **G2: guardrails (development).** All of the following must hold:
 
@@ -375,7 +439,7 @@ bound of the **98.33%** block interval is < 0 (Bonferroni over three candidates)
 | G2e | Tier separation | \|P4-vs-G5 bias\| ≤ the incumbent's |
 | G2f | No season materially worse | Every development season: Δ log-loss ≤ +0.003 |
 | G2g | Early and late season | gp 0–3 and gp 4+: each Δ log-loss ≤ +0.001 |
-| G2h | **Market veto** (close lines, development) | β_E(X) ≥ β_E(I) − 0.10, **and** β_E(X) not significantly negative (95% upper bound ≥ 0) |
+| G2h | **Market safety veto (M-S)** (close lines, development) | β_E(X) ≥ β_E(I) − 0.10, **and** β_E(X) not significantly negative (95% upper bound ≥ 0). Safety only; it never counts as evidence of market value |
 
 **G3: non-degradation (2023–2025, contaminated).** All of the following must hold:
 - Δ log-loss ≤ +0.001;
@@ -407,7 +471,8 @@ bound of the **98.33%** block interval is < 0 (Bonferroni over three candidates)
 
 ## 9. Forward test and snapshots
 
-- **Mechanism:** `docs/forward/FORWARD_SNAPSHOTS.md`, built and tested; activation awaits your approval.
+- **Mechanism:** `docs/forward/FORWARD_SNAPSHOTS.md`, built and tested. Host: **local Mac job** (your choice, 2026-09-25),
+  with every safeguard kept. It is **not activated** until you approve the final predeclaration and model freeze.
 - **At freeze:** R (or all passing candidates, if you prefer) is frozen with parameters re-estimated through 2025. Its code
   is committed and hashed, and its plugin is added to the snapshot tool. The freeze manifest is signed.
 - **Forward window:** games kicking off after the freeze timestamp. Each is scored by the rule in FORWARD_SNAPSHOTS §4.
@@ -421,14 +486,21 @@ bound of the **98.33%** block interval is < 0 (Bonferroni over three candidates)
 |---|---|---|
 | F1 | Power rating | Δ log-loss vs I ≤ 0 (point estimate). Interval reported |
 | F2 | Game prediction | Δ MAE ≤ +0.05 |
-| F3 | Market value | Claimed **only** under these conditions:<br>• outcome information beyond the close: β_E lower 95% bound > 0<br>• predicts movement: β_mv lower bound > 0<br>• beats the spread: pooled ATS vs close lower 95% Wilson bound > 52.38%<br>Otherwise the report says "not demonstrated". Each claim is reported separately |
+| F3a | Market: outcome information beyond the close | Claimed only if T1's β_E lower 95% bound > 0 **and** T2's γ lower bound > 0 |
+| F3b | Market: predicts line movement | Claimed only if T3's β_mv lower 95% bound > 0 |
+| F3c | Market: beats the spread | Claimed only if pooled ATS vs close has its lower 95% Wilson bound > 52.38% |
+
+Each F3 claim is reported separately; otherwise the report says "not demonstrated". F3 is evidence for you, not a
+condition for keeping a candidate that is already in production.
 
 ## 10. Where Rounds 13 and 14 influenced this design (disclosure)
 
 1. **Success rate as the only play-level measure, and vendor EPA excluded.** From Round 13's SR result and Round 14 Phase 1's qualitative finding that EPA was redundant with SR (your decision 4).
 2. **Last season's success rate and the multi-year score history in the prior.** From Round 14 Phase 1's clue that the prior carry-over was the biggest lever. Its numbers are not used.
 3. **FCS games in C2/C3.** From the FCS side experiment and Round 14's clue. The weight is not tuned; FCS teams are modeled instead.
-4. **The G1 threshold of −0.0020.** The Round 13 development pair gives an exchange rate: Δ log-loss −0.0037 corresponded to Δ MAE −0.067. At that rate, −0.0020 corresponds to about −0.036 MAE, slightly stricter than Rounds 13–14's G1 bar of −0.030 MAE. This sets how large a gain counts as meaningful. It makes passing **harder** than a significance test alone.
+4. **The G1 threshold of −0.0020.** Under the model-specific σ, the Round 13 development pair gives an exchange rate: Δ log-loss −0.0033 corresponded to Δ MAE −0.067. At that rate, −0.0020 corresponds to about −0.04 MAE, slightly stricter than Rounds 13–14's −0.030 bar. This sets how large a gain counts as meaningful and makes passing **harder** than a significance test alone.
+8. **The win-probability procedure (§7.1)** was chosen after probe 08 showed, on the incumbent and K only, that a fixed σ could reverse comparisons. No Round 15 model was involved.
+9. **The fumble value** is now estimated (§5.3). The earlier fixed 4 points was a rule of thumb, not project evidence.
 5. **Log-loss as primary, and the power estimates.** From the incumbent-versus-K development pair (probe 04).
 6. **Round 13's SR instrument** (eligibility, garbage filter, fumble recovery, λ 0.5) is reused frozen, not retuned.
 7. **Round 13's gp 1–3 pattern is not built in.** SR's weight against games played emerges from precision accumulation.
@@ -456,3 +528,58 @@ No threshold, grid or definition here was chosen after seeing any Round 15 resul
 **Amendments:** dated and hashed, and only before the step they affect. A failed gate is never "fixed" inside Round 15.
 
 **Sign-off:** ______________________  **Date:** __________
+
+---
+
+## Appendix A: the three candidates in plain English
+
+Every candidate gives each team an offense number and a defense number, in points against an average FBS team. A game
+prediction is the difference between the two teams plus home field. The candidates differ only in what they know and
+how they learn.
+
+**Candidate 1: a smarter starting point.**
+- **Before Week 1 it knows:**
+  - how good the team was last year and the year before, from both scores and play-by-play success rate;
+  - how much of last year's production returns: QB passing, runners and receivers, tacklers, with transfers counted
+    where they now play;
+  - whether a proven QB transferred in;
+  - recruiting talent over the last four classes;
+  - whether the head coach is new;
+  - how strong the team's conference was last year.
+- **New versus the incumbent:**
+  - the QB, transfer, multi-year and conference information;
+  - recruiting measured by class rankings dated at signing, instead of a vendor figure that has since been recomputed;
+  - teams with heavy turnover (new QB, new coach, low returning production) get a *less certain* starting point.
+- **How games change it:** exactly as the incumbent does. Every FBS game's score pulls both teams' ratings toward what the
+  score implies, with the opponent's strength accounted for.
+- **Preseason information over the season:** it fades as games accumulate. It fades **faster** for high-turnover teams,
+  whose starting point was less trustworthy.
+- **Hypothesis tested:** better knowledge of who is on the roster, and how much changed, gives better early rankings and
+  better rankings overall.
+
+**Candidate 2: Candidate 1, plus reading how teams play, not just the score.**
+- **Before Week 1:** the same as Candidate 1.
+- **New versus Candidate 1:**
+  1. Each game also contributes each offense's **success rate**: how often plays gain enough yardage to stay on schedule.
+     It is a steadier signal than the final score. It updates the same offense and defense numbers, weighted by how much
+     it proved to add in past seasons.
+  2. **FCS games count.** FCS opponents get their own ratings instead of being ignored.
+  3. **Fumble luck is removed.** Who recovers a fumble is mostly chance, so a game swung by lucky recoveries is adjusted by
+     a points value estimated from past seasons.
+- **How games change it:** each game moves ratings through both the score and the success rate.
+- **Preseason information over the season:** it fades faster than in Candidate 1, because each game now carries more information.
+- **Hypothesis tested:** the play-by-play quality of a performance measures team strength better than the scoreboard alone,
+  especially early in the season when only a few scores exist.
+
+**Candidate 3: Candidate 2, plus allowing teams to genuinely change during the season.**
+- **Before Week 1:** the same as Candidate 2.
+- **New versus Candidate 2:**
+  - A team's true strength may drift from week to week (injuries, development, scheme changes), so recent games count
+    somewhat more than early ones.
+  - A detected quarterback change triggers a bigger, one-time allowance for the offense to change.
+  - How much drift to allow is estimated from past seasons, and may be zero.
+- **How games change it:** the same two signals as Candidate 2, but a September game counts a bit less by November.
+- **Preseason information over the season:** it fades further, because old information, the preseason view included, is
+  gradually discounted.
+- **Hypothesis tested:** teams really do change within a season, and a rating that follows real change, while ignoring
+  one-game noise, ranks them better.
