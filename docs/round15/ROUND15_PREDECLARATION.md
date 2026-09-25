@@ -160,7 +160,7 @@ C1 is the incumbent's in-season solve with a new prior mean, a new team-specific
   `(1 − cont_def) + new_hc + promoted`. Components missing for a team are set to their training mean in u only.
 - **Precision per team:** `λ_i = λ0 · exp(−b·(u_i − ū))`, where ū is the FBS mean in season *y*. A team with more turnover
   gets a weaker pull toward its prior, so its games move it faster. b is estimated, never searched.
-- **λ0** comes from inner walk-forward CV over {2, 3, 4, 6, 8, 12} (§6). Ties go to 4, the incumbent's value.
+- **λ0** comes from the frozen inner walk-forward procedure (§6.1) over {2, 3, 4, 6, 8, 12}. Ties go to 4, the incumbent's value.
 
 **How each input enters:**
 
@@ -182,13 +182,21 @@ scale, C1 must reproduce the incumbent replay to ≤ 1e-9.
 C2 inherits every C1 parameter unchanged and adds four things:
 
 1. **SR channel.**
-   - **Mapping to points.** Each FBS-involved game gives one SR row per offense. It is mapped to points with
-     `s′ = (SR_AB − α)/β`, where α and β come from regressing game SR on end-of-season `(o_A + d_B)` in the training seasons.
-   - **Weight.** The mapped row enters the same ridge as a score row with weight ω. SR therefore updates the same *o* and
-     *d* as scores; it is not a separate rating.
-   - **How much SR counts.** ω is chosen from {0, 0.25, 0.5, 1, 2} by inner walk-forward CV (§6); ties go to the smaller ω.
-   - **SR's weight against games played is not tuned.** It emerges from accumulated precision. SR adds most when few games
-     have been played; Round 13's gp 1–3 finding is not built in.
+   - **Mapping to points (α, β).** Each FBS-involved game gives one SR row per offense. It is mapped to points with
+     `s′ = (SR_AB − α)/β`. For target season *y*, α and β come from **one pooled OLS**:
+     - **Response:** game SR of offense A against defense B.
+     - **Predictor:** `(o_A + d_B)`, from the end-of-season points ratings of the same season.
+     - **Data:** every FBS-vs-FBS game of seasons 2014 … *y*−1 (excluding 2020), one row per offense.
+     - **Validity check:** β must be > 0 with at least 1,000 rows, otherwise the fallback below applies.
+   - **Weight ω.** The mapped row enters the same ridge as a score row with weight ω. SR therefore updates the same *o* and
+     *d* as scores; it is not a separate rating. Precisely:
+     - **One ω, used jointly for offense and defense.** Each SR row informs `o_A + d_B` together, exactly as a score row does.
+     - **Constant within a season.** ω does not vary with games played. SR's influence relative to the prior and to scores
+       changes over the season only because precision accumulates. Round 13's gp 1–3 finding is not built in.
+     - **Estimation:** by the frozen inner walk-forward procedure of §6.1, over the grid {0, 0.25, 0.5, 1, 2}. There is no
+       other regularization; the grid is the only bound.
+     - **Fallback:** if α or β fails its check, or the §6.1 procedure fails, ω = 0 (SR off) for that target season, and the
+       report records it.
 2. **FCS teams.**
    - All FBS-vs-FCS and FCS-vs-FCS games enter the score channel at full weight. FCS teams become parameters.
    - FCS prior mean: `μ_FCS + ρ_FCS·(last-season FCS rating − μ_FCS)`. Prior precision: `λ_FCS = λ0·v̄_FBS / v_FCS`.
@@ -216,17 +224,32 @@ C2 inherits every C1 parameter unchanged and adds four things:
 C3 inherits every C2 parameter and adds:
 
 1. **Random walk.** *o* and *d* follow a random walk across weekly cutoffs, `x_{w+1} = x_w + η`, with
-   η ~ N(0, q·Δweeks) on each side. The model is solved exactly by a Kalman filter over weekly steps.
-   - Initial state: the prior mean.
-   - Initial variance: σ²_row/λ_i.
-   - Observations: score rows (noise σ²_row) and SR rows (noise σ²_row/ω).
-   - μ has a diffuse prior.
-   - Ratings are then centered as in C1.
-2. **QB-change shock.** A detected QB change adds q_QB to the offense's state variance once, at the cutoff after the game
-   where it is detected. A change is detected when a team's primary passer in its latest game (≥ 10 dropbacks) differs from
-   its season-to-date primary passer.
-3. **Choosing q and q_QB.** q ∈ {0, 0.25, 0.5, 1, 2} and then, given q, q_QB ∈ {0, 4, 16, 36}, both in points² and both by
-   inner walk-forward CV (§6). Ties go to 0.
+   η ~ N(0, q·Δweeks). Δweeks is the number of calendar weeks between consecutive cutoffs, uncapped, so bowl gaps count in
+   full. **One q is shared by offense and defense.** The model is solved exactly by a Kalman filter over weekly steps.
+   - **Initial state:** the prior mean.
+   - **Initial variance:** σ²_row/λ_i.
+   - **Observations:** score rows (noise σ²_row) and SR rows (noise σ²_row/ω).
+   - **σ²_row for target season *y*:** the pooled residual variance of the score rows in the end-of-season points fits of
+     seasons 2014 … *y*−1 (excluding 2020), multiplied by n/(n − p) for degrees of freedom.
+   - **μ:** diffuse prior.
+   - **Centering:** ratings are then centered as in C1.
+2. **QB-change shock.**
+   - **Detection:** a change is detected when a team's primary passer in its latest game (≥ 10 dropbacks) differs from its
+     season-to-date primary passer. Detection uses play text only, from games before the cutoff.
+   - **Effect:** it adds q_QB to that team's **offense** state variance once, at the cutoff after the game where it was
+     detected. Defense is unaffected.
+3. **Estimating q and q_QB (deterministic).**
+   - **Procedure:** both come from the frozen inner walk-forward procedure of §6.1, run sequentially:
+     - first q over {0, 0.25, 0.5, 1, 2} points² per week, with q_QB = 0;
+     - then q_QB over {0, 4, 16, 36} points², with q fixed at its selected value.
+   - **Training seasons:** the same as every inner choice, 2016 … *y*−1 excluding 2020.
+   - **Bounds:** the grids are the only bounds; there is no other regularization.
+   - **Edges and zeros:**
+     - A selected value at the top of its grid (q = 2 or q_QB = 36) is used as is and disclosed as a grid-edge selection.
+       The grid is never extended.
+     - A selected value of 0 is a valid result: that layer is inactive for that target season (q = 0 means a static season;
+       q_QB = 0 means no QB shock). The report shows it; no substitute value is used.
+   - **Fallback:** if the §6.1 procedure fails, or if prerequisite P3 (passer parsing) fails, the affected parameter is 0.
 4. **Nesting switch (G0).** With q = q_QB = 0, C3 must equal C2 to ≤ 1e-6 (the Kalman path versus the direct solve).
 
 ### 5.5 What each candidate answers
@@ -248,18 +271,44 @@ post-hoc tier offsets, tuned portal weights, coordinators and special teams.
 |---|---|---|---|---|
 | Prior coefficients, ridge λ | C1–C3 | Team-seasons 2014 … *y*−1 (not 2020 as response) | Ridge with forward-chaining CV | No |
 | b (turnover to variance) | C1–C3 | CV residuals from those seasons | OLS of log r² | No |
-| λ0 | C1–C3 | Seasons 2016 … *y*−1 | Inner walk-forward CV: each season's games predicted weekly from its own past only; minimize winner log-loss, with σ profiled out (set to its MLE on the same inner predictions) | No |
+| λ0 | C1–C3 | Z(*y*), §6.1 | Frozen inner walk-forward procedure, log-loss | No |
 | a_X (prior scale) | C1–C3 | Games of seasons 2016 … *y*−1 | LAD (incumbent procedure) | No |
 | H | All | Incumbent fold value | Shared | No |
 | α, β | C2–C3 | Training-season games and end-of-season ratings | OLS | No |
-| ω | C2–C3 | Seasons 2016 … *y*−1 | Inner walk-forward CV, log-loss | No |
+| ω (one value, joint offense/defense, constant within season) | C2–C3 | Z(*y*), §6.1 | Frozen inner walk-forward procedure, log-loss | No |
 | μ_FCS, ρ_FCS, v_FCS | C2–C3 | Training-season end-of-season fits | Moments and OLS | No |
-| q, then q_QB | C3 | Seasons 2016 … *y*−1 | Inner walk-forward CV, log-loss | No |
+| q, then q_QB | C3 | Z(*y*), §6.1 | Frozen inner walk-forward procedure, log-loss | No |
+| σ²_row | C1–C3 | Score rows of end-of-season fits, 2014 … *y*−1 (not 2020) | Pooled residual variance × n/(n − p) | No |
 | κ_fum (points per unlucky lost fumble) | C2–C3 | Games of seasons 2014 … *y*−1 (not 2020) | Coefficient of fumble luck in the end-of-season points regression (§5.3) | No |
 | σ_X (win-probability scale) | All models | Development: other development seasons. Later: all development | Winner-likelihood MLE (§7.1) | No |
 
-- **Inner CV criterion.** Every inner walk-forward choice (λ0, ω, q, q_QB) uses winner log-loss with σ profiled out on
-  the inner predictions. The choice therefore cannot depend on an arbitrary scale either.
+### 6.1 The frozen inner walk-forward procedure (λ0, ω, q, q_QB)
+
+Every grid-chosen hyperparameter θ is selected by this deterministic procedure. No analyst choice remains.
+
+1. **Inner seasons for target *y*:** Z(*y*) = {2016, …, *y*−1} without 2020.
+   - 2017 → {2016}; 2018 → {2016, 2017}; 2019 → {2016–2018}; 2021 → {2016–2019}; 2022 → {2016–2019, 2021}.
+   - For 2023–2025, the values selected for target 2022 are used; for the forward freeze, Z = {2016–2019, 2021–2025}.
+2. **Inner predictions.** For each inner season *z* ∈ Z(*y*) and each grid value v:
+   - the candidate predicts every FBS-vs-FBS game of season *z* at its own weekly cutoff, using only information before
+     that cutoff;
+   - θ is set to v;
+   - every other parameter takes the value its frozen procedure gives for target *z*. That means data before *z* only;
+     lower layers' grid parameters are themselves selected on Z(*z*).
+   - So no inner prediction ever uses season *z*'s outcomes or anything later.
+3. **Objective:** winner log-loss pooled over all inner games, with a single σ profiled out for each v (σ at its maximum
+   likelihood on those inner predictions). Lower is better.
+4. **Selection and ties:**
+   - v* is the minimizer.
+   - Ties within 10⁻⁶ go to the value closest to the nesting value: λ0 → 4, ω → 0, q → 0, q_QB → 0.
+   - Selections are recorded for every target season and hashed before any development metric is computed.
+5. **Order:** λ0 (C1); then ω (C2), given C1's values; then q, then q_QB (C3), given C2's.
+6. **Fallback (deterministic):** if Z(*y*) is empty, has fewer than 500 FBS-vs-FBS games, or the objective is non-finite
+   for every v, θ takes its nesting value. That is λ0 = 4, ω = 0, q = 0, q_QB = 0. Only target 2016, which is never
+   scored, meets the empty-set condition.
+
+Non-grid parameters (prior coefficients, ridge λ, b, a_X, α, β, κ_fum, FCS moments, σ²_row, σ_X) are closed-form or
+single-optimum estimates from the data stated in the table above. None is chosen by inspecting development results.
 - **Order of estimation.** Estimation is sequential and nested: C1's parameters first; C2 estimates only its own given C1's;
   C3 estimates only its own given C2's.
 - **Fold 2017.** Inner CV uses 2016 only, the same thin history the incumbent has.
@@ -297,9 +346,21 @@ and `p = Φ(m / σ_X)`, where Φ is the standard normal CDF and **σ_X is estima
   - Each model's best scale differs (incumbent 15.0, K 16.1), so a common fixed σ rewards whichever model's spread happens
     to suit it.
   - With the model-specific leave-one-season-out procedure, K's Δ is −0.0033 (SE 0.0010).
-- **What the estimated σ does and does not absorb.** It removes an arbitrary scale choice. A model that is uniformly too
-  compressed or too spread out is not punished twice on the primary metric. Spread miscalibration is judged directly by
-  the calibration-slope guardrail (G2d), and the fitted σ_X values are reported.
+- **What each measure evaluates.**
+  - **Log-loss with σ_X** measures the **information in a model's ratings after probability calibration**: how well the
+    ordering and relative gaps between teams predict winners, once each model's margins are translated into
+    probabilities on its own best scale.
+  - It deliberately does **not** judge whether the raw ratings have the right spread. That is the job of the separate
+    margin-calibration gates, which use the **raw** rating difference with no rescaling:
+    - **G2d:** calibration slope of actual margin on raw predicted margin, pooled and in every games-played bucket;
+    - **G2a–b:** MAE and RMSE of raw margins;
+    - **G3:** the same checks on 2023–2025.
+  - **A model cannot hide badly compressed or exaggerated raw ratings behind its probability mapping.** Consider a model
+    whose points-scale ratings are too compressed (slope well above 1) or too spread out (slope well below 1). Even if a
+    rescaled σ_X gives it good log-loss, it fails G2d; its miscalibration also shows up in MAE and RMSE. Both conditions
+    must hold to advance.
+  - The fitted σ_X values are reported beside each model's raw slope. A σ_X far from the model's raw RMSE is flagged in
+    the report as a sign that the probability mapping is compensating for the raw spread.
 - **Clipping:** p is clipped to [10⁻⁶, 1 − 10⁻⁶].
 - **Example:** with σ_X = 15.5, a 7-point home favourite gets p = Φ(0.452) = 0.674.
 
@@ -435,7 +496,7 @@ bound of the **98.33%** block interval is < 0 (Bonferroni over three candidates)
 | G2a | Margin prediction not materially worse | Δ MAE ≤ +0.020, and the 95% interval's lower bound ≤ 0 |
 | G2b | RMSE | Δ RMSE ≤ +0.030 |
 | G2c | Brier consistent with the primary | Δ Brier ≤ 0 |
-| G2d | Calibrated spread | Pooled slope in [0.90, 1.10]; each gp-bucket slope in [0.80, 1.20] |
+| G2d | Calibrated **raw** spread (no probability rescaling) | Slope of actual on raw predicted margin: pooled in [0.90, 1.10]; each gp-bucket slope in [0.80, 1.20] |
 | G2e | Tier separation | \|P4-vs-G5 bias\| ≤ the incumbent's |
 | G2f | No season materially worse | Every development season: Δ log-loss ≤ +0.003 |
 | G2g | Early and late season | gp 0–3 and gp 4+: each Δ log-loss ≤ +0.001 |
@@ -444,7 +505,7 @@ bound of the **98.33%** block interval is < 0 (Bonferroni over three candidates)
 **G3: non-degradation (2023–2025, contaminated).** All of the following must hold:
 - Δ log-loss ≤ +0.001;
 - Δ MAE ≤ +0.030;
-- pooled slope in [0.90, 1.10];
+- raw pooled slope in [0.90, 1.10];
 - \|P4-vs-G5 bias\| ≤ the incumbent's;
 - market veto: β_E(X) ≥ β_E(I) − 0.10 on close lines.
 
@@ -561,8 +622,8 @@ how they learn.
 - **Before Week 1:** the same as Candidate 1.
 - **New versus Candidate 1:**
   1. Each game also contributes each offense's **success rate**: how often plays gain enough yardage to stay on schedule.
-     It is a steadier signal than the final score. It updates the same offense and defense numbers, weighted by how much
-     it proved to add in past seasons.
+     It is a steadier signal than the final score. It updates the same offense and defense numbers. Its weight is one number
+     per season, picked by a fixed rule from a short list, on past seasons only (§6.1).
   2. **FCS games count.** FCS opponents get their own ratings instead of being ignored.
   3. **Fumble luck is removed.** Who recovers a fumble is mostly chance, so a game swung by lucky recoveries is adjusted by
      a points value estimated from past seasons.
@@ -577,7 +638,8 @@ how they learn.
   - A team's true strength may drift from week to week (injuries, development, scheme changes), so recent games count
     somewhat more than early ones.
   - A detected quarterback change triggers a bigger, one-time allowance for the offense to change.
-  - How much drift to allow is estimated from past seasons, and may be zero.
+  - How much drift to allow, and the size of the QB allowance, are picked by the same fixed rule on past seasons only (§6.1).
+    Either may be zero.
 - **How games change it:** the same two signals as Candidate 2, but a September game counts a bit less by November.
 - **Preseason information over the season:** it fades further, because old information, the preseason view included, is
   gradually discounted.
