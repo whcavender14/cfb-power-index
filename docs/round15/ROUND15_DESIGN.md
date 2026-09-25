@@ -7,6 +7,10 @@ The CFBD probe used **93 calls** of the account's Academic tier (3,000 a month; 
 Round 14 stays frozen at Phase 1: none of its numbers are used as evidence here, only its qualitative findings as labeled design clues.
 Round 13 K is still a production candidate awaiting your decision; here it is a comparator only.
 
+> **Update 2026-09-25:** these decisions are resolved (`DECISIONS.md`). Your choices changed several of this document's
+> proposals: Brier is the tie-break, 2017 is added (reproduced), the forward test is automated, and market value is now a
+> third objective. The binding specification is the draft `ROUND15_PREDECLARATION.md`, which supersedes §9–§12 of this file.
+
 ## Decisions for you before anything is predeclared
 
 1. **Primary metric: out-of-sample winner log-loss with a fixed probit link (σ = 16 points).** The tie-break is development MAE (§9). Alternatives: Brier as primary, or MAE as primary.
