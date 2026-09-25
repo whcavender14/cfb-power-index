@@ -16,19 +16,19 @@ r15_sigma2_row <- function(d, y) {
     ssr <- ssr + sum(r^2); n <- n + length(r); p <- p + 1 + 2 * length(ids) }
   ssr / n * n / (n - p)
 }
-# QB-change events: game in which the primary passer (>= 10 dropbacks) differs from the team's season-to-date primary
-# passer (most accumulated primary dropbacks in earlier games; a passer tied for that lead does not differ from it) and is
-# not a repeat of the previous game's detection (one shock per change).
+# QB-change events (Amendment 02): a game whose primary passer differs from the team's primary passer in its preceding
+# game (the most recent earlier game of the season with a primary). Co-primaries (a tie for the game's most dropbacks)
+# differ only if the two games share no primary passer. Repeats of the same primary never re-trigger; the first game with
+# a primary is not an event. Needs d$qb from r15_qb_primary().
 r15_qb_events <- function(d, y) {
+  stopifnot(!is.null(d$qb))
   g <- d$games[[as.character(y)]][final == TRUE, .(game_id, kickoff, available_at)]
   nm <- r15_all_names(d, y)
-  q <- merge(d$pbp[season == y & !is.na(passer) & dropbacks >= 10, .(game_id, team = offense, passer, dropbacks)], g, by = "game_id")
+  q <- merge(d$qb[season == y, .(game_id, team = offense, primary)], g, by = "game_id")
   q <- merge(q, nm, by = "team")[order(team_id, kickoff)]
   q[, event := {
-    ev <- rep(FALSE, .N)
-    if (.N >= 2) for (k in 2:.N) { acc <- tapply(dropbacks[1:(k - 1)], passer[1:(k - 1)], sum)
-      ev[k] <- !(passer[k] %in% names(acc)[acc == max(acc)]) && passer[k] != passer[k - 1] }
-    ev }, by = team_id]
+    s <- strsplit(primary, "|", fixed = TRUE)
+    c(FALSE, vapply(seq_len(.N)[-1], function(k) !length(intersect(s[[k]], s[[k - 1L]])), logical(1))) }, by = team_id]
   q[event == TRUE, .(team_id, game_id, available_at)]
 }
 

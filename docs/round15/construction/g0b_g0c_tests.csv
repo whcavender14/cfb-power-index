@@ -5,6 +5,7 @@ L1,"C2 beta, kappa and FCS moments for 2019 unchanged",TRUE
 L1,C1 predictions at a mid-2019 cutoff unchanged when later 2019 results and all later seasons are scrambled (52 games),TRUE
 L1,C2 predictions at a mid-2019 cutoff unchanged when later 2019 results and all later seasons are scrambled (52 games),TRUE
 L1,C3 predictions at a mid-2019 cutoff unchanged when later 2019 results and all later seasons are scrambled (52 games),TRUE
+L1,C3 QB-change events before a mid-2019 cutoff unchanged when later passers are scrambled (69 events),TRUE
 L6,every inner-tuning set Z(y) is strictly before y and excludes 2020,TRUE
 L6,2023+ prior and scale use training data through 2022 only,TRUE
 L6,2023+ C2/C3 parameters use training data through 2022 only,TRUE

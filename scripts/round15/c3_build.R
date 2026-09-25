@@ -2,7 +2,7 @@
 # selection (§6.1, as-of-date), frozen predictions. NO development or conditional metric is computed or printed.
 source("config/paths.R"); source("config/production.R")
 suppressPackageStartupMessages({ source(PATHS$model_ops); library(data.table); for (f in c("data", "c1", "c2", "c3", "tune")) source(sprintf("R/round15/candidates/%s.R", f)) })
-out <- R15C$cache; d <- r15_build_data(); c1 <- readRDS(file.path(out, "c1_components.rds")); c2 <- readRDS(file.path(out, "c2_components.rds"))
+out <- R15C$cache; d <- r15_build_data(); d$qb <- r15_qb_primary(); c1 <- readRDS(file.path(out, "c1_components.rds")); c2 <- readRDS(file.path(out, "c2_components.rds"))
 Z <- c(2016L, 2017L, 2018L, 2019L, 2021L, 2022L)
 s2 <- sapply(c(Z, 2023L), function(z) r15_sigma2_row(d, z)); names(s2) <- c(Z, 2023L)
 vb <- function(z) { v <- c1$varm[[as.character(z)]]; list(off = v$off$vbar, def = v$def$vbar) }
@@ -37,4 +37,6 @@ fwrite(params, "docs/round15/construction/c3_parameters.csv")
 fwrite(rbind(sel_q[, .(parameter = "q", target, selected, grid_edge, fallback)], sel_qb[, .(parameter = "q_QB", target, selected, grid_edge, fallback)]), "docs/round15/construction/c3_selection.csv")
 fwrite(data.table(file = file.path(out, c("c3_predictions.csv", "c3_tuning.rds")), sha256 = sapply(file.path(out, c("c3_predictions.csv", "c3_tuning.rds")), function(f) digest::digest(file = f, algo = "sha256"))),
        "docs/round15/construction/c3_manifest.csv")
+qbn <- rbindlist(lapply(c(Z, R15C$dev, 2023:2025)[!duplicated(c(Z, R15C$dev, 2023:2025))], function(y) data.table(season = y, qb_change_events = nrow(r15_qb_events(d, y)))))
+fwrite(qbn, "docs/round15/construction/c3_qb_events_by_season.csv"); print(qbn)
 print(params); print(rbind(sel_q[, .(parameter = "q", target, selected, grid_edge)], sel_qb[, .(parameter = "q_QB", target, selected, grid_edge)])); cat("C3 predictions:", nrow(pred), "rows (not scored)\n")

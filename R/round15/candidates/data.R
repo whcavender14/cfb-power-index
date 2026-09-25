@@ -66,3 +66,15 @@ r15_build_data <- function(force = FALSE) {
               sr_eos = fread("output/dev/round15/prep/sr_end_of_season_2013_2025.csv"), features = feat)
   saveRDS(out, f); out
 }
+
+# C3 (Amendment 02): each team-game's primary passer(s), seasons 2014-2025. A game's primary is the passer with the most
+# dropbacks (>= 10); passers tied for that count are all kept (co-primaries, "|"-joined, sorted) so no tie-break is needed.
+r15_qb_primary <- function(force = FALSE) {
+  f <- file.path(R15C$cache, "qb_primary.rds"); if (file.exists(f) && !force) return(readRDS(f))
+  source("R/round15/prep/passer_parser.R")
+  out <- rbindlist(lapply(2014:2025, function(y) {
+    p <- as.data.table(readRDS(file.path(R15C$raw6, sprintf("plays_%d.rds", y))))[, .(game_id = as.character(game_id), offense, play_type, play_text)]
+    n <- p[play_type %in% r15_dropback_types][, passer := r15_passer(play_text)][!is.na(passer)][, .N, by = .(game_id, offense, passer)]
+    n[, mx := max(N), by = .(game_id, offense)][N == mx & mx >= 10, .(season = y, primary = paste(sort(passer), collapse = "|"), dropbacks = mx[1]), by = .(game_id, offense)] }))
+  saveRDS(out, f); out
+}

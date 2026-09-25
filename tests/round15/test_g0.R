@@ -4,7 +4,7 @@ source("config/paths.R"); source("config/production.R")
 suppressPackageStartupMessages({ source(PATHS$model_ops); library(data.table); for (f in c("data", "c1", "c2", "c3", "tune")) source(sprintf("R/round15/candidates/%s.R", f)) })
 n <- 0L; res <- list()
 check <- function(ok, id, what) { res[[length(res) + 1]] <<- data.table(id = id, check = what, pass = isTRUE(ok)); if (!isTRUE(ok)) stop("FAIL: ", id, " ", what, call. = FALSE); n <<- n + 1L; cat("ok -", id, what, "\n") }
-out <- R15C$cache; d0 <- r15_build_data(); c1 <- readRDS(file.path(out, "c1_components.rds")); c2 <- readRDS(file.path(out, "c2_components.rds")); c3t <- readRDS(file.path(out, "c3_tuning.rds"))
+out <- R15C$cache; d0 <- r15_build_data(); d0$qb <- r15_qb_primary(); c1 <- readRDS(file.path(out, "c1_components.rds")); c2 <- readRDS(file.path(out, "c2_components.rds")); c3t <- readRDS(file.path(out, "c3_tuning.rds"))
 qz <- setNames(c3t$sel_q$selected, c3t$sel_q$target); qbz <- setNames(c3t$sel_qb$selected, c3t$sel_qb$target)
 set.seed(15001)
 
@@ -17,6 +17,7 @@ for (s in names(d$games)) { g <- copy(d$games[[s]]); late <- if (as.integer(s) >
 d$history <- copy(d0$history)[season >= Y, `:=`(eff_off = eff_off + rnorm(.N, 0, 5), eff_def = eff_def + rnorm(.N, 0, 5), hfa = hfa + rnorm(.N))]
 late_g <- unlist(lapply(names(d0$games), function(s) { g <- d0$games[[s]]; if (as.integer(s) > Y) g$game_id else if (as.integer(s) == Y) g[available_at >= CUT, game_id] }))
 d$pbp <- copy(d0$pbp)[game_id %in% late_g, `:=`(sr = runif(.N), fumbles = rpois(.N, 3), lost = rpois(.N, 1), passer = "Scrambled")]
+d$qb <- copy(d0$qb)[game_id %in% late_g, primary := "Scrambled"]
 d$sr_eos <- copy(d0$sr_eos)[season >= Y, `:=`(sr_off = sr_off + rnorm(.N, 0, .05), sr_def = sr_def + rnorm(.N, 0, .05))]
 num <- setdiff(names(d0$inputs)[sapply(d0$inputs, is.numeric)], c("season", "team_id"))
 d$inputs <- copy(d0$inputs); for (v in num) set(d$inputs, which(d$inputs$season > Y), v, d$inputs[[v]][d$inputs$season > Y] + rnorm(sum(d$inputs$season > Y)))
@@ -37,6 +38,8 @@ for (k in 1:3) { ref <- fread(file.path(out, sprintf("c%d_predictions.csv", k)),
   p <- list(p_1, p_2, p_3)[[k]]; m <- merge(p, ref[, .(game_id, r = pred_margin)], by = "game_id")
   check(nrow(m) == nrow(p) && nrow(m) > 0 && max(abs(m$pred_margin - m$r)) < 1e-9, "L1",
         sprintf("C%d predictions at a mid-2019 cutoff unchanged when later 2019 results and all later seasons are scrambled (%d games)", k, nrow(m))) }
+ev0 <- r15_qb_events(d0, Y)[available_at < CUT]; ev1 <- r15_qb_events(d, Y)[available_at < CUT]
+check(nrow(ev0) > 0 && identical(ev0[order(team_id, game_id)], ev1[order(team_id, game_id)]), "L1", sprintf("C3 QB-change events before a mid-2019 cutoff unchanged when later passers are scrambled (%d events)", nrow(ev0)))
 check(all(sapply(2017:2022, function(y) all(r15_Z(y) < y))) && !any(unlist(lapply(2017:2022, r15_Z)) == 2020), "L6", "every inner-tuning set Z(y) is strictly before y and excludes 2020")
 
 # ---------------- L6: 2023-2025 parameters are frozen through 2022 -------------------------------------------------------
