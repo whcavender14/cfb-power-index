@@ -1,0 +1,25 @@
+reference,quantity,rows_current,rows_reference,rows_matched,max_abs_diff,mean_abs_diff,n_nonidentical,n_above_tol
+research,"division map (season, team, division)",3511,3511,3511,0,0,0,0
+research,end-of-season FCS level (anchor history),13,13,13,0,0,0,0
+research,end-of-season lower gap,13,13,13,0,0,0,0
+research,anchor: FCS level,8,8,8,0,0,0,0
+research,anchor: lower gap,8,8,8,0,0,0,0
+research,FBS eff_off,22534,22534,22534,0,0,0,0
+research,FBS eff_def,22534,22534,22534,0,0,0,0
+research,FBS power,22534,22534,22534,0,0,0,0
+research,non-FBS eff_off,26024,26024,26024,7.105427357601e-15,2.5651510153958e-16,1516,0
+research,non-FBS eff_def,26024,26024,26024,7.105427357601e-15,2.62658358361986e-16,1436,0
+research,non-FBS power,26024,26024,26024,2.8421709430404e-14,1.46637833890353e-15,6043,0
+stored Stage 3 artifact,all team power,48558,48558,48558,2.8421709430404e-14,7.85885536711249e-16,6043,0
+research,group level Delta_FCS,171,171,171,0,0,0,0
+research,group level Delta_low,171,171,171,0,0,0,0
+stored Stage 3 artifact,FCS-division mean rating,163,163,163,7.105427357601e-15,3.70528420488396e-16,16,0
+stored Stage 3 artifact,first-game non-FBS rating,29705,29705,29705,0,0,0,0
+stored Stage 3 artifact,FBS-vs-FBS predicted margin,6266,6266,6266,0,0,0,0
+stored Stage 4 artifact (C2L),FBS-vs-FBS predicted margin,6266,6266,6266,0,0,0,0
+stored Stage 3 artifact,FBS-vs-FCS predicted margin (all 926 games),926,926,926,1.4210854715202e-14,6.50307741421905e-16,96,0
+stored Stage 3 artifact,FBS-vs-FBS win probability,6266,6266,6266,0,0,0,0
+stored Stage 4 artifact (C2L influence),preseason influence: w_power,21480,21480,21480,0,0,0,0
+stored Stage 4 artifact (C2L influence),preseason influence: w_off,21480,21480,21480,0,0,0,0
+stored Stage 4 artifact (C2L influence),preseason influence: w_def,21480,21480,21480,0,0,0,0
+stored Stage 4 artifact (C2L influence),preseason influence: prior_block,21480,21480,21480,0,0,0,0

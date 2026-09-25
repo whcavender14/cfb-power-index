@@ -1,0 +1,2 @@
+check,sigma_diff,logloss_diff
+"sigma refit on reversed row order (dev, all seasons)",5.35770553256043e-07,2.22044604925031e-16

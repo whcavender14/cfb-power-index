@@ -1,0 +1,4 @@
+linked,phase,games,n_identical,max_abs_diff,mean_abs_diff
+FBS-vs-non-FBS game already played,early (cutoff 1-3),592,202,3.51987817452036,0.725878282655811
+FBS-vs-non-FBS game already played,later,5511,0,4.45000328065587,0.499142400852751
+no FBS-vs-non-FBS game yet,early (cutoff 1-3),163,158,0.00861817985094571,0.000101948215161965

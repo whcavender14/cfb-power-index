@@ -54,7 +54,7 @@ s3_capture <- function(d, y, A, dv, opt, pools = NULL) {
                                                   first_game_power = (pof_all - o_m) - (pdf_all - d_m) + 2 * dL + 2 * dLow * islow)
     if (!n) { s0 <- if (is.null(opt$pscale_gp0)) 1 else opt$pscale_gp0; p <- s0 * ((pofb - mean(pofb)) - (pdfb - mean(pdfb)))
       return(list(pred = te[, .(season, game_id, cutoff = cut, pred_margin = p[match(home_id, ids)] - p[match(away_id, ids)] + H * !neutral)],
-                  ent = data.table(season = y, cutoff = cut, team_id = ids, fbs = TRUE, grp = "fbs", power = p, gp = 0L, gp_vs_fbs = 0L),
+                  ent = data.table(season = y, cutoff = cut, team_id = ids, fbs = TRUE, grp = "fbs", power = p, gp = 0L, gp_vs_fbs = 0L, eff_off = pofb - mean(pofb), eff_def = pdfb - mean(pdfb)),
                   cut = data.table(season = y, cutoff = cut, n_rows = 0L, n_link = 0L, dL = mL, dLow = mLow, prior_level_fcs = prior_level_fcs),
                   fcs_prior = fp(mean(pofb), mean(pdfb), mL, mLow))) }
     ti <- match(rows$entity, ents); oi <- match(rows$opponent, ents)
@@ -92,7 +92,8 @@ s3_capture <- function(d, y, A, dv, opt, pools = NULL) {
       inf <- data.table(season = y, cutoff = cut, team_id = ids, gp = gpf, lam_off = lo[ii], lam_def = ld[ii], w_power = wpow,
                         w_off = diag(Sx[1L + ii, nt + ii]), w_def = diag(Sx[1L + ne + ii, 2L * nt + ii]), prior_power = (po[ii] - mean(po[ii])) - (pd[ii] - mean(pd[ii])), prior_block = pbp, power = pw[ii]) }
     gp <- rows[, .(gp = .N, gp_vs_fbs = sum(opp_id %in% ids)), by = team_id]
-    ent <- data.table(season = y, cutoff = cut, team_id = as.integer(ents), fbs = c(rep(TRUE, nt), rep(FALSE, nf)), grp = c(rep("fbs", nt), grp[fi]), power = pw)
+    ent <- data.table(season = y, cutoff = cut, team_id = as.integer(ents), fbs = c(rep(TRUE, nt), rep(FALSE, nf)), grp = c(rep("fbs", nt), grp[fi]), power = pw,
+                      eff_off = (o - mo) + c(rep(0, nt), rep(dL, nf)) + dLow * lowe, eff_def = (dd - md) - c(rep(0, nt), rep(dL, nf)) - dLow * lowe)   # additive (integration check)
     ent <- merge(ent, gp, by = "team_id", all.x = TRUE)[is.na(gp), `:=`(gp = 0L, gp_vs_fbs = 0L)]
     list(pred = pred, ent = ent, cut = data.table(season = y, cutoff = cut, n_rows = n, n_link = g[xor(home_id %in% ids, away_id %in% ids), .N], dL = dL, dLow = dLow,
                                                   prior_level_fcs = prior_level_fcs, fcs_level = if (any(!lowe[-seq_len(nt)])) mean(pw[nt + which(!islow[fi])]) else NA_real_),
