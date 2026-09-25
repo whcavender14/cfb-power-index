@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Template: install_launchd.sh replaces __CODE__ and __ARCHIVE__. Times are local (US Eastern):
+     09:05 and 18:05 daily = 13:05/22:05 UTC (EDT) or 14:05/23:05 UTC (EST); both precede weeknight and Saturday kickoffs.
+     launchd runs a missed calendar job once when the Mac wakes. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.cfbmodel.forward.snapshot</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/bash</string><string>__CODE__/scripts/forward/run_forward.sh</string><string>snapshot</string></array>
+  <key>EnvironmentVariables</key>
+  <dict><key>CFB_FORWARD_ARCHIVE</key><string>__ARCHIVE__</string></dict>
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>5</integer></dict>
+    <dict><key>Hour</key><integer>18</integer><key>Minute</key><integer>5</integer></dict>
+  </array>
+  <key>StandardOutPath</key><string>__ARCHIVE__/logs/launchd_snapshot.out</string>
+  <key>StandardErrorPath</key><string>__ARCHIVE__/logs/launchd_snapshot.err</string>
+  <key>RunAtLoad</key><false/>
+</dict>
+</plist>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Template: install_launchd.sh replaces __CODE__ and __ARCHIVE__. Sundays 16:00 and 18:00 local (US Eastern)
+     = 20:00/22:00 UTC (EDT) or 21:00/23:00 UTC (EST): both before the Monday 00:00 UTC information cutoff, as the
+     Round 13 forward rule requires (a pull after the cutoff is flagged late_pull). -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.cfbmodel.forward.pbp</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/bash</string><string>__CODE__/scripts/forward/run_forward.sh</string><string>pull_pbp</string></array>
+  <key>EnvironmentVariables</key>
+  <dict><key>CFB_FORWARD_ARCHIVE</key><string>__ARCHIVE__</string></dict>
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Weekday</key><integer>0</integer><key>Hour</key><integer>16</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Weekday</key><integer>0</integer><key>Hour</key><integer>18</integer><key>Minute</key><integer>0</integer></dict>
+  </array>
+  <key>StandardOutPath</key><string>__ARCHIVE__/logs/launchd_pbp.out</string>
+  <key>StandardErrorPath</key><string>__ARCHIVE__/logs/launchd_pbp.err</string>
+  <key>RunAtLoad</key><false/>
+</dict>
+</plist>
