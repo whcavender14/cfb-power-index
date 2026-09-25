@@ -66,10 +66,17 @@ These resolve the open list in `ROUND15_DESIGN.md`. The predeclaration draft (`R
     - the 2017 C3 grid-edge selection q = 2, with the grid not extended;
     - the two `test_g0.R` fixes;
     - the name-independent tie rule for the season-to-date lead (A5).
-14. **Amendment 02 (A4):** C3's QB allowance fires on a transition in the game-level primary passer, including a return
-    to a previous starter, instead of on a difference from the season-to-date dropback leader.
+14. **Amendment 02 (core rule):** C3's QB allowance fires on a transition in the game-level primary passer, including a
+    return to a previous starter, instead of on a difference from the season-to-date dropback leader.
     - Made after construction and before any scoring. No performance result was inspected.
     - The q_QB grid, the §6.1 procedure and the rest of C3 are unchanged.
     - C3 is rebuilt from scratch and whatever q_QB is selected is accepted, including 0.
     - Binding text: `ROUND15_PREDECLARATION_v3.md`.
-    - **Authorized next:** rebuild and integrity checks only. The user authorizes the formal scoring run separately.
+15. **Amendment 02, A4 and A5 approved (revision 2):**
+    - **A4:** passers tied for a game's most dropbacks are co-primaries. Games sharing a primary passer are not a change;
+      games with disjoint primary sets are a change. No arbitrary tie-break is used.
+    - **A5:** a game without a qualifying primary passer is skipped. The comparison is with the most recent earlier
+      qualifying game; with none, there is no event.
+    - Both were implemented before the user's explicit confirmation, but before any scoring.
+    - **Authorized next:** finish the C3 rebuild and the integrity checks, then freeze. The user authorizes the formal
+      scoring run separately.

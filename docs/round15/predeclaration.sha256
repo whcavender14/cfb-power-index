@@ -3,7 +3,8 @@
 7e076b3ccea1e47f1dc6b1cd65b83e2eeb926531c7607953a3f8d46e7e914a7c  ROUND15_PREDECLARATION_v2.md
 a5c153b32ba4cc1b69214c927cca3a2d7ea4caa7bbf69d1c5835632bb7f3c5bd  AMENDMENT_01.md
 # amended 2026-09-25T01:21:20Z (Amendment 01: A1, A2, A3; pre-candidate); ROUND15_PREDECLARATION_v2.md is the binding text; original line above retained
-efbbfdc4cfbece270099b118658d26dbfb71e230a491f9c5933f659838820ab3  ROUND15_PREDECLARATION_v3.md
-5be7fc5b56811525bec5bd061fd83339c02a1b00e2dea877575ab33078269634  AMENDMENT_02.md
+07b795a478891fad4c7046979a57db2787c0536b719870b8b4d37b903554c14a  ROUND15_PREDECLARATION_v3.md
+246e9a0b7612617d3315529c844f83117b8e26975b61faec4ddb91e4e761393a  AMENDMENT_02.md
 # amended 2026-09-25T14:03:58Z (Amendment 02: A4 C3 QB-change transition rule, A5 tie handling; post-construction, pre-scoring); ROUND15_PREDECLARATION_v3.md is the binding text; lines above retained
 # original construction freeze (pre-A02): construction/CONSTRUCTION_FREEZE.sha256 48f8bfe36c47326ed5eb8e411819a206d650b7a947a8f9b343e65f8604223085 (commit afa860a, tag round15-construction-frozen)
+# Amendment 02 revision 2 (2026-09-25T14:07Z): A4 co-primaries and A5 no-qualifying-primary approved by the user; labels aligned; rules unchanged. The lines above for v3 and AMENDMENT_02 are revision 2. First-recorded versions (commit 56fde0c): efbbfdc4cfbece270099b118658d26dbfb71e230a491f9c5933f659838820ab3 ROUND15_PREDECLARATION_v3.md, 5be7fc5b56811525bec5bd061fd83339c02a1b00e2dea877575ab33078269634 AMENDMENT_02.md

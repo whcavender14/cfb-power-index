@@ -1,6 +1,6 @@
 # Round 15 predeclaration v3 — SIGNED and amended (Amendments 01 and 02), binding
 
-**Status: binding version.** This is the signed predeclaration (original `ROUND15_PREDECLARATION.md`, SHA-256 `9cedb999…977f`, kept unchanged) with **Amendment 01** (`AMENDMENT_01.md`, 2026-09-25T01:20Z: A1, A2, A3), made before any candidate was built, and **Amendment 02** (`AMENDMENT_02.md`, 2026-09-25T14:03Z: A4, A5), made after construction and before any candidate was scored. The previous binding text, `ROUND15_PREDECLARATION_v2.md` (SHA-256 `7e076b3c…4a7c`), is kept unchanged. Amended passages are marked [A1]–[A5]. The original status text follows.
+**Status: binding version.** This is the signed predeclaration (original `ROUND15_PREDECLARATION.md`, SHA-256 `9cedb999…977f`, kept unchanged) with **Amendment 01** (`AMENDMENT_01.md`, 2026-09-25T01:20Z: A1, A2, A3), made before any candidate was built, and **Amendment 02** (`AMENDMENT_02.md`, first recorded 2026-09-25T14:03Z, revision 2 at 14:07Z: the core QB-change rule [A02], A4 and A5), made after construction and before any candidate was scored. The previous binding text, `ROUND15_PREDECLARATION_v2.md` (SHA-256 `7e076b3c…4a7c`), is kept unchanged. Amended passages are marked [A1]–[A5] and [A02]. The original status text follows.
 
 **Original status: SIGNED by the user on 2026-09-25 (in session). Binding.** At signing, no candidate had been built or run and no
 Round 15 outcome had been read. The SHA-256 of this file is recorded in `predeclaration.sha256`. From now on, any change
@@ -97,8 +97,8 @@ Notation: target season *y*; team *i*; weekly information cutoff *t* (Monday 00:
   (eligibility, garbage filter and Round 8 fumble recovery), frozen and not retuned. FBS-involved games only.
 - **Fumble luck (C2, C3).** From play-by-play: fumbles by each offense and fumbles lost (recovered by the defense).
 - **Primary passer per team-game (C3).** From play text: the passer with the most dropbacks, with ≥ 10 dropbacks required.
-  **[A4]** Passers tied for a game's most dropbacks are all that game's primary passers (co-primaries). A game with no
-  passer at ≥ 10 dropbacks, or without play-by-play, has no primary passer.
+  **[A4]** Passers tied for a game's most dropbacks, each with ≥ 10, are all that game's primary passers (co-primaries).
+  **[A5]** A game with no passer at ≥ 10 dropbacks, or without play-by-play, has no qualifying primary passer.
 
 ### 4.3 Data prerequisites (engineering steps with pass/fail rules; no outcomes read)
 
@@ -239,16 +239,19 @@ C3 inherits every C2 parameter and adds:
    - **μ:** diffuse prior.
    - **Centering:** ratings are then centered as in C1.
 2. **QB-change shock.**
-   - **Detection [A4]:** at the cutoff following a game, that game's primary passer is compared with the team's primary
-     passer in its preceding game (its most recent earlier game that season with a primary passer).
-     - If they differ, the game is a QB-change event. Co-primaries differ only if the two games share no passer; no
-       name-based or play-order tie-break is used.
+   - **Detection [A02]:** at the cutoff following a game, that game's primary passer is compared with the team's primary
+     passer in its preceding qualifying game. If they differ, the game is a QB-change event.
      - The same primary in later games does not re-trigger the allowance.
      - A later change, including a return to a previous starter, is a new event.
-     - A team's first game of the season with a primary passer is not an event.
+     - A team's first qualifying game of the season is not an event.
      - Detection uses play text only, from games before the cutoff.
-     - The season-to-date primary passer does not decide whether an event fires. **[A5]** The earlier season-to-date rule
-       treated a passer tied for the season-to-date lead as no change; that rule is superseded by A4.
+     - The season-to-date primary passer does not decide whether an event fires.
+     - **[A4]** Games that share at least one primary passer are not a change, even if another co-primary differs.
+       Games whose sets of primary passers do not overlap are a change. No alphabetical, player-ID, play-order or other
+       arbitrary tie-break creates or suppresses an event.
+     - **[A5]** If the immediately preceding game has no qualifying primary passer, the comparison is with the team's
+       most recent earlier qualifying game that season. A game without one is never an event. With no earlier qualifying
+       game, there is no event.
    - **Effect:** it adds q_QB to that team's **offense** state variance once, at the cutoff after the game where it was
      detected. Defense is unaffected.
 3. **Estimating q and q_QB (deterministic).**
@@ -691,9 +694,11 @@ how they learn.
 | # | Recorded (UTC) | Amendment | Changes | Record |
 |---|---|---|---|---|
 | 01 | 2026-09-25T01:20Z | A1 P1 completeness rule; A2 P4 validation target; A3 2020 prior-season success rate | §4.3 P1 and P4 rules; §4.1 `last_sr` note. No candidate definition, estimation procedure, grid, metric or gate changed | `AMENDMENT_01.md` |
-| 02 | 2026-09-25T14:03Z | A4 C3 QB-change detection as a transition in the game-level primary passer; A5 season-to-date tie handling (recorded, superseded by A4) | §4.2 primary-passer ties; §5.4 item 2 detection. The q_QB grid, §6.1 procedure, objective, event effect and all other specification unchanged | `AMENDMENT_02.md` |
+| 02 | 2026-09-25T14:03Z (rev. 2 14:07Z) | [A02] C3 QB-change detection as a transition in the game-level primary passer; A4 co-primaries in tied games; A5 comparison across games without a qualifying primary; season-to-date tie handling recorded as superseded | §4.2 primary passer; §5.4 item 2 detection. The q_QB grid, §6.1 procedure, objective, event effect and all other specification unchanged | `AMENDMENT_02.md` |
 
 At Amendment 01, no Round 15 candidate had been built, run or scored, and no Round 15 candidate outcome informed it.
 
 At Amendment 02, C1–C3 had been built and frozen but none had been scored. No development, conditional, market or forward
-performance result was computed or inspected. The change came from construction-only QB-event checks.
+performance result was computed or inspected. The changes came from construction-only QB-event checks. A4 and A5 were
+implemented before the user explicitly confirmed them, and before any scoring. The pre-Amendment-02 C3 outputs were never
+scored and are archived as superseded.
