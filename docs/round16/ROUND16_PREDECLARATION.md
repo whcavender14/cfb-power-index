@@ -1,7 +1,9 @@
 # Round 16 Predeclaration: Qualification of Current C2
 
-**Status: DRAFT for approval. Unsigned. No Round 16 score has been computed.**
-- Once approved, this text is binding. It is committed and hashed before any scoring code runs.
+**Status: APPROVED and FROZEN (binding).** You approved it on 2026-09-25, including the two flagged changes (§11 items 1
+and 4).
+- The text is committed and hashed in `docs/round16/predeclaration.sha256` before any scoring code runs.
+- No Round 16 score was computed before the freeze.
 - Changes after approval: dated, hashed amendments only, and only before the step they affect.
 - A failed gate is never "fixed" inside Round 16.
 
@@ -116,6 +118,9 @@ development, 65 conditional), **4,000 resamples, seed 16016**, percentile interv
     single test.
 - **The secondary claim** (C vs C2f) uses **fixed-sequence (hierarchical) testing**. It is tested at α = 0.05 **only if G1
   passes**, which keeps the family-wise rate for confirmatory claims at 0.05 without further splitting.
+- **What the historical 95% interval means (approved wording).** The historical seasons influenced model development
+  (§0). The historical 95% interval is therefore a **qualification standard**, not pristine independent confirmation.
+  **Independent confirmation comes from the forward test (§9).**
 - **Guardrails are not claims.** Each is an additional condition to pass (an intersection–union structure), so they can
   only lower the probability of wrongly advancing. They need no α adjustment.
 - **Effect size.** R15's G1 size requirement, **Δ log-loss ≤ −0.0020**, is kept unchanged. The R15 disclosure (§10)
@@ -248,6 +253,10 @@ Gates are evaluated in this order: G0 → G1 → G2–G6 → G7 → secondary cl
 | G1 passes, any of G2–G7 fails | **INCUMBENT RETAINED.** The failing guardrail is named. |
 | All of G0–G7 pass | **QUALIFIED (historical): PRODUCTION CANDIDATE.** Advances to forward confirmation (§9). |
 
+- **Meaning of a historical pass (approved wording).** A Round 16 historical pass means **QUALIFIED (historical):
+  PRODUCTION CANDIDATE**. Current C2 has satisfied the predeclared historical qualification standards and may advance to
+  independent forward confirmation. **It does not constitute independent proof that the model is superior, because the
+  historical data have already influenced model development.**
 - **Production is your decision.**
 - **Recommendation built into this design:** because the historical data are contaminated, **do not replace the
   incumbent before the forward look.** If earlier use is wanted, run Current C2 in shadow alongside the incumbent.
@@ -316,6 +325,30 @@ Gates are evaluated in this order: G0 → G1 → G2–G6 → G7 → secondary cl
 **Nothing was loosened except items 1–4.** Items 1–4 answer structural weaknesses identified in Round 15 (wrong
 multiplicity for one candidate; point estimates used as vetoes; a games-played count that ignored FCS games). They are
 shown with their known consequences so you can approve or reject each one explicitly.
+
+## 11a. Pre-freeze clarifications (added with the approval edits; driven by data availability, not by any result)
+
+1. **Where each G5 check is evaluated.**
+   - G5a–G5d are evaluated on development.
+   - On 2023–25 (G7): G5a, G5c and G5d.
+   - G5e ("in every season") covers development seasons under G5 and 2023–25 seasons under G7.
+   - **G5b's incumbent comparison is development only.** Incumbent FBS ratings exist only in the development replay
+     (E0, model I); the 2023–25 incumbent file has game predictions only.
+2. **Sources for the reference FBS-vs-FCS predictions.**
+   - C2f: FBS and FCS ratings from the E0 replay (`output/dev/round15/eval/ratings_replay.csv`, model C2). For an FCS
+     team's first game, C2's prior-mean rating (`output/c2r/stage1/capture.rds`, `fcs_prior$prior_power_c`, which ties out
+     to the R15 slice exactly).
+   - Incumbent: E0 FBS ratings (model I) with every FCS team at −25.
+   - The scorer verifies both files' sha256 as it reads them.
+3. **G6d** (stability vs the incumbent) is development only, for the same reason as item 1.
+4. **G4 and G6** gate Current C2. The incumbent's, C2f's and K's slopes and deltas are reported alongside.
+5. **Definitions:**
+   - G5d's Spearman correlation is between predicted and actual margin on FCS-vs-FCS games.
+   - G2b's recalibration slope is `glm(w ~ qlogis(p), binomial)` on development.
+   - Every 90% interval (G4, G6a, G6b and the G7 season rule) comes from the same block bootstrap as the 95% intervals.
+6. **G0c.** The full `tests/c2/run_all.R` runs in the real scoring run. During scorer construction and smoke testing,
+   only the checks that read no game outcome run (hashes, rebuild, `test_c2_regression.R`). The equivalence and
+   reproduction tests read real outcomes.
 
 ## 12. Scoring procedure (exact)
 
