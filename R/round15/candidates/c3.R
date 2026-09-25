@@ -16,8 +16,9 @@ r15_sigma2_row <- function(d, y) {
     ssr <- ssr + sum(r^2); n <- n + length(r); p <- p + 1 + 2 * length(ids) }
   ssr / n * n / (n - p)
 }
-# QB-change events: game in which the primary passer (>= 10 dropbacks) differs from BOTH the team's season-to-date primary
-# passer (most accumulated primary dropbacks in earlier games) and its previous game's primary passer (one shock per change).
+# QB-change events: game in which the primary passer (>= 10 dropbacks) differs from the team's season-to-date primary
+# passer (most accumulated primary dropbacks in earlier games; a passer tied for that lead does not differ from it) and is
+# not a repeat of the previous game's detection (one shock per change).
 r15_qb_events <- function(d, y) {
   g <- d$games[[as.character(y)]][final == TRUE, .(game_id, kickoff, available_at)]
   nm <- r15_all_names(d, y)
@@ -26,7 +27,7 @@ r15_qb_events <- function(d, y) {
   q[, event := {
     ev <- rep(FALSE, .N)
     if (.N >= 2) for (k in 2:.N) { acc <- tapply(dropbacks[1:(k - 1)], passer[1:(k - 1)], sum)
-      std <- names(acc)[which.max(acc)]; ev[k] <- passer[k] != std && passer[k] != passer[k - 1] }
+      ev[k] <- !(passer[k] %in% names(acc)[acc == max(acc)]) && passer[k] != passer[k - 1] }
     ev }, by = team_id]
   q[event == TRUE, .(team_id, game_id, available_at)]
 }
