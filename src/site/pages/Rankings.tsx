@@ -79,7 +79,7 @@ export default function Rankings() {
         <div className="cf-subbar">
           <Freshness meta={meta} />
           <p className="cf-muted" role="status">{filtered.length === rows.length ? `${rows.length} teams` : `${filtered.length} of ${rows.length} teams`}
-            {compared == null ? <> · Movement unavailable: no CFPi+ ratings for the previous week</> : <> · Movement vs Week {compared}{meta.movement_source === 'reconstructed' ? ' (reconstructed)' : ''}. <Link to="/changes/">What changed</Link></>}</p>
+            {compared == null ? <> · Movement unavailable: no CFPi+ ratings for the previous week</> : <> · Movement vs Week {compared}{meta.movement_source === 'reconstructed' ? ' (reconstructed)' : ''}. <Link to="/#changed">What changed</Link></>}</p>
         </div>
 
         {sorted.length === 0 ? <div className="cf-state"><p className="cf-state-title">No teams match</p><button type="button" className="cf-btn" onClick={() => { setQ(''); setConf('') }}>Clear filters</button></div> : <>

@@ -32,6 +32,9 @@ export function navigate(to: string, { replace = false, keepScroll = false } = {
   history[replace ? 'replaceState' : 'pushState'](null, '', url)
   if (!keepScroll) window.scrollTo({ top: 0 })
   notify()
+  // "/#id": once the page has rendered the element (lazy pages and data may take a moment), scroll to it.
+  const id = url.split('#')[1]
+  if (id) { let tries = 0; const find = () => { const el = document.getElementById(id); if (el) el.scrollIntoView(); else if (tries++ < 50) setTimeout(find, 100) }; find() }
 }
 
 export function useLocation() {
@@ -72,4 +75,10 @@ export function Link({ to, onClick, ...rest }: AnchorHTMLAttributes<HTMLAnchorEl
     navigate(to)
   }
   return <a href={href(to)} onClick={handle} {...rest} />
+}
+
+/** Replaces the current URL with another route (retired pages keep working this way). */
+export function Redirect({ to }: { to: string }) {
+  useEffect(() => { navigate(to, { replace: true }) }, [to])
+  return null
 }

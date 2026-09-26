@@ -550,8 +550,12 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-whatif-jump, .cf-whatif-jump:hover, .cf-whatif-jump * { text-decoration: none; }
 /* Homepage: four questions, each a preview that links to its page */
 .cf-questions { display: grid; gap: var(--s4); grid-template-columns: 1fr; }
-@media (min-width: 900px) { .cf-questions { grid-template-columns: 1fr 1fr; align-items: start; } }
+@media (min-width: 760px) { .cf-questions { grid-template-columns: 1fr 1fr; } .cf-questions > :last-child { grid-column: 1 / -1; } .cf-questions > :last-child .cf-q-games { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .cf-questions { grid-template-columns: 1fr 1fr 1.15fr; } .cf-questions > :last-child { grid-column: auto; } .cf-questions > :last-child .cf-q-games { grid-template-columns: 1fr; } }
 .cf-q { display: flex; flex-direction: column; }
+.cf-q-body { flex: 1; }
+.cf-section-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s2) var(--s4); margin-bottom: var(--s2); }
+#changed { scroll-margin-top: 64px; }
 .cf-q h2 { font-size: 1.25rem; line-height: 1.2; letter-spacing: -.02em; display: inline-flex; align-items: center; gap: 6px; }
 .cf-q-more { align-self: flex-start; margin-top: var(--s3); display: inline-flex; align-items: center; min-height: 44px; }
 .cf-q-games { display: grid; gap: var(--s2); }
