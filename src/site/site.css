@@ -904,3 +904,6 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-row-link td { padding-left: 8px; padding-right: 8px; }
 .cf-row-link td:first-child { padding-left: 16px; }
 .cf-row-link td:nth-child(3) { white-space: nowrap; }
+/* Games: centre the Win prob. column (header and values) */
+.cf-games-table th:nth-child(4), .cf-games-table td:nth-child(4) { text-align: center; }
+.cf-games-table th:nth-child(4) .cf-th { justify-content: center; }
