@@ -18,6 +18,7 @@
 #   changes.json             what changed since the previous week (same history source as movement)
 #   conferences.json         conference aggregates (membership from team metadata)
 #   efficiency.json          raw EPA/play and success rate per team (R/publish/team_efficiency.R; display only)
+#   usage/<slug>.json        players by usage per team (R/publish/player_usage.R; display only)
 #   <season>/week-NN/index.json   weekly archive (kept if a different model published it)
 # =============================================================================
 suppressPackageStartupMessages(library(jsonlite))
@@ -549,6 +550,32 @@ if (!is.null(eff_plays) && length(eff_ids)) {
   write_site_json(efficiency_doc(team_efficiency(eff_plays, data.frame(team_id = meta$team_id, school = meta$school), eff_ids),
                                  meta_block, length(eff_ids), week), file.path(site_out, "efficiency.json"))
 } else { message("Efficiency: no cached play-by-play; efficiency.json not written."); unlink(file.path(site_out, "efficiency.json")) }
+
+# Players by usage (display only). Defense uses the same player stats as the leaders, only when they cover the ratings week.
+source(file.path(PATHS$root, "R", "publish", "player_usage.R"), local = TRUE)
+usage_raw <- pull_player_usage(site_season)
+rosters <- pull_rosters(site_season)
+source(file.path(PATHS$root, "R", "publish", "depth_charts.R"), local = TRUE)
+depth <- read_opt(file.path(site_state, sprintf("depth_charts_%d.rds", site_season)))   # scripts/pull_depth_charts.R
+usage_stats <- if (!is.null(ps) && identical(as.integer(attr(ps, "end_week")), week)) ps else NULL
+unlink(file.path(site_out, "usage"), recursive = TRUE)
+n_usage <- 0L
+for (k in seq_len(nrow(meta))) {
+  u <- team_player_usage(meta$school[k], usage_raw, usage_stats, rosters)
+  d <- if (!is.null(depth) && !is.null(depth[[meta$slug[k]]])) enrich_depth(depth[[meta$slug[k]]], if (!is.null(rosters)) rosters[rosters$team == meta$school[k], , drop = FALSE] else NULL) else NULL
+  if (is.null(u) && is.null(d)) next
+  if (is.null(u)) u <- list(offense = NULL, defense = NULL)
+  u$depth <- d
+  u$depth_source <- if (!is.null(d)) list(name = "TWO·DEEP", url = paste0(TWODEEP_BASE, if (meta$slug[k] %in% names(TWODEEP_SLUG)) TWODEEP_SLUG[[meta$slug[k]]] else meta$slug[k]),
+                                          fetched_at = iso_utc(attr(depth, "fetched_at"))) else NULL
+  write_site_json(c(list(meta = meta_block, team_id = meta$team_id[k],
+                         offense_source = "CollegeFootballData player usage, season to date",
+                         offense_pulled_at = if (!is.null(usage_raw)) iso_utc(attr(usage_raw, "pulled_at")) else NA,
+                         defense_through_week = if (!is.null(usage_stats)) week else NA), u),
+                  file.path(site_out, "usage", paste0(meta$slug[k], ".json")))
+  n_usage <- n_usage + 1L
+}
+message("Players by usage: ", n_usage, " teams.")
 
 if (!is.na(week)) {
   target <- file.path(site_out, as.character(site_season), sprintf("week-%02d", week), "index.json")

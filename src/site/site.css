@@ -664,6 +664,22 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 /* Phone cards: values line up even when a label wraps to two lines. */
 .cf-card-stats { grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); column-gap: var(--s2); }
 .cf-card-stats div { grid-template-rows: 1fr auto; align-items: end; }
+/* Team page: players by usage */
+.cf-usage { display: grid; gap: var(--s4) var(--s6); grid-template-columns: 1fr; }
+@media (min-width: 900px) { .cf-usage { grid-template-columns: 1fr 1fr; } }
+.cf-usage-side > .cf-h3 { margin: 0 0 var(--s2) !important; display: block !important; }
+.cf-usage-group + .cf-usage-group { margin-top: var(--s3); }
+.cf-usage-pos { margin: 0 0 2px; font-size: .75rem; font-weight: 600; color: var(--cf-muted); letter-spacing: .01em; }
+.cf-usage-list { list-style: none; margin: 0; padding: 0; }
+.cf-usage-row { display: grid; grid-template-columns: minmax(0, 1fr) 4.5rem 3.4rem 6.5rem; gap: var(--s3); align-items: center; min-height: 32px; border-bottom: 1px solid var(--cf-line); font-size: .875rem; }
+.cf-usage-row:last-child { border-bottom: 0; }
+.cf-usage-row.is-def { grid-template-columns: minmax(0, 1fr) 3rem 7.5rem; }
+.cf-usage-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.cf-usage-val { text-align: right; font-weight: 600; }
+.cf-usage-sub { text-align: right; font-size: .75rem; }
+.cf-usage-bar { height: 6px; border-radius: 3px; background: var(--cf-fill); overflow: hidden; }
+.cf-usage-bar i { display: block; height: 100%; background: var(--cf-accent); border-radius: 3px; }
+@media (max-width: 420px) { .cf-usage-row { grid-template-columns: minmax(0, 1fr) 2.6rem 3.2rem 5.6rem; gap: var(--s2); } }
 /* Home: What changed, compact (3 per list, four lists in a row on wide screens) */
 .cf-movers-compact { margin-bottom: var(--s3); gap: var(--s3); }
 @media (min-width: 760px) { .cf-movers-compact { grid-template-columns: 1fr 1fr; } }
@@ -675,3 +691,39 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-movers-compact .cf-why { margin: 4px 0 0; font-size: .75rem; line-height: 1.4; }
 .cf-movers-compact .cf-why-deltas { display: none; }
 .cf-movers-compact .cf-panel > .cf-mover-list { align-content: start; }
+/* Team page: depth chart (formation) */
+.cf-dc-scroll { overflow-x: auto; margin: 0 calc(-1 * var(--s3)); padding: 0 var(--s3); }
+.cf-dc { min-width: 640px; padding: var(--s4) var(--s3); border-radius: var(--cf-radius); background: var(--cf-fill-2); }
+.cf-dc-grid { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: var(--s3) var(--s2); justify-items: center; }
+.cf-dc-slot { display: grid; justify-items: center; gap: 1px; width: 100%; min-width: 0; text-align: center; }
+.cf-dc-slot.is-lift { margin-top: 18px; }
+.cf-dc-pos { font-size: .6875rem; font-weight: 600; letter-spacing: .02em; color: var(--cf-muted); }
+.cf-dc-face { display: grid; place-items: center; width: 52px; height: 52px; margin: 2px 0 4px; border-radius: 50%; overflow: hidden; background: var(--cf-surface); box-shadow: 0 0 0 1px var(--cf-line); font-size: .8125rem; font-weight: 600; color: var(--cf-muted); }
+.cf-dc-face img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.cf-dc-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8125rem; font-weight: 600; }
+.cf-dc-bits, .cf-dc-stat { font-size: .6875rem; color: var(--cf-muted); white-space: nowrap; }
+.cf-dc-stat { color: var(--cf-ink-2); }
+.cf-dc-slot.is-empty .cf-dc-face { background: transparent; box-shadow: inset 0 0 0 1px var(--cf-line-strong); border: 0; }
+.cf-dc-slot.is-empty .cf-dc-name { color: var(--cf-faint); }
+.cf-dc-line { display: flex; align-items: center; gap: var(--s3); margin: var(--s4) 0; font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--cf-ink-2); }
+.cf-dc-line span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.cf-dc-line i { flex: 1; height: 1px; background: var(--cf-line-strong); }
+@media (min-width: 900px) { .cf-dc-face { width: 60px; height: 60px; } .cf-dc-name { font-size: .875rem; } }
+.cf-dc.is-flex { display: grid; gap: var(--s3); }
+.cf-dc-row { display: flex; justify-content: center; gap: var(--s2); }
+.cf-dc-row.is-wide { justify-content: space-between; }
+.cf-dc-mid { display: flex; justify-content: center; gap: var(--s2); flex: 1; }
+.cf-dc.is-flex .cf-dc-slot { width: 84px; flex: none; }
+.cf-dc-next { font-size: .625rem; color: var(--cf-faint); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-dc.is-flex { min-width: 820px; }
+.cf-dc.is-flex .cf-dc-line { margin: var(--s2) 0; }
+.cf-dc-hint { display: none; margin: 0 0 var(--s2); }
+@media (max-width: 759px) {
+  .cf-dc-hint { display: block; }
+  .cf-dc.is-flex { min-width: 700px; padding: var(--s3) var(--s2); gap: var(--s2); }
+  .cf-dc.is-flex .cf-dc-slot { width: 62px; }
+  .cf-dc.is-flex .cf-dc-face { width: 42px; height: 42px; }
+  .cf-dc.is-flex .cf-dc-name { font-size: .75rem; }
+  .cf-dc.is-flex .cf-dc-next { display: none; }
+  .cf-dc-row, .cf-dc-mid { gap: 4px; }
+}
