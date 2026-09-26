@@ -843,3 +843,7 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
   .cf-mu-stars > .is-home .cf-mu-star-text { justify-items: start; }
   .cf-mu-a, .cf-mu-h { flex-wrap: wrap; }
 }
+/* Key players: breathing room between the title, each team heading and the first player */
+#mu-stars { margin-bottom: var(--s4); }
+.cf-mu-stars .cf-h3 { margin-bottom: var(--s3) !important; }
+.cf-mu-star:first-child { padding-top: 0; }
