@@ -1,4 +1,4 @@
-// The six shareable graphics. Each takes data the page already loaded and returns when the PNG is saved.
+// The shareable graphics (the playoff bracket download is ./bracketPng.ts). Each takes data the page already loaded and returns when the PNG is saved.
 import type { ChangesDoc, Game, HistoryDoc, Meta, PlayoffDoc, TeamMeta, TeamRow } from './data'
 import { bar, COLORS as K, frame, INNER, LEFT, logo, logosFor, move, pct, render, SERIES, signed, table, teamCell, text, type Col } from './share'
 
@@ -66,41 +66,6 @@ export async function playoffOddsPng(doc: PlayoffDoc, dir: Dir) {
     const t = frame(ctx, h, 'College Football Playoff odds', `Share of ${doc.meta.sim_count?.toLocaleString() ?? ''} simulated seasons. Top 25 by playoff probability.`, doc.meta)
     const end = table(ctx, t, cols, rows, 40)
     text(ctx, '12-team field, 2026 rules: power-conference champions, the top-ranked team from the other conferences, at-large bids. Top four seeds get byes.', LEFT, end + 30, { size: 13, color: K.muted, max: INNER })
-  })
-}
-
-export async function playoffFieldPng(doc: PlayoffDoc, dir: Dir) {
-  const f = doc.representative_field
-  if (!f) throw new Error('No projected field')
-  const by = new Map(f.seeds.map(s => [s.seed, s]))
-  const logos = await logosFor(f.seeds.map(s => s.team_id), dir)
-  const h = 222 + 560 + 110
-  await render(file(doc.meta, 'playoff-field'), h, ctx => {
-    const t = frame(ctx, h, 'Projected playoff field', 'The most likely complete 12-team seeding across the simulated seasons.', doc.meta)
-    const seedRow = (seed: number, x: number, y: number, w: number) => {
-      const s = by.get(seed)!; const name = nm(dir, s.team_id)
-      text(ctx, String(seed), x, y + 6, { size: 16, weight: 700, color: K.muted })
-      logo(ctx, logos, s.team_id, name, x + 44, y, 30)
-      text(ctx, name, x + 68, y + 6, { size: 17, weight: 600, max: w - 150 })
-      text(ctx, s.bid === 'auto' ? 'Auto' : 'At-large', x + w - 12, y + 5, { size: 12.5, weight: 600, color: s.bid === 'auto' ? K.accent : K.muted, align: 'right' })
-    }
-    const card = (x: number, y: number, w: number, hh: number) => { ctx.beginPath(); ctx.roundRect(x, y, w, hh, 14); ctx.fillStyle = K.fill; ctx.fill() }
-    // Byes
-    card(LEFT, t, 330, 530)
-    text(ctx, 'FIRST-ROUND BYES', LEFT + 20, t + 34, { size: 12, weight: 600, color: K.muted, track: '0.6px' })
-    for (let s = 1; s <= 4; s++) seedRow(s, LEFT + 20, t + 76 + (s - 1) * 58, 300)
-    // First round: 5v12, 8v9, 6v11, 7v10 with the bye team each winner meets
-    const games: [number, number, number][] = [[8, 9, 1], [5, 12, 4], [7, 10, 2], [6, 11, 3]]
-    const gx = LEFT + 360, gw = (INNER - 360 - 20) / 2
-    games.forEach(([a, b, next], i) => {
-      const x = gx + (i % 2) * (gw + 20), y = t + Math.floor(i / 2) * 280
-      card(x, y, gw, 250)
-      text(ctx, `FIRST ROUND · AT NO. ${a}`, x + 20, y + 34, { size: 12, weight: 600, color: K.muted, track: '0.6px' })
-      seedRow(a, x + 20, y + 82, gw - 20)
-      seedRow(b, x + 20, y + 140, gw - 20)
-      text(ctx, `Winner plays No. ${next} ${nm(dir, by.get(next)!.team_id)}`, x + 20, y + 214, { size: 13.5, color: K.muted, max: gw - 40 })
-    })
-    text(ctx, `This exact seeding occurred in ${f.sims_with_identical_field} of ${doc.meta.sim_count?.toLocaleString()} simulated seasons; individual odds vary. Higher seed hosts the first round.`, LEFT, t + 590, { size: 13, color: K.muted, max: INNER })
   })
 }
 

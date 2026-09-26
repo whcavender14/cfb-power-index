@@ -324,7 +324,7 @@ function matchup(ctx: CanvasRenderingContext2D, logos: Logos, b: Box, champion: 
     ctx.font = `${won ? 600 : 500} ${big ? 17 : 15}px ${BODY}`
     ctx.fillStyle = won ? C.ink : C.muted
     ctx.fillText(fit(ctx, team.team, w - (nameX - x) - 46), nameX, mid + (big ? 6 : 5))
-    const p = won ? game.winProbability : 1 - game.winProbability
+    const p = game.shown ? game.shown[top ? 0 : 1] : won ? game.winProbability : 1 - game.winProbability
     ctx.font = `${won ? 600 : 500} ${big ? 14 : 13}px ${MONO}`
     ctx.fillStyle = won ? (champ ? C.goldInk : C.navy) : C.faint
     ctx.textAlign = 'right'
@@ -352,9 +352,21 @@ function connect(ctx: CanvasRenderingContext2D, from: Box, to: Box, intoTop: boo
 }
 
 export async function exportBracketPng({ teams, season, week, updatedAt, asOf, simulations, model = DEFAULT_MODEL, ineligible = [] }: BracketOptions): Promise<ExportResult> {
+  const { field, rounds, champion } = buildBracket(selectField(teams, { ineligible }), model)
+  const run = asOfText(asOf)
+  return renderBracketPng({ field, rounds, champion, teams, season, week, updatedAt,
+    lede: `The likeliest 12-team field under 2026 rules, with the model favorite advancing from every game. Percentages are each game’s win probability.`,
+    notes: [
+      `Field: each conference’s likeliest champion, then cfbseedR’s 2026 rules (P4 champions, the top G6 team and a top-12 Notre Dame qualify; at-large bids by rank), ranked by playoff odds across ${sims(simulations)}.`,
+      `Games: the higher power rating wins, with normal margins (SD ${model.sigma.toFixed(1)} pts) and +${model.hfa.toFixed(1)} pts for first-round hosts. A single most-likely path, not a forecast of certainty${run ? ` · games through ${run}` : ''}.`,
+    ], chip: 'MOST LIKELY PATH' })
+}
+
+export type BracketRender = { field: Seeded[]; rounds: Game[][]; champion: Seeded; teams: PlayoffTeam[]; season: number; week: number | null
+  updatedAt: string | null; lede: string; notes: string[]; chip: string; file?: string }
+/** Draws the projected bracket (layout shared by the Season Simulations export and the CFPi+ Playoff page download). */
+export async function renderBracketPng({ field, rounds, champion, teams, season, week, updatedAt, lede: ledeText, notes: noteLines, chip, file }: BracketRender): Promise<ExportResult> {
   await loadFonts()
-  const bracket = buildBracket(selectField(teams, { ineligible }), model)
-  const { field, rounds, champion } = bracket
   const titleOdds = rankTeams(teams).filter(t => t.title > 0).sort((a, b) => b.title - a.title).slice(0, 5)
   const logos = await loadLogos([...new Map([...field, ...titleOdds].map(t => [t.team_id, t])).values()])
 
@@ -362,8 +374,8 @@ export async function exportBracketPng({ teams, season, week, updatedAt, asOf, s
   const fieldY = 846, chipH = 58, footY = fieldY + 16 + chipH + 40
   const H = footY + 96
   const { canvas, ctx } = createCanvas(W, H)
-  drawMasthead(ctx, W, pad, { kicker: 'COLLEGE FOOTBALL · SEASON SIMULATIONS', title: 'Projected Playoff', chips: [weekTag(week, season), 'MOST LIKELY PATH'], updatedAt })
-  lede(ctx, `The likeliest 12-team field under 2026 rules, with the model favorite advancing from every game. Percentages are each game’s win probability.`, pad, 192)
+  drawMasthead(ctx, W, pad, { kicker: 'COLLEGE FOOTBALL · SEASON SIMULATIONS', title: 'Projected Playoff', chips: [weekTag(week, season), chip], updatedAt })
+  lede(ctx, ledeText, pad, 192)
 
   // Columns: FR, QF, SF | final | SF, QF, FR (left half = seeds 1/4 pod, right half = 2/3 pod)
   const colX = (i: number) => pad + i * (CARD_W + gap)
@@ -498,14 +510,10 @@ export async function exportBracketPng({ teams, season, week, updatedAt, asOf, s
   // Footer
   ctx.fillStyle = C.line
   ctx.fillRect(pad, footY, W - pad * 2, 1)
-  const run = asOfText(asOf)
-  notes(ctx, [
-    `Field: each conference’s likeliest champion, then cfbseedR’s 2026 rules (P4 champions, the top G6 team and a top-12 Notre Dame qualify; at-large bids by rank), ranked by playoff odds across ${sims(simulations)}.`,
-    `Games: the higher power rating wins, with normal margins (SD ${model.sigma.toFixed(1)} pts) and +${model.hfa.toFixed(1)} pts for first-round hosts. A single most-likely path, not a forecast of certainty${run ? ` · games through ${run}` : ''}.`,
-  ], pad, footY + 32, W - pad * 2 - 220)
+  notes(ctx, noteLines, pad, footY + 32, W - pad * 2 - 220)
   drawFooterBrand(ctx, W - pad, footY + 54)
 
-  await savePng(canvas, `cfb-power-index-projected-playoff-${season}-${weekFile(week)}.png`)
+  await savePng(canvas, file ?? `cfb-power-index-projected-playoff-${season}-${weekFile(week)}.png`)
   const all = new Set([...field, ...titleOdds].map(t => t.team_id))
   return { logos: [...all].filter(id => logos.has(id)).length, total: all.size }
 }
