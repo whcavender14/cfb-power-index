@@ -1,8 +1,9 @@
+import { STAT_GROUPS, StatRow, statValue } from '../stats'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { RESUME_INFO } from './Resume'
-import { DataGate, fmtSigned, Freshness, Info, Missing, Movement, Num, Pct, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
+import { DataGate, Freshness, Info, Missing, Movement, Num, Pct, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import NotFound from './NotFound'
-import type { DepthRow, UsageDef, UsageDoc, Efficiency, EfficiencyDoc, Game, HistoryDoc, Leader, Leaders, NotableGame, PlayoffTeam, RecordCount, ScenarioDoc, TeamDoc, TeamMeta } from '../data'
+import type { DepthRow, UsageDef, UsageDoc, EfficiencyDoc, Game, HistoryDoc, Leader, Leaders, NotableGame, PlayoffTeam, RecordCount, ScenarioDoc, TeamDoc, TeamMeta } from '../data'
 import HistoryChart, { HistoryTable } from '../HistoryChart'
 import { HistoryNote } from './Compare'
 import { kickoffText, projection, Quality, QUALITY_INFO, WINPROB_INFO } from '../games'
@@ -179,39 +180,28 @@ function StatLeaders({ leaders }: { leaders: Leaders }) {
   </section>
 }
 
-type EffKey = 'sr' | 'net_epa' | 'off_epa' | 'off_rush_epa' | 'off_pass_epa' | 'def_epa' | 'def_rush_epa' | 'def_pass_epa'
-const EFF_GROUPS: { title: string; note?: string; rows: [EffKey, string][] }[] = [
-  { title: 'Overall', rows: [['net_epa', 'Net EPA/play'], ['sr', 'Success rate']] },
-  { title: 'Offense', note: 'EPA gained per play · higher is better', rows: [['off_epa', 'EPA/play'], ['off_rush_epa', 'Rushing'], ['off_pass_epa', 'Passing']] },
-  { title: 'Defense', note: 'EPA allowed per play · lower is better', rows: [['def_epa', 'EPA/play allowed'], ['def_rush_epa', 'Rushing'], ['def_pass_epa', 'Passing']] },
-]
-
-/** Raw per-play efficiency with FBS ranks. Rank 1 is always best (for defense, the lowest EPA allowed), so the bar
- *  (share of FBS teams ranked below) and its colour mean the same thing on every row. */
-function TeamEfficiency({ id }: { id: string }) {
+/** Stats: standard team stats and raw efficiency, each with its FBS rank (definitions in ../stats.tsx). */
+function TeamStats({ id }: { id: string }) {
   const doc = useData<EfficiencyDoc>('efficiency.json')
   if (!doc.data) return null
   const e = doc.data.teams.find(t => t.team_id === id)
-  if (!e || e.plays == null) return null
-  const total = doc.data.teams.filter(t => t.plays != null).length
-  const value = (k: EffKey) => k === 'sr' ? (e.sr == null ? null : `${(e.sr * 100).toFixed(1)}%`) : fmtSigned(e[k], 2)
-  const rank = (k: EffKey) => e[`${k}_rank` as keyof Efficiency] as number | null
-  const m = doc.data.method
-  return <section className="cf-panel" aria-labelledby="t-eff">
-    <div className="cf-panel-head"><h2 id="t-eff" className="cf-h2">Efficiency <span className="cf-tag">{m.adjusted ? 'Opponent-adjusted' : 'Raw, not opponent-adjusted'}</span></h2></div>
-    <div className="cf-eff">
-      {EFF_GROUPS.map(g => <div key={g.title} className="cf-eff-group">
-        <h3 className="cf-h3">{g.title}{g.note && <span className="cf-eff-note"> · {g.note}</span>}</h3>
-        <dl className="cf-eff-rows">{g.rows.map(([k, label]) => { const r = rank(k); const good = r == null ? 0 : (total - r) / (total - 1)
-          return <div key={k} className="cf-eff-row">
-            <dt>{label}{k === 'sr' && <Info text={`Share of plays that gain enough: ${m.success.toLowerCase()}.`} label="About success rate" />}{k === 'net_epa' && <Info text="Offense EPA per play minus defense EPA per play allowed. EPA = expected points added (CFBD's ppa)." label="About net EPA" />}</dt>
-            <dd className="cf-eff-val cf-num">{value(k) ?? <Missing />}</dd>
-            <dd className="cf-eff-rank cf-num">{r ? `No. ${r}` : '—'}</dd>
-            <dd className="cf-eff-bar" aria-hidden="true"><i className={good >= 2 / 3 ? 'is-good' : good < 1 / 3 ? 'is-bad' : ''} style={{ width: `${Math.max(3, good * 100)}%` }} /></dd>
-          </div> })}</dl>
+  if (!e) return null
+  const total = doc.data.teams.filter(t => t.plays != null || t.games != null).length
+  const m = doc.data.method, b = doc.data.basic_method
+  const groups = STAT_GROUPS.filter(g => g.defs.some(d => statValue(e, d.key) != null))
+  if (!groups.length) return null
+  return <section className="cf-panel cf-span-all" aria-labelledby="t-stats">
+    <div className="cf-panel-head"><h2 id="t-stats" className="cf-h2">Stats</h2></div>
+    <div className="cf-stats">{[['scoring', 'offense'], ['defense', 'efficiency']].map(ids => <div key={ids[0]} className="cf-stats-col">
+      {groups.filter(g => ids.includes(g.id)).map(g => <div key={g.id} className="cf-eff-group">
+        <h3 className="cf-h3">{g.title}{g.note && <span className="cf-eff-note"> · {g.note}</span>}{g.raw && <span className="cf-tag">{m.adjusted ? 'Opponent-adjusted' : 'Raw, not opponent-adjusted'}</span>}</h3>
+        <dl className="cf-eff-rows">{g.defs.map(d => <StatRow key={d.key} d={d} e={e} total={total} />)}</dl>
       </div>)}
-    </div>
-    <p className="cf-small cf-muted cf-eff-foot">Season averages over {m.scope.charAt(0).toLowerCase()}{m.scope.slice(1)}. {m.adjusted ? 'Adjusted for opponent strength.' : 'Not adjusted for opponent strength'}; not used by the CFPi+ rating. Ranks among {total} FBS teams, No. 1 = best; bars fill toward better. <Info text={`${m.plays}. Source: ${m.source}.`} label="Which plays count" /></p>
+    </div>)}</div>
+    <p className="cf-small cf-muted cf-eff-foot">
+      {b && e.games != null && <>Per game over the {e.games} game{e.games === 1 ? '' : 's'} in the Week {doc.data.meta.ratings_week} ratings (all opponents); turnover margin is a season total. </>}
+      Ranks among {total} FBS teams, No. 1 = best; “↓ better” marks stats where lower is better, and bars always fill toward better. None of these are adjusted for opponent strength or used by the CFPi+ rating.
+      <Info text={`${b ? `Standard stats: ${b.source}. ` : ''}Efficiency: ${m.source}; ${m.plays}.`} label="Sources and definitions" /></p>
   </section>
 }
 
@@ -344,7 +334,7 @@ function TeamHistory({ id, name, slug }: { id: string; name: string; slug: strin
   if (!doc.data) return null
   const h = doc.data.teams[id]
   if (!h) return null
-  return <section className="cf-panel" aria-labelledby="t-hist">
+  return <section className="cf-panel cf-span-all" aria-labelledby="t-hist">
     <div className="cf-panel-head"><h2 id="t-hist" className="cf-h2">Rating history</h2><Link to={`/compare/?teams=${slug}`} className="cf-more">Compare with other teams</Link></div>
     <HistoryChart points={doc.data.points} series={[{ id, name, slot: 1, power: h.power, rank: h.rank }]} height={220} label={`${name} CFPi+ rating by week`} />
     <HistoryNote points={doc.data.points} />
@@ -404,8 +394,6 @@ export default function Team({ slug }: { slug: string }) {
         </section>
 
 
-        <TeamEfficiency id={team.team_id} />
-
         <section className="cf-panel" aria-labelledby="t-resume">
           <h2 id="t-resume" className="cf-h2">Résumé</h2>
           {resume ? <dl className="cf-kv cf-kv-2">
@@ -420,6 +408,8 @@ export default function Team({ slug }: { slug: string }) {
           </dl> : <p className="cf-muted">Résumé unavailable for this update.</p>}
           <p className="cf-small cf-muted">Best win and worst loss are judged by the opponent’s current CFPi+ rating.</p>
         </section>
+
+        <TeamStats id={team.team_id} />
 
         <TeamHistory id={team.team_id} name={team.team} slug={team.slug} />
 

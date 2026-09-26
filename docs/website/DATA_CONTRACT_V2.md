@@ -140,3 +140,12 @@ week (the ratings week) and team_id; earlier weeks are kept. The committed copy 
 good file (the CI state is clean each run; the workflow commits the copy). A failed or thin pull (< 100 teams, or the
 first 10 teams all failing) logs a warning and keeps the last good file; the run continues. The team pages read the latest
 week per team from `usage/<slug>.json` (`depth`, `depth_source.week`).
+
+### efficiency.json: standard team stats (Round 18)
+
+`R/publish/team_basic_stats.R` adds, per team: `games` (regular-season games in the ratings), `ppg`, `papg`, `ypg`,
+`pass_ypg` (net), `rush_ypg`, `ya_pg`, `pass_ya_pg`, `rush_ya_pg` (per game), `pass_share` (pass attempts / (pass + rush
+attempts)), `third_pct`, `to_margin` (opponent turnovers minus own, season total), `pen_ypg`, each with `<key>_rank`
+(FBS, 1 = best; lower-is-better stats ranked ascending: `basic_method.lower_is_better`; `pass_share` ranked from most
+passing, descriptive). Source: CFBD game team stats, one call per regular-season week, cached in
+`output/state/game_team_stats_<season>.rds`. Display only.

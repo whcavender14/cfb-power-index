@@ -546,9 +546,12 @@ for (k in seq_len(nrow(meta))) {
 source(file.path(PATHS$root, "R", "publish", "team_efficiency.R"), local = TRUE)
 eff_plays <- tryCatch(read_site_plays(site_state), error = function(e) { message("Efficiency: ", conditionMessage(e)); NULL })
 eff_ids <- if (is.null(games)) character() else games$game_id[games$in_ratings %in% TRUE]
+source(file.path(PATHS$root, "R", "publish", "team_basic_stats.R"), local = TRUE)
+gts <- if (!is.na(week) && week >= 1L) tryCatch(pull_game_team_stats(site_season, seq_len(week), site_state), error = function(e) { message("Game team stats: ", conditionMessage(e)); NULL }) else NULL
+basic <- if (!is.null(gts) && length(eff_ids)) team_basic_stats(gts, data.frame(team_id = meta$team_id, school = meta$school), eff_ids) else NULL
 if (!is.null(eff_plays) && length(eff_ids)) {
   write_site_json(efficiency_doc(team_efficiency(eff_plays, data.frame(team_id = meta$team_id, school = meta$school), eff_ids),
-                                 meta_block, length(eff_ids), week), file.path(site_out, "efficiency.json"))
+                                 meta_block, length(eff_ids), week, basic), file.path(site_out, "efficiency.json"))
 } else { message("Efficiency: no cached play-by-play; efficiency.json not written."); unlink(file.path(site_out, "efficiency.json")) }
 
 # Players by usage (display only). Defense uses the same player stats as the leaders, only when they cover the ratings week.
