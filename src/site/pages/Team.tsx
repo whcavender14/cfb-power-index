@@ -279,9 +279,12 @@ export default function Team({ slug }: { slug: string }) {
           </> : <p className="cf-muted">Simulation results are unavailable for this update.</p>}
         </section>
 
+
+        <TeamEfficiency id={team.team_id} />
+
         <section className="cf-panel" aria-labelledby="t-resume">
           <h2 id="t-resume" className="cf-h2">Résumé</h2>
-          {resume ? <dl className="cf-kv">
+          {resume ? <dl className="cf-kv cf-kv-2">
             <div><dt>Résumé rank <Info text={RESUME_INFO} label="About the résumé rank" /></dt><dd className="cf-num">{s.resume_rank ?? '—'} <span className="cf-small cf-muted"><Link to="/rankings/resume/">all</Link></span></dd></div>
             <div><dt>Record</dt><dd className="cf-num">{s.wins != null ? `${s.wins}–${s.losses}` : '—'}</dd></div>
             <div><dt>Strength of record <Info text={SOR_INFO} label="About strength of record" /></dt><dd><Num value={resume.sor} signed digits={2} /> <span className="cf-small cf-muted">{resume.sor_rank ? `No. ${resume.sor_rank}` : ''}</span></dd></div>
@@ -293,8 +296,6 @@ export default function Team({ slug }: { slug: string }) {
           </dl> : <p className="cf-muted">Résumé unavailable for this update.</p>}
           <p className="cf-small cf-muted">Best win and worst loss are judged by the opponent’s current CFPi+ rating.</p>
         </section>
-
-        <TeamEfficiency id={team.team_id} />
 
         <TeamHistory id={team.team_id} name={team.team} slug={team.slug} />
 

@@ -631,3 +631,36 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-eff-bar i.is-bad { background: var(--cf-down); }
 @media (max-width: 420px) { .cf-eff-row { grid-template-columns: minmax(0, 1fr) 4rem 3.4rem 3rem; gap: var(--s2); } }
 .cf-eff-foot { margin: var(--s3) 0 0; }
+
+/* ── Layout pass (Round 17) ──────────────────────────────────────────────
+   Phone-only card lists stay hidden on wider screens (.cf-cards set display: grid after .cf-phone, so both the
+   table and the cards used to render on desktop). */
+@media (min-width: 760px) { .cf-phone { display: none !important; } }
+
+/* Side-by-side panels are equal height: grids stretch their items, panels lay content out as a column, and any spare
+   height goes to the body (lists spread their rows) or sits above the closing footnote, never as a gap at the bottom. */
+.cf-questions, .cf-team-grid, .cf-conf-grid, .cf-movers-grid, .cf-bracket { align-items: stretch !important; }
+.cf-questions > .cf-panel, .cf-team-grid > .cf-panel, .cf-conf-grid > .cf-panel, .cf-movers-grid > .cf-panel { display: flex; flex-direction: column; }
+.cf-team-grid > .cf-panel > :last-child:is(p), .cf-conf-grid > .cf-panel > :last-child:is(p, figure) { margin-top: auto; }
+.cf-q-body { display: flex; flex-direction: column; }
+.cf-q-body > .cf-list { flex: 1; display: flex; flex-direction: column; }
+.cf-q-body > .cf-list > .cf-list-row { flex: 1 0 auto; }
+.cf-q-body > .cf-q-games { flex: 1; align-content: space-between; }
+.cf-q-more { margin-top: var(--s2); min-height: 32px; }
+.cf-conf-grid > .cf-panel > .cf-strength { flex: 1; display: flex; flex-direction: column; }
+.cf-conf-grid > .cf-panel > .cf-strength > .cf-strength-rows { flex: 1; align-content: space-between; }
+.cf-team-grid > .cf-panel > .cf-kv { flex: 1; align-content: space-between; }
+.cf-team-grid > .cf-panel > .cf-kv + .cf-dist { flex: none; }
+.cf-movers-grid > .cf-panel > .cf-mover-list { flex: 1; display: grid; align-content: space-between; }
+
+/* Tighter vertical rhythm */
+.cf-main { padding-top: var(--s5); padding-bottom: var(--s6); }
+.cf-hero, .cf-pagehead { margin-bottom: var(--s4); }
+.cf-section { margin-top: var(--s5); }
+.cf-team-grid { margin-top: var(--s4); }
+.cf-dist { margin: var(--s4) 0 var(--s2); }
+@media (max-width: 759px) { .cf-panel { padding: var(--s3) var(--s3) var(--s2); } .cf-main { padding-top: var(--s4); } }
+.cf-kv-2 { grid-template-columns: 1fr 1fr; }
+/* Phone cards: values line up even when a label wraps to two lines. */
+.cf-card-stats { grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); column-gap: var(--s2); }
+.cf-card-stats div { grid-template-rows: 1fr auto; align-items: end; }
