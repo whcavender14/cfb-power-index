@@ -794,7 +794,7 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-mu-label { text-align: center; font-size: .8125rem; color: var(--cf-ink-2); }
 .cf-mu-a, .cf-mu-h { display: inline-flex; align-items: baseline; gap: 6px; font-variant-numeric: tabular-nums; font-weight: 500; }
 .cf-mu-a { justify-content: flex-start; }
-.cf-mu-h { justify-content: flex-end; flex-direction: row-reverse; }
+.cf-mu-h { justify-content: flex-start; flex-direction: row-reverse; text-align: right; }   /* row-reverse: flex-start is the right edge */
 .cf-mu-a.is-better, .cf-mu-h.is-better { font-weight: 700; color: var(--cf-ink); }
 .cf-mu-a.is-better::before, .cf-mu-h.is-better::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cf-up); align-self: center; }
 .cf-mu-rank { font-size: .6875rem; font-weight: 500; color: var(--cf-muted); }
@@ -833,4 +833,13 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
   .cf-mu-cmp-head h2 { grid-area: t; }
   .cf-mu-cmp-a { grid-area: a; } .cf-mu-cmp-h { grid-area: h; }
   .cf-mu-compare[class*="is-one-"] .cf-mu-cmp-head { grid-template-areas: "t"; grid-template-columns: 1fr; }
+}
+/* Matchup: the home side mirrors the away side (right-aligned) */
+.cf-mu-stars > .is-home .cf-h3 { flex-direction: row-reverse; }
+.cf-mu-stars > .is-home .cf-mu-star { flex-direction: row-reverse; text-align: right; }
+.cf-mu-stars > .is-home .cf-mu-star-text { justify-items: end; }
+@media (max-width: 759px) {
+  .cf-mu-stars > .is-home .cf-h3, .cf-mu-stars > .is-home .cf-mu-star { flex-direction: row; text-align: left; }
+  .cf-mu-stars > .is-home .cf-mu-star-text { justify-items: start; }
+  .cf-mu-a, .cf-mu-h { flex-wrap: wrap; }
 }

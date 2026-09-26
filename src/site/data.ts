@@ -86,11 +86,15 @@ export type EfficiencyDoc = { meta: Meta; method: { adjusted: boolean; source: s
 export type RosterBits = { jersey?: number | null; height?: number | null; roster_pos?: string | null; headshot?: string | null }
 export type UsageOff = { athlete_id: string; name: string; position: string | null; usg_overall: number; usg_pass: number; usg_rush: number } & RosterBits
 export type UsageDef = { athlete_id: string; name: string; position: string | null; tackles: number; tfl: number; sacks: number; int: number; pd: number } & RosterBits
+export type KeyPlayer = { athlete_id: string; name: string; position: string | null; role: 'passing' | 'rushing' | 'receiving' | 'defense'; jersey: number | null; headshot: string | null
+  pass_cmp: number; pass_att: number; pass_yds: number; pass_td: number; pass_int: number; rush_car: number; rush_yds: number; rush_td: number
+  rec: number; rec_yds: number; rec_td: number; tackles: number; tfl: number; sacks: number; int: number }
 export type DepthPlayer = { name: string; jersey: number | null; snaps: number | null; height?: number | null; headshot?: string | null }
 export type DepthRow = { group: string; slot: string; unit: 'offense' | 'defense'; players: DepthPlayer[] }
 export type UsageDoc = {
   meta: Meta; team_id: string; offense_source: string; offense_pulled_at: string | null; defense_through_week: number | null
   offense: Record<'QB' | 'RB' | 'WR' | 'TE', UsageOff[]> | null; defense: Record<'DL' | 'LB' | 'DB', UsageDef[]> | null; ol_on_roster?: number | null
+  key_players?: KeyPlayer[] | null
   depth?: DepthRow[] | null; depth_source?: { name: string; url: string; fetched_at: string | null } | null
 }
 export type ConferencesDoc = { meta: Meta; conferences: Conference[] }

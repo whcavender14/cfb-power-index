@@ -576,6 +576,8 @@ for (k in seq_len(nrow(meta))) {
   if (is.null(u) && is.null(d)) next
   if (is.null(u)) u <- list(offense = NULL, defense = NULL)
   u$depth <- d
+  qb1 <- if (!is.null(d)) { q <- Filter(function(r) r$group == "QB", d); if (length(q)) q[[1]]$players[[1]]$name else NA_character_ } else NA_character_
+  u$key_players <- key_players(meta$school[k], usage_stats, rosters, qb1)
   u$depth_source <- if (!is.null(d)) list(name = "TWO\u00b7DEEP", url = paste0(TWODEEP_BASE, if (meta$slug[k] %in% names(TWODEEP_SLUG)) TWODEEP_SLUG[[meta$slug[k]]] else meta$slug[k]),
                                           fetched_at = iso_utc(max(depth$fetched_at[depth$team_id == meta$team_id[k]])),
                                           week = max(depth$week[depth$team_id == meta$team_id[k]])) else NULL

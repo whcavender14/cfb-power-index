@@ -26,6 +26,8 @@ for (k in seq_len(nrow(teams))) {
   if (is.null(u) && is.null(d)) next
   if (is.null(u)) u <- list(offense = NULL, defense = NULL)
   u$depth <- d
+  qb1 <- if (!is.null(d)) { q <- Filter(function(r) r$group == "QB", d); if (length(q)) q[[1]]$players[[1]]$name else NA_character_ } else NA_character_
+  u$key_players <- key_players(teams$team[k], stats, rosters, qb1)
   u$depth_source <- if (!is.null(d)) list(name = "TWO\u00b7DEEP", url = paste0(TWODEEP_BASE, if (teams$slug[k] %in% names(TWODEEP_SLUG)) TWODEEP_SLUG[[teams$slug[k]]] else teams$slug[k]),
                                           fetched_at = format(max(depth$fetched_at[depth$team_id == teams$team_id[k]]), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
                                           week = max(depth$week[depth$team_id == teams$team_id[k]])) else NULL

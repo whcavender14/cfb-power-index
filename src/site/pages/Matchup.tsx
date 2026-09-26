@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { DataGate, fmt, fmtSigned, Info, Missing, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
-import type { EfficiencyDoc, Efficiency, Game, GamesDoc, IndexDoc, TeamRow, UsageDoc } from '../data'
+import type { EfficiencyDoc, Efficiency, Game, GamesDoc, IndexDoc, KeyPlayer, TeamRow, UsageDoc } from '../data'
 import { kickoffText, projection, useLines, WINPROB_INFO } from '../games'
 import { Link } from '../router'
 import { STAT_GROUPS, statRank, statValue, type StatDef } from '../stats'
@@ -34,25 +34,19 @@ function StatSides({ d, a, h }: { d: StatDef; a?: Efficiency; h?: Efficiency }) 
 }
 
 type Star = { key: string; name: string; pos: string; line: string; headshot?: string | null; jersey?: number | null }
-/** Key players from the team's usage file: starters from the depth chart where it fits, else by usage and production. */
+const yd = (n: number) => `${n.toLocaleString()} yds`
+/** Season stat line for a key player (CFBD season stats through the ratings week), by the role they were picked for. */
+function statLine(p: KeyPlayer): string {
+  const td = (n: number) => n ? ` · ${n} TD` : ''
+  switch (p.role) {
+    case 'passing': return `${p.pass_cmp}/${p.pass_att} · ${yd(p.pass_yds)}${td(p.pass_td)} · ${p.pass_int} INT${p.rush_yds ? ` · ${p.rush_yds} rush yds` : ''}`
+    case 'rushing': return `${p.rush_car} car · ${yd(p.rush_yds)}${td(p.rush_td)}${p.rec ? ` · ${p.rec} rec, ${p.rec_yds} yds` : ''}`
+    case 'receiving': return `${p.rec} rec · ${yd(p.rec_yds)}${td(p.rec_td)}`
+    default: return `${p.tackles} tkl · ${p.tfl} TFL · ${p.sacks} sk${p.int ? ` · ${p.int} INT` : ''}`
+  }
+}
 function stars(u: UsageDoc | null): Star[] {
-  if (!u) return []
-  const depth = u.depth ?? []
-  const face = (name: string) => depth.flatMap(r => r.players).find(p => p.name === name)
-  const out: Star[] = []
-  const add = (s: Star | null) => { if (s && !out.some(o => o.name === s.name)) out.push(s) }
-  const qbStarter = depth.find(r => r.group === 'QB')?.players[0]
-  const qbUse = u.offense?.QB?.[0]
-  const qbName = qbStarter?.name ?? qbUse?.name
-  if (qbName) add({ key: 'qb', name: qbName, pos: 'QB', line: [qbStarter?.snaps != null ? `${qbStarter.snaps}% snaps` : null, qbUse && qbUse.name === qbName ? `${Math.round(qbUse.usg_overall * 100)}% of plays` : null].filter(Boolean).join(' · ') || 'Starter', headshot: face(qbName)?.headshot, jersey: face(qbName)?.jersey })
-  for (const [g, pos, n] of [['RB', 'RB', 1], ['WR', 'WR', 2], ['TE', 'TE', 1]] as const) for (const p of (u.offense?.[g] ?? []).slice(0, n))
-    add({ key: `${g}-${p.athlete_id}`, name: p.name, pos, line: `${Math.round(p.usg_overall * 100)}% of plays`, headshot: p.headshot ?? face(p.name)?.headshot, jersey: p.jersey })
-  const defs = [...(u.defense?.DL ?? []), ...(u.defense?.LB ?? []), ...(u.defense?.DB ?? [])]
-  const topTackle = [...defs].sort((x, y) => y.tackles - x.tackles).slice(0, 2)
-  const topSack = [...defs].sort((x, y) => y.sacks - x.sacks || y.tfl - x.tfl)[0]
-  for (const p of [...topTackle, ...(topSack && topSack.sacks > 0 ? [topSack] : [])])
-    add({ key: `d-${p.athlete_id}`, name: p.name, pos: p.roster_pos ?? p.position ?? 'DEF', line: `${p.tackles} tkl · ${p.tfl} TFL · ${p.sacks} sk${p.int ? ` · ${p.int} INT` : ''}`, headshot: p.headshot ?? face(p.name)?.headshot, jersey: p.jersey })
-  return out
+  return (u?.key_players ?? []).map(p => ({ key: `${p.role}-${p.athlete_id}`, name: p.name, pos: p.position ?? '', line: statLine(p), headshot: p.headshot, jersey: p.jersey }))
 }
 function StarCard({ s }: { s: Star }) {
   const [broken, setBroken] = useState(false)
@@ -162,12 +156,12 @@ export default function Matchup({ id }: { id: string }) {
       {(sa.length > 0 || sh.length > 0) && <section className="cf-panel" aria-labelledby="mu-stars">
         <h2 id="mu-stars" className="cf-h2">Key players</h2>
         <div className="cf-mu-stars">
-          {[[g.away_id, g.away_team, sa], [g.home_id, g.home_team, sh]].map(([tid, name, list]) => <div key={tid as string}>
+          {[[g.away_id, g.away_team, sa], [g.home_id, g.home_team, sh]].map(([tid, name, list], i) => <div key={tid as string} className={i ? 'is-home' : undefined}>
             <h3 className="cf-h3"><TeamLogo id={tid as string} name={name as string} size={20} /> {name as string}</h3>
             {(list as Star[]).length ? <ul className="cf-mu-star-list">{(list as Star[]).map(s => <StarCard key={s.key} s={s} />)}</ul> : <p className="cf-muted cf-small">No player data (non-FBS team).</p>}
           </div>)}
         </div>
-        <p className="cf-small cf-muted">Quarterback from the depth chart (TWO·DEEP, with permission); other players by share of team plays (CollegeFootballData usage, season to date) and defensive production through the ratings week. Injury status is not shown.</p>
+        <p className="cf-small cf-muted">Season stats through Week {games.data!.meta.ratings_week} (CollegeFootballData): the depth-chart starting quarterback (TWO·DEEP, with permission), the leading rusher, the top two receivers, the top two tacklers and the sack leader.</p>
       </section>}
     </>
   }}</DataGate>
