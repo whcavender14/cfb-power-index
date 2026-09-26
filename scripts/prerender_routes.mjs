@@ -23,7 +23,9 @@ const routes = [
   ['compare', 'Rating history | CFPi+', 'CFPi+ rating history by week. Compare up to five teams.'],
   ['rankings/resume', 'Résumé ranking | CFPi+', 'CFPi+ résumé ranking: FBS teams ordered by strength of record, shown next to the predictive CFPi+ rank.'],
   ['whatif', 'What if? | CFPi+', 'Pick winners of upcoming games and see CFPi+ playoff, bye, conference-title and seed odds from the matching simulated seasons.'],
-  ['changes', 'What changed | CFPi+', 'This week in CFPi+: biggest rank movers and rating changes, with the results behind them.'],
+  // Retired: What changed moved to Home. The shells stay so old links load and redirect instead of 404ing.
+  ['changes', 'CFPi+ | College Football Power Ratings', 'This week in CFPi+: biggest rank movers and rating changes, with the results behind them.'],
+  ['changed', 'CFPi+ | College Football Power Ratings', 'This week in CFPi+: biggest rank movers and rating changes, with the results behind them.'],
   ...conferences.map(c => [`conferences/${c.slug}`, `${c.is_conference ? c.name : 'Independents'} | CFPi+`, `${c.is_conference ? c.name : 'FBS independents'} in CFPi+: team ratings, strength distribution, schedule strength and playoff outlook.`]),
   ['model', 'Model | CFPi+', 'How the Cavender Football Power Index (CFPi+) rates teams and simulates the season.'],
   ['simulations', 'Season simulations | CFPi+', 'CFPi+ season simulation table and shareable graphics.'],

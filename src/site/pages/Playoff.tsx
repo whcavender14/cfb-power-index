@@ -50,7 +50,7 @@ export default function Playoff() {
 
         <section className="cf-section" aria-labelledby="po-field">
           <div className="cf-panel-head">
-            <h2 id="po-field">Projected field <Info text="The single simulated season whose seeding is most consistent with all 1,000 simulations (the highest joint probability of each team landing on its seed). Because it is a real simulated outcome, it follows the selection rules exactly. It is one plausible field, not a forecast that every seed will hold." label="How the projected field is chosen" /></h2>
+            <h2 id="po-field">Projected field <Info text="The single simulated season whose seeding is most consistent with all the simulations (the highest joint probability of each team landing on its seed). Because it is a real simulated outcome, it follows the selection rules exactly. It is one plausible field, not a forecast that every seed will hold." label="How the projected field is chosen" /></h2>
             {field && <ShareButton label="Projected field PNG" run={async () => (await import('../graphics')).playoffFieldPng(doc.data!, teams)} />}
           </div>
           {field ? <>

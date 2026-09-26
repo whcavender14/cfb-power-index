@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState, type ReactElement } from '
 import { Menu, Moon, Sun, X } from 'lucide-react'
 import { TeamsContext, useData } from './components'
 import type { TeamsDoc } from './data'
-import { Link, useLegacyHashRedirect, useLocation } from './router'
+import { Link, Redirect, useLegacyHashRedirect, useLocation } from './router'
 import Home from './pages/Home'
 const Rankings = lazy(() => import('./pages/Rankings'))
 const Games = lazy(() => import('./pages/Games'))
@@ -12,7 +12,6 @@ const Team = lazy(() => import('./pages/Team'))
 const ConferenceList = lazy(() => import('./pages/Conferences').then(m => ({ default: m.ConferenceList })))
 const ConferenceDetail = lazy(() => import('./pages/Conferences').then(m => ({ default: m.ConferenceDetail })))
 const Compare = lazy(() => import('./pages/Compare'))
-const Changes = lazy(() => import('./pages/Changes'))
 const Resume = lazy(() => import('./pages/Resume'))
 const WhatIf = lazy(() => import('./pages/WhatIf'))
 const Model = lazy(() => import('./pages/Model'))
@@ -23,10 +22,10 @@ import NotFound from './pages/NotFound'
 const NAV = [
   { to: '/', label: 'Home' },
   { to: '/rankings/', label: 'Rankings' },
-  { to: '/changes/', label: 'What changed' },
   { to: '/compare/', label: 'History' },
   { to: '/games/', label: 'Games' },
   { to: '/playoff/', label: 'Playoff' },
+  { to: '/whatif/', label: 'What if?' },
   { to: '/teams/', label: 'Teams' },
   { to: '/conferences/', label: 'Conferences' },
   { to: '/model/', label: 'Model' },
@@ -45,7 +44,9 @@ function route(path: string) {
     '/teams/': [<Teams />, 'Teams'],
     '/conferences/': [<ConferenceList />, 'Conferences'],
     '/compare/': [<Compare />, 'Rating history'],
-    '/changes/': [<Changes />, 'What changed'],
+    // What changed now lives on Home; old links land on that section.
+    '/changes/': [<Redirect to="/#changed" />, 'College Football Power Ratings'],
+    '/changed/': [<Redirect to="/#changed" />, 'College Football Power Ratings'],
     '/rankings/resume/': [<Resume />, 'Résumé ranking'],
     '/whatif/': [<WhatIf />, 'What if?'],
     '/model/': [<Model />, 'Model'],

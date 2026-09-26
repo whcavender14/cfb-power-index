@@ -185,16 +185,26 @@ export function validateSiteData(dir = root) {
       const bytes = Buffer.from(sc.data ?? '', 'base64')
       const n = sc.n, G = sc.game_ids?.length ?? 0, T = sc.team_ids?.length ?? 0, nb = Math.ceil(n / 8)
       if (n !== meta.sim_count) fail('scenario.json: n differs from sim_count')
-      if (bytes.length !== G * nb + 3 * T * n) fail(`scenario.json: ${bytes.length} bytes, layout needs ${G * nb + 3 * T * n}`)
+      const packed = sc.format === 2, per = packed ? 1 : 3
+      if (bytes.length !== G * nb + per * T * n) fail(`scenario.json: ${bytes.length} bytes, layout needs ${G * nb + per * T * n}`)
       else {
         const scheduled = new Set((games.games ?? []).filter(g => g.status === 'scheduled').map(g => g.game_id))
         if (G !== scheduled.size || sc.game_ids.some(id => !scheduled.has(id))) fail('scenario.json: games differ from the scheduled games in games.json')
         const base = G * nb
+        const sched = sc.team_ids.map(() => [])   // format 2: each team's remaining games as [index, 1 if home]
+        if (packed) { sc.game_home.forEach((t, g) => { if (t >= 0) sched[t].push([g, 1]) }); sc.game_away.forEach((t, g) => { if (t >= 0) sched[t].push([g, 0]) }) }
         for (const pt of playoff.teams ?? []) {
           const t = sc.team_ids.indexOf(pt.team_id)
           if (t < 0) { fail(`scenario.json: team ${pt.team_id} missing`); continue }
           let po = 0, w = 0, ch = 0, cf = 0
-          for (let s = 0; s < n; s++) { if (bytes[base + t * n + s]) po++; w += bytes[base + T * n + t * n + s]; const f = bytes[base + 2 * T * n + t * n + s]; if (f & 8) cf++; if ((f & 7) === 5) ch++ }
+          for (let s = 0; s < n; s++) {
+            if (packed) {
+              const p = bytes[base + t * n + s]; if (p & 15) po++; if (p & 16) cf++; if ((p >> 5) === 5) ch++
+              w += sc.known_wins[t]
+              for (const [g, home] of sched[t]) if (((bytes[g * nb + (s >> 3)] >> (s & 7)) & 1) === home) w++
+            }
+            else { if (bytes[base + t * n + s]) po++; w += bytes[base + T * n + t * n + s]; const f = bytes[base + 2 * T * n + t * n + s]; if (f & 8) cf++; if ((f & 7) === 5) ch++ }
+          }
           if (Math.abs(po / n - pt.p_playoff) > 1e-4 || Math.abs(w / n - pt.proj_wins) > 1e-4 || Math.abs(cf / n - pt.p_conf) > 1e-4 || Math.abs(ch / n - pt.p_champ) > 1e-4) fail(`scenario.json: team ${pt.team_id} does not reproduce playoff.json`)
         }
         for (const g of games.games ?? []) if (g.status === 'scheduled' && g.sim_home_win != null) {

@@ -4,17 +4,10 @@ import { DataGate, Freshness, Info, PageHead, pctText, Select, TeamLink, TeamLog
 import type { Game, GamesDoc, PlayoffDoc, ScenarioDoc } from '../data'
 import { kickoffText } from '../games'
 import { Link, useQueryParam } from '../router'
-import { aggregate, COUNTS_BELOW, decode, formatPicks, matching, parsePicks, WARN_BELOW, type Pick, type TeamResult } from '../scenario'
+import { COUNTS_BELOW, decode, formatPicks, parsePicks, scenarioResults, WARN_BELOW, type Pick, type TeamResult } from '../scenario'
+import { Share } from '../ScenarioShare'
 
 const SHOW = 25
-
-/** A share of the matching seasons: a percentage, or "k of n" when there are too few seasons for percentages. */
-function Share({ k, n, base }: { k: number; n: number; base?: number | null }) {
-  if (n < COUNTS_BELOW) return <span className="cf-num">{k} of {n}</span>
-  const p = k / n
-  const d = base == null ? null : p - base
-  return <span className="cf-num">{pctText(p)}{d != null && Math.abs(d) >= 0.0005 && <span className={`cf-delta ${d > 0 ? 'is-up' : 'is-down'}`}> {d > 0 ? '▲' : '▼'}{Math.abs(d * 100).toFixed(1)}</span>}</span>
-}
 
 function GamePicker({ g, pick, onPick }: { g: Game; pick: Pick | undefined; onPick: (side: 'home' | 'away' | null) => void }) {
   const side = (s: 'home' | 'away') => {
@@ -52,9 +45,8 @@ export default function WhatIf() {
       const byId = new Map(games.map(g => [g.game_id, g]))
       const valid = picks.filter(p => d.games.has(p.gameId))
       const ignored = picks.length - valid.length
-      const sims = matching(d, valid)
+      const { sims, res } = scenarioResults(d, valid)
       const n = sims.length
-      const res = aggregate(d, sims)
       const base = new Map(po.teams.map(t => [t.team_id, t]))
       const weeks = [...new Set(future.map(g => g.week))].sort((a, b) => a - b)
       const week = weekParam ? Number(weekParam) : weeks[0]

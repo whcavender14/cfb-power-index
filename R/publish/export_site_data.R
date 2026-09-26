@@ -17,6 +17,8 @@
 #   history.json             CFPi+ rating history (preseason, reconstructed and published weeks)
 #   changes.json             what changed since the previous week (same history source as movement)
 #   conferences.json         conference aggregates (membership from team metadata)
+#   efficiency.json          raw EPA/play and success rate per team (R/publish/team_efficiency.R; display only)
+#   usage/<slug>.json        players by usage per team (R/publish/player_usage.R; display only)
 #   <season>/week-NN/index.json   weekly archive (kept if a different model published it)
 # =============================================================================
 suppressPackageStartupMessages(library(jsonlite))
@@ -249,8 +251,10 @@ if (!is.null(sim) && !is.null(sim$schedule) && !is.null(sim$team_power)) {
 
 # ---- Scenario data (What-if page): stored simulation outcomes, packed ---------
 # For each remaining regular-season game, one bit per simulation (1 = home team won; bit s of byte s %/% 8 is sim s+1,
-# lowest bit first, as packBits writes it). Then, for each FBS team (team_ids order) and each simulation, one byte each
-# for seed (0 = not in the field), wins, and flags (8 = conference title, low 3 bits = CFP exit round 0-5).
+# lowest bit first, as packBits writes it). Then, for each FBS team (team_ids order) and each simulation, one packed
+# byte: seed (low 4 bits, 0 = not in the field) + 16 x conference title + 32 x CFP exit round 0-5. Simulated wins are
+# not stored: they equal known_wins plus the remaining games won (game_home / game_away give each game's team indices,
+# -1 = not FBS), which is checked here. (format 2; format 1, before 10,000 simulations, stored seed / wins / flags bytes.)
 scenario <- NULL
 if (!is.null(games) && !is.null(team_sim)) {
   fut <- games[games$status == "scheduled", ]
@@ -266,11 +270,25 @@ if (!is.null(games) && !is.null(team_sim)) {
   sc_ids <- team_sim$team_id
   sst <- st[order(match(st$team_id, sc_ids), st$sim), ]
   stopifnot(nrow(sst) == length(sc_ids) * n_sims, all(sst$sim == rep(seq_len(n_sims), length(sc_ids))))
-  tbytes <- c(ifelse(is.na(sst$seed), 0L, sst$seed), sst$wins, as.integer(sst$conf_champ) * 8L + sst$exit)
+  seed <- ifelse(is.na(sst$seed), 0L, sst$seed)
+  stopifnot(all(seed <= 15L), all(sst$exit >= 0L & sst$exit <= 5L))
+  tbytes <- seed + 16L * as.integer(sst$conf_champ) + 32L * sst$exit
+  fin <- games[games$status == "final", ]
+  hw <- fin$home_points > fin$away_points
+  known_wins <- vapply(sc_ids, function(id) sum(fin$home_id == id & hw) + sum(fin$away_id == id & !hw), 0L)
+  game_home <- match(fut$home_id, sc_ids) - 1L; game_home[is.na(game_home)] <- -1L
+  game_away <- match(fut$away_id, sc_ids) - 1L; game_away[is.na(game_away)] <- -1L
+  derived <- matrix(known_wins, length(sc_ids), n_sims)
+  for (i in seq_len(nrow(fut))) {
+    if (game_home[i] >= 0) derived[game_home[i] + 1L, ] <- derived[game_home[i] + 1L, ] + bits[i, ]
+    if (game_away[i] >= 0) derived[game_away[i] + 1L, ] <- derived[game_away[i] + 1L, ] + !bits[i, ]
+  }
+  stopifnot("simulated wins must equal known wins + remaining games won" = identical(as.integer(t(derived)), as.integer(sst$wins)))
   stopifnot(all(tbytes >= 0 & tbytes <= 255))
   team_games <- as.integer(tapply(sst$games, sst$team_id, function(v) { stopifnot(length(unique(v)) == 1L); v[1] })[sc_ids])
-  scenario <- list(meta = NULL, n = n_sims, game_ids = I(fut$game_id), team_ids = I(sc_ids), team_games = I(team_games),
-                   layout = "games: n_games x ceil(n/8) bytes (bit s%8 of byte s/8 = sim s, 1 = home win); then seed, wins, flags: n_teams x n bytes each (flags: 8 = conf title, low 3 bits = exit round)",
+  scenario <- list(meta = NULL, format = 2L, n = n_sims, game_ids = I(fut$game_id), team_ids = I(sc_ids), team_games = I(team_games),
+                   known_wins = I(as.integer(known_wins)), game_home = I(game_home), game_away = I(game_away),
+                   layout = "games: n_games x ceil(n/8) bytes (bit s%8 of byte s/8 = sim s, 1 = home win); then packed: n_teams x n bytes (low 4 bits = seed, 16 = conf title, bits 5-7 = exit round); wins = known_wins + remaining games won",
                    data = base64_enc(as.raw(c(gbytes, tbytes))))
 }
 
@@ -524,6 +542,41 @@ for (k in seq_len(nrow(meta))) {
                        playoff = if (!is.null(team_sim)) { x <- as.list(team_sim[team_sim$team_id == id, ]); x[-1] <- lapply(x[-1], r4); x } else NULL),
                   file.path(site_out, "team", paste0(meta$slug[k], ".json")))
 }
+# Raw efficiency (display only; never feeds the model). Skipped, and the old file removed, when no play-by-play is cached.
+source(file.path(PATHS$root, "R", "publish", "team_efficiency.R"), local = TRUE)
+eff_plays <- tryCatch(read_site_plays(site_state), error = function(e) { message("Efficiency: ", conditionMessage(e)); NULL })
+eff_ids <- if (is.null(games)) character() else games$game_id[games$in_ratings %in% TRUE]
+if (!is.null(eff_plays) && length(eff_ids)) {
+  write_site_json(efficiency_doc(team_efficiency(eff_plays, data.frame(team_id = meta$team_id, school = meta$school), eff_ids),
+                                 meta_block, length(eff_ids), week), file.path(site_out, "efficiency.json"))
+} else { message("Efficiency: no cached play-by-play; efficiency.json not written."); unlink(file.path(site_out, "efficiency.json")) }
+
+# Players by usage (display only). Defense uses the same player stats as the leaders, only when they cover the ratings week.
+source(file.path(PATHS$root, "R", "publish", "player_usage.R"), local = TRUE)
+usage_raw <- pull_player_usage(site_season)
+rosters <- pull_rosters(site_season)
+source(file.path(PATHS$root, "R", "publish", "depth_charts.R"), local = TRUE)
+depth <- read_opt(file.path(site_state, sprintf("depth_charts_%d.rds", site_season)))   # scripts/pull_depth_charts.R
+usage_stats <- if (!is.null(ps) && identical(as.integer(attr(ps, "end_week")), week)) ps else NULL
+unlink(file.path(site_out, "usage"), recursive = TRUE)
+n_usage <- 0L
+for (k in seq_len(nrow(meta))) {
+  u <- team_player_usage(meta$school[k], usage_raw, usage_stats, rosters)
+  d <- if (!is.null(depth) && !is.null(depth[[meta$slug[k]]])) enrich_depth(depth[[meta$slug[k]]], if (!is.null(rosters)) rosters[rosters$team == meta$school[k], , drop = FALSE] else NULL) else NULL
+  if (is.null(u) && is.null(d)) next
+  if (is.null(u)) u <- list(offense = NULL, defense = NULL)
+  u$depth <- d
+  u$depth_source <- if (!is.null(d)) list(name = "TWO\u00b7DEEP", url = paste0(TWODEEP_BASE, if (meta$slug[k] %in% names(TWODEEP_SLUG)) TWODEEP_SLUG[[meta$slug[k]]] else meta$slug[k]),
+                                          fetched_at = iso_utc(attr(depth, "fetched_at"))) else NULL
+  write_site_json(c(list(meta = meta_block, team_id = meta$team_id[k],
+                         offense_source = "CollegeFootballData player usage, season to date",
+                         offense_pulled_at = if (!is.null(usage_raw)) iso_utc(attr(usage_raw, "pulled_at")) else NA,
+                         defense_through_week = if (!is.null(usage_stats)) week else NA), u),
+                  file.path(site_out, "usage", paste0(meta$slug[k], ".json")))
+  n_usage <- n_usage + 1L
+}
+message("Players by usage: ", n_usage, " teams.")
+
 if (!is.na(week)) {
   target <- file.path(site_out, as.character(site_season), sprintf("week-%02d", week), "index.json")
   old <- if (file.exists(target)) tryCatch(fromJSON(target)$meta$model, error = function(e) NULL) else NULL
