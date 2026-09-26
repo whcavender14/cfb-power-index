@@ -48,8 +48,14 @@ export async function loadLogos(teams: Pick<Team, 'team_id' | 'logo_url'>[]): Pr
       const data = await readAsDataUrl(url)
       if (!data) continue
       const image = new Image()
-      image.src = data
-      try { await image.decode(); logos.set(team.team_id, image); return } catch { /* try the next source */ }
+      // The load event, not decode(): decode() can stay pending in a hidden page, which would block the export.
+      const ok = await new Promise<boolean>(resolve => {
+        image.onload = () => resolve(image.naturalWidth > 0)
+        image.onerror = () => resolve(false)
+        setTimeout(() => resolve(image.complete && image.naturalWidth > 0), 5000)
+        image.src = data
+      })
+      if (ok) { logos.set(team.team_id, image); return }
     }
   }))
   return logos
@@ -175,12 +181,12 @@ export function drawMasthead(ctx: CanvasRenderingContext2D, W: number, pad: numb
   ctx.fillRect(pad, 150, 96, 2)
 
 }
-/** Right-aligned "CFB Power Index" signature with its gold underline. */
+/** Right-aligned "CFPi+" signature with its gold underline. */
 export function drawFooterBrand(ctx: CanvasRenderingContext2D, right: number, baseline: number) {
   ctx.textAlign = 'right'
   ctx.font = `700 16px ${DISPLAY}`
   ctx.fillStyle = C.navy
-  ctx.fillText('CFB Power Index', right, baseline)
+  ctx.fillText('CFPi+', right, baseline)
   ctx.fillStyle = C.gold
   ctx.fillRect(right - 24, baseline + 8, 24, 2)
   ctx.textAlign = 'left'
@@ -198,7 +204,7 @@ export async function exportRankingsPng({ teams, season, week, updatedAt }: Opti
   const H = tableBottom + 102
   const { canvas, ctx } = createCanvas(W, H)
 
-  drawMasthead(ctx, W, pad, { kicker: 'COLLEGE FOOTBALL · POWER RATINGS', title: 'CFB Power Index', chips: [`${week == null ? 'LATEST' : `WEEK ${week}`} · ${season}`, `ALL ${teams.length} FBS`], updatedAt })
+  drawMasthead(ctx, W, pad, { kicker: 'COLLEGE FOOTBALL · POWER RATINGS', title: 'CFPi+ Power Ratings', chips: [`${week == null ? 'LATEST' : `WEEK ${week}`} · ${season}`, `ALL ${teams.length} FBS`], updatedAt })
 
   // Ranking columns
   for (let c = 0; c < cols; c++) {

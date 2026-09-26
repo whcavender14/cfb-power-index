@@ -48,6 +48,8 @@ PATHS <- list(
   betting_funs   = file.path(PROJECT_ROOT, "R", "publish", "betting_functions.R"),
   export_public  = file.path(PROJECT_ROOT, "R", "publish", "export_public_data.R"),
   export_betting = file.path(PROJECT_ROOT, "R", "publish", "export_betting_data.R"),
+  export_site    = file.path(PROJECT_ROOT, "R", "publish", "export_site_data.R"),
+  pull_players   = file.path(PROJECT_ROOT, "R", "publish", "pull_player_stats.R"),
   graphic        = file.path(PROJECT_ROOT, "R", "publish", "rankings_graphic.R"),
   eval_helpers   = file.path(PROJECT_ROOT, "R", "evaluation", "evaluation_helpers.R"),
 

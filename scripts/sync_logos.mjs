@@ -1,6 +1,8 @@
 // Mirror team logos into public/logos/<team_id>.png so the PNG export can draw them.
 // The CollegeFootballData CDN sends no CORS headers: browsers can display those images
 // but cannot read their pixels (fetch or canvas). Same-origin copies avoid that.
+// Pages use 144 px copies in public/logos/sm/ (made once with `sips -Z 144`); a team without one falls back to the
+// original automatically, so newly mirrored logos work before a small copy exists.
 // Usage: node scripts/sync_logos.mjs [--force]
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 
