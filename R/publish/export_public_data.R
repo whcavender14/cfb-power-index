@@ -97,7 +97,10 @@ rating_doc <- envelope(r, week, updated, paste0("vCurrent / ", if (!is.null(snap
   source="scripts/01_build_ratings.R",
   weekly_comparison_week=if (!is.null(previous)) week-1L else NA_integer_,
   preseason_source=if (!is.null(ratings)) "Production model pre_power" else NA_character_))
-sim_doc <- envelope(s, sim_week, sim_updated, "vCurrent / EB_features + cfbseedR", list(
+# Simulation model name: the candidate recorded by the ratings build inside the simulation output (never assumed).
+sim_model <- if (!is.null(sim)) sim$model_metadata$candidate else if (!is.null(snapshot)) snapshot$candidate else NULL
+stopifnot(is.null(sim_model) || (is.character(sim_model) && length(sim_model) == 1L && nzchar(sim_model)))
+sim_doc <- envelope(s, sim_week, sim_updated, paste0("vCurrent / ", if (!is.null(sim_model)) sim_model else "frozen selected model", " + cfbseedR"), list(
   unavailable_reason=if (is.null(sim)) "No completed simulation output is available for this season." else NA_character_,
   simulation_count=if (!is.null(sim)) sim$simulation_count else NA_integer_,
   playoff_format=if (!is.null(sim)) sim$playoff_format else NA_character_,
@@ -110,7 +113,12 @@ write_doc <- function(doc, name, wk) {
   if (!is.na(wk)) {
     archive <- file.path(out_dir, as.character(season), sprintf("week-%02d", wk))
     dir.create(archive, recursive=TRUE, showWarnings=FALSE)
-    file.copy(file.path(out_dir, paste0(name, ".json")), file.path(archive, paste0(name, ".json")), overwrite=TRUE)
+    target <- file.path(archive, paste0(name, ".json"))
+    # A week archive published by a different model is a historical record: keep it (same-model reruns still refresh).
+    old_model <- if (file.exists(target)) tryCatch(jsonlite::fromJSON(target)$model, error=function(e) NULL) else NULL
+    if (!is.null(old_model) && !identical(old_model, doc$model)) {
+      message(sprintf("Keeping %s: week %d was published by '%s'.", target, wk, old_model))
+    } else file.copy(file.path(out_dir, paste0(name, ".json")), target, overwrite=TRUE)
   }
 }
 write_doc(rating_doc, "ratings", week)

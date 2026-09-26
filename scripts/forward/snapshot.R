@@ -1,6 +1,8 @@
 # Forward evidence, task 2: write-once pre-kickoff prediction snapshots for the current weekly period.
 # Models: incumbent (always), Round 13 K (always; flagged late_pull if its play-by-play was pulled after the cutoff),
-# Round 15 candidates (only once a signed freeze manifest exists). Evidence only: no refit, promotion or deployment.
+# Current C2 (production since 2026-09-26) and frozen Round 15 C2 (Round 16 §9; same late_pull rule; they also archive
+# this run's FCS-involved schedule), Round 15 candidates (only once a signed freeze manifest exists).
+# Evidence only: no refit, promotion or deployment.
 # Exit codes: 0 ok (or nothing to predict), 1 run failure (no snapshot written), 2 partial (incumbent written, a later model failed).
 # Usage: CFB_FORWARD_ARCHIVE=<dir> Rscript scripts/forward/snapshot.R
 source("config/paths.R"); source("config/production.R")
@@ -52,6 +54,17 @@ status <- tryCatch({
       res <- fwd_model_r13K(readRDS(sf), pulls, cutoff, targets, inc$pred, now)
       fwd_guard_snapshot(res$pred, now, allow = character()); write_model("round13_K", res); 0L
     }, error = function(e) { fwd_log(archive, run, "round13_K", "FAIL", conditionMessage(e)); message("round13_K FAIL: ", conditionMessage(e)); 2L })
+    c2 <- tryCatch({
+      c2pulls <- fwd_c2_pulls(archive, season)
+      if (!exists("c2p_fcs_games")) source(PATHS$production_model)
+      fcs <- c2p_fcs_games(season, inp)
+      fwd_archive_file(archive, fcs, file.path(inp, sprintf("fcs_games_%d.rds", season)), "input", "fcs_schedule", season, "rds")
+      res <- fwd_model_c2(g, readRDS(sf), c2pulls, fcs, cutoff, targets, now)
+      for (m in names(res)) fwd_guard_snapshot(res[[m]]$pred, now, allow = character())
+      for (m in names(res)) write_model(m, res[[m]])
+      0L
+    }, error = function(e) { fwd_log(archive, run, "c2", "FAIL", conditionMessage(e)); message("c2 FAIL: ", conditionMessage(e)); 2L })
+    k <- max(k, c2)
     if (file.exists(R15_FREEZE)) {
       r15 <- tryCatch({ fwd_model_round15(); 0L }, error = function(e) { fwd_log(archive, run, "round15", "FAIL", conditionMessage(e)); 2L })
       k <- max(k, r15)

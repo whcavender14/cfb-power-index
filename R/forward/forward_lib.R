@@ -101,7 +101,12 @@ fwd_provenance <- function(root) {
   code <- c(list.files(file.path(root, "R/forward"), "\\.R$", full.names = TRUE, recursive = TRUE),
             list.files(file.path(root, "scripts/forward"), "\\.(R|sh)$", full.names = TRUE),
             file.path(root, c("R/model/cfb_power_ratings_vCurrent.R", "R/model/production_operations.R", "config/production.R",
-                              "config/paths.R", "config/forward/round13_forward_weight.csv")))
+                              "config/paths.R", "config/forward/round13_forward_weight.csv")),
+            # Current C2 / frozen R15 C2 forward build (promotion 2026-09-26)
+            list.files(file.path(root, "R/production"), "\\.R$", full.names = TRUE),
+            file.path(root, c("config/production_model.R", "R/c2/c2_current.R", "R/round15/candidates/data.R", "R/round15/candidates/c1.R",
+                              "R/round15/candidates/c2.R", "R/round15/prep/fumble_parser.R", "R/round15/prep/sr_history.R",
+                              "R/round15/prep/passer_parser.R", "R/round15/cfbd_client.R", "data/frozen/c2/c2_season_inputs_2026.rds")))
   code_sha256 <- setNames(as.list(vapply(code, fwd_sha256, "")), sub(paste0("^", root, "/"), "", code))
   list(tool_version = FWD$version, git_commit = commit[1], git_dirty = dirty, code_sha256 = code_sha256, r_version = R.version.string,
        packages = as.list(setNames(vapply(pk, function(p) as.character(utils::packageVersion(p)), ""), pk)), host = Sys.info()[["nodename"]])

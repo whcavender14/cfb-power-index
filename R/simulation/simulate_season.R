@@ -7,11 +7,16 @@
 # and the interactive print/View calls were removed.
 #
 # How it works:
-#   1. Build the frozen EB_features ratings at the current Monday cutoff.
-#   2. Every FBS team gets its power rating; every FCS opponent gets -25.
+#   1. Build the production model's ratings at the current Monday cutoff
+#      (R/production/production_model.R: Current C2 since 2026-09-26).
+#   2. Every FBS team gets its power rating. Non-FBS opponents get the
+#      model's own treatment: Current C2 rates them (Stage 3 group levels;
+#      first-game rating before their first game). The former incumbent
+#      EB_features put every FCS opponent at -25.
 #   3. Games already final before the cutoff keep their real result; every
-#      other game is drawn as margin ~ Normal(home - away + 3.0685, 15.787),
-#      rounded, with ties forbidden.
+#      other game is drawn as margin ~ Normal(home - away + hfa, sd), rounded,
+#      with ties forbidden. C2: hfa 3.0685, sd = C2's frozen Round 16 sigma
+#      15.650. EB_features: hfa 3.0685, sd 15.787.
 #   4. cfbseedR plays the regular season + conference title games. In every
 #      simulation the eligible FBS teams are ranked by a resume score (wins
 #      above a benchmark team on the same schedule, opponent-adjusted margin,
@@ -30,6 +35,7 @@ suppressPackageStartupMessages({
 if (!exists("PATHS")) stop("Source config/paths.R first", call. = FALSE)
 if (!exists("PRODUCTION")) source(file.path(PATHS$root, "config", "production.R"))
 if (!exists("v5_build")) suppressPackageStartupMessages(source(PATHS$model_ops))
+if (!exists("production_build")) source(PATHS$production_model)
 source(PATHS$dynamic_cfp)
 
 run_season_simulation <- function(season = as.integer(Sys.getenv("CFB_SEASON", "2026")),
@@ -39,23 +45,27 @@ run_season_simulation <- function(season = as.integer(Sys.getenv("CFB_SEASON", "
                                   as_of = if (nzchar(Sys.getenv("CFB_AS_OF"))) utc(Sys.getenv("CFB_AS_OF")) else period_start(Sys.time())) {
   # CFB_AS_OF (new) lets an offline smoke test use a cutoff inside the frozen
   # schedule's horizon; production always uses the current Monday.
-  live_schedule <- NULL
+  live_schedule <- NULL; schedule_dir <- NULL
   if (refresh_schedule) {
     live_cfg <- v4_config()
     live_cfg$cache_dir <- file.path(out_dir, "simulation_live")
     live_schedule <- read_schedule(season, live_cfg, refresh = TRUE)
+    schedule_dir <- live_cfg$cache_dir
   }
-  ratings <- v5_build(season = season, as_of = as_of, candidate = PRODUCTION$candidate, schedule = live_schedule)
+  model <- production_model_id()
+  ratings <- production_build(season = season, as_of = as_of, schedule = live_schedule, schedule_dir = schedule_dir,
+                              candidate = if (model == "EB_features") PRODUCTION$candidate, model = model)
 
   model_metadata <- attributes(ratings)[setdiff(names(attributes(ratings)), c("names", "row.names", "class"))]
   cutoff <- attr(ratings, "as_of")
   stopifnot(inherits(cutoff, "POSIXct"), length(cutoff) == 1L, !is.na(cutoff),
             !anyDuplicated(ratings$team_id), !anyDuplicated(ratings$team), all(is.finite(ratings$power_rating)))
 
-  # Explicit simulation assumptions; NOT estimated v5 constants.
-  fcs_power <- PRODUCTION$sim_fcs_power
-  resid_sd <- PRODUCTION$sim_resid_sd
-  simulation_hfa <- PRODUCTION$sim_hfa
+  # Explicit simulation assumptions of the model that produced `ratings` (R/production/production_model.R).
+  sim_params <- production_sim_params(ratings)
+  fcs_power <- sim_params$fcs_power
+  resid_sd <- sim_params$resid_sd
+  simulation_hfa <- sim_params$hfa
 
   g <- if (is.null(live_schedule)) v4_schedule(season) else live_schedule
   g <- g[g$home_fbs | g$away_fbs, ]   # FBS-v-FBS and FBS-v-FCS only
@@ -66,8 +76,10 @@ run_season_simulation <- function(season = as.integer(Sys.getenv("CFB_SEASON", "
   stopifnot(!anyNA(opponents$team), !anyNA(opponents$team_id), !anyDuplicated(opponents$team_id))
   rating_index <- match(opponents$team_id, ratings$team_id)
   if (any(opponents$fbs & is.na(rating_index))) stop("An FBS opponent lacks a rating: fix membership/ID coverage.")
-  opponents$power_rating <- fcs_power
+  opponents$power_rating <- NA_real_
+  opponents$power_rating[!opponents$fbs] <- production_nonfbs_power(ratings, opponents$team_id[!opponents$fbs])
   opponents$power_rating[opponents$fbs] <- ratings$power_rating[rating_index[opponents$fbs]]
+  stopifnot(all(is.finite(opponents$power_rating)))
   opponents$team[opponents$fbs] <- ratings$team[rating_index[opponents$fbs]]   # canonical names
   stopifnot(!anyDuplicated(opponents$team))
   g$home_team <- opponents$team[match(g$home_id, opponents$team_id)]
@@ -144,6 +156,7 @@ run_season_simulation <- function(season = as.integer(Sys.getenv("CFB_SEASON", "
   sim$model_metadata <- model_metadata
   sim$ratings <- ratings
   sim$simulation_assumptions <- list(hfa = simulation_hfa, resid_sd = resid_sd, fcs_power = fcs_power,
+                                     nonfbs_power_source = sim_params$nonfbs_power_source,
                                      selection = "dynamic resume ranking per simulation (wins above benchmark, adjusted margin, conference title)",
                                      cfp_ranking = list(coef = as.list(cfp_ranking$coef),
                                                         benchmark_rating = cfp_ranking$benchmark_rating,

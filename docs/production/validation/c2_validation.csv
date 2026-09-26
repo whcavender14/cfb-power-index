@@ -1,0 +1,46 @@
+section,check,value,pass
+A,C2 frozen inputs + code MD5,10/10,TRUE
+A,model code identical to research commit 6a187ea,0,TRUE
+B,"play rows (SR, fumbles, passer) == frozen build d$pbp 2025",1868 rows,TRUE
+B,FCS games mapping == P1 fcs_schedules 2025,879 games,TRUE
+B,games table == frozen build d$games 2025,1687,TRUE
+B,"2025 predictions, 22 cutoffs: max |adapter - canonical|",1.59872e-13,TRUE
+B,2025 ratings (all entities): max |diff|,2.41585e-13,TRUE
+B,2025 group levels: max |diff|,6.39488e-14,TRUE
+B,2025 first-game ratings: max |diff|,1.42109e-13,TRUE
+B,2025 FBS-vs-nonFBS: adapter team rule == c2_fbs_vs_nonfbs() margins,"126 games, max 8.53e-14",TRUE
+C,frozen season inputs == canonical recomputation (except divisions),all.equal,TRUE
+C,2026-09-21 FBS power/off/def: max |production - canonical|,0,TRUE
+C,2026-09-21 group levels: max |diff|,0,TRUE
+C,week-4 FBS-vs-FBS predictions: max |diff|,"58 games, 0.00e+00",TRUE
+C,ratings vs pre-promotion comparison CSV (rounded 0.01),0.00497777,TRUE
+C,all week-4 spreads incl. FBS-vs-FCS vs pre-promotion comparison (rounded 0.1),"71 games, 0.049",TRUE
+D,ratings object class == v5_build()'s (tibble),tbl_df/tbl/data.frame,TRUE
+D,ranking columns == incumbent snapshot columns (same order),"rank,team,team_id,conference,power_rating,off_rating,def_rating,games_played,pre_power,prior_contribution,current_contribution,centering_contribution,feature_snapshot_id",TRUE
+D,column classes == incumbent (numeric/character/integer),"",TRUE
+D,same 138 FBS team IDs as the incumbent,138,TRUE
+D,team names identical to the incumbent's,0,TRUE
+D,conferences identical to the incumbent's,0,TRUE
+D,every FBS team in teams_2026.rds has a finite rating,138,TRUE
+D,FBS ratings centred on the FBS mean,3.08932e-15,TRUE
+D,snapshot hfa == incumbent hfa (betting export input),-4.44089e-16,TRUE
+D,every non-FBS opponent on the FBS schedule has a C2 rating (Stage 3),100 of 100,TRUE
+D,non-FBS: no constant -25 anywhere,0,TRUE
+E,training games all available before the cutoff,449 games,TRUE
+E,every final game available before the cutoff is used,"",TRUE
+E,no week-4 target game in training,"",TRUE
+E,post-cutoff results/plays injected: max rating change,0,TRUE
+E,earlier cutoff 2026-09-07 uses only week-1 games,2026-09-06 23:45:00,TRUE
+E,"preseason rating (pre_power) == C2 no-games branch: a x C1 prior, FBS-centred","",TRUE
+F,routed EB_features build identical() to v5_build(),"",TRUE
+F,routed EB_features reproduces committed week-1 snapshot,0,TRUE
+F,routed EB_features at 2026-09-21 == incumbent production snapshot,0,TRUE
+F,incumbent simulation conventions kept for EB ratings,"",TRUE
+F,"C2 simulation parameters (hfa, Round 16 sigma, no constant FCS)",3.06853968902663 / 15.6500874177702 / NA,TRUE
+G,unknown CFB_PRODUCTION_MODEL stops,"",TRUE
+G,default model is C2_current,C2_current,TRUE
+G,C2 frozen-input mismatch stops the build (no fallback),"",TRUE
+G,C2 refuses a season without frozen inputs,"",TRUE
+G,missing non-FBS rating stops the simulation input,"",TRUE
+G,unknown model identity stops simulation routing,"",TRUE
+G,broken play-by-play pull (week 3 missing) stops the build,"",TRUE

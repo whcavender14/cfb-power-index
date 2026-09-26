@@ -1,0 +1,11 @@
+run_utc,logged_utc,step,status,detail
+2026-09-26T01:08:26Z,2026-09-26T01:08:30Z,pbp regular wk01,ok,rows=17325; before next cutoff 2026-09-28T00:00:00Z: TRUE
+2026-09-26T01:08:26Z,2026-09-26T01:08:32Z,pbp regular wk02,ok,rows=15100; before next cutoff 2026-09-28T00:00:00Z: TRUE
+2026-09-26T01:08:26Z,2026-09-26T01:08:35Z,pbp regular wk03,ok,rows=13321; before next cutoff 2026-09-28T00:00:00Z: TRUE
+2026-09-26T01:08:26Z,2026-09-26T01:08:35Z,pbp regular wk04,ok,rows=333; before next cutoff 2026-09-28T00:00:00Z: TRUE
+2026-09-26T01:08:26Z,2026-09-26T01:08:35Z,pull_pbp,ok,4 week(s) pulled
+2026-09-26T01:08:36Z,2026-09-26T01:08:39Z,incumbent,ok,54 games; file incumbent_2026_cut20260921_20260926T010836Z.csv
+2026-09-26T01:08:36Z,2026-09-26T01:08:41Z,round13_K,ok_late_pull,54 games; file round13_K_2026_cut20260921_20260926T010836Z.csv
+2026-09-26T01:08:36Z,2026-09-26T01:08:47Z,c2_current,ok_late_pull,54 games; file c2_current_2026_cut20260921_20260926T010836Z.csv
+2026-09-26T01:08:36Z,2026-09-26T01:08:47Z,c2_frozen_r15,ok_late_pull,54 games; file c2_frozen_r15_2026_cut20260921_20260926T010836Z.csv
+2026-09-26T01:08:36Z,2026-09-26T01:08:47Z,round15,skipped,Round 15 candidates not frozen

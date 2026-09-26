@@ -11,7 +11,7 @@ The browser fetches `ratings.json` and `simulations.json` from `public/data/`. E
 | `week` | integer or null | Source’s latest completed week; 0 means actual preseason, null means unavailable |
 | `updated_at` | string or null | Source result timestamp, formatted `YYYY-MM-DDTHH:mm:ssZ`; exporting never makes old data fresh |
 | `status` | string | `available` if at least one current rating/projection exists; otherwise `unavailable` |
-| `model` | string | Source model name; ratings identify the frozen selected production candidate; simulations identify EB_features |
+| `model` | string | Source model name, `vCurrent / <candidate>` (simulations append ` + cfbseedR`); the candidate is the production model that built the ratings: `C2_current` since 2026-09-26, `EB_features` before |
 | `teams` | array | One row per supplied FBS team; unique `team_id` |
 
 Ratings also publish `rated_teams`, `total_teams`, `defensive_higher_is_better`, `weekly_comparison_week`, and `preseason_source`. Simulation metadata includes `simulation_count`, `playoff_format`, `wins_scope`, `as_of` (model information cutoff), `assumptions`, and `unavailable_reason`. Missing metadata is null. A successfully executed simulation’s `updated_at` is its run time, while `as_of` is the earlier information cutoff.

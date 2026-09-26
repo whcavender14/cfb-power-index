@@ -94,7 +94,7 @@ export default function PowerRatings({ ratings, ranked, ranks, loading, error, o
     <section id="methodology" className="method" aria-labelledby="method-title">
       <div className="method-intro"><Kicker index="—">Methodology</Kicker><h2 id="method-title">How to read the index</h2></div>
       <div className="method-cols">
-        <article><h3>The ratings</h3><p>Ratings come from run_2026_rankings.R using the frozen vCurrent production model. Power equals offense minus defense. Higher power and offense are better; lower, more negative defensive ratings indicate a better defense.</p></article>
+        <article><h3>The ratings</h3><p>Ratings come from the production model, Current C2: each week, one opponent-adjusted fit of final scores and play-by-play success rates for every FBS, FCS and lower-division team, anchored to a preseason prior. Only games final before the Monday cutoff count. Power equals offense minus defense. Higher power and offense are better; lower, more negative defensive ratings indicate a better defense.</p></article>
         <article><h3>Movement &amp; coverage</h3><p>Movement is a change in rating points. Weekly changes require the previous numbered week; preseason changes use the same model’s pre_power baseline. Missing teams are never assigned a zero rating. Leaders reflect available ratings only.</p></article>
       </div>
       <Sources extra={<a href={`${import.meta.env.BASE_URL}data/ratings.json`} download>Raw ratings.json</a>}>Refreshed weekly during the season</Sources>

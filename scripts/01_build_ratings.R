@@ -1,13 +1,15 @@
 # =============================================================================
 # scripts/01_build_ratings.R — build the current production power ratings.
 #
-# Replaces the old folder's run_2026_rankings.R (same model call, same
-# outputs), with paths from config/paths.R.
+# Replaces the old folder's run_2026_rankings.R (same outputs), with paths from
+# config/paths.R. The model is chosen by R/production/production_model.R
+# (config/production_model.R: Current C2 since 2026-09-26; the former
+# incumbent EB_features only with an explicit CFB_PRODUCTION_MODEL=EB_features).
 #
 # Usage (from the project root):
 #   Rscript scripts/01_build_ratings.R
 #   Rscript scripts/01_build_ratings.R 2026-09-21T00:00:00Z            # explicit UTC cutoff
-#   Rscript scripts/01_build_ratings.R 2026-09-21T00:00:00Z EB_features
+#   CFB_PRODUCTION_MODEL=EB_features Rscript scripts/01_build_ratings.R 2026-09-21T00:00:00Z EB_features
 #
 # Environment:
 #   CFB_SEASON=2026               only 2026 is supported by the frozen design
@@ -25,6 +27,7 @@
 source("config/paths.R")
 source("config/production.R")
 suppressPackageStartupMessages(source(PATHS$model_ops))
+source(PATHS$production_model)
 ensure_output_dirs()
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -34,19 +37,20 @@ assert(!is.na(as_of), "Invalid UTC cutoff. Example: 2026-09-09T00:00:00Z")
 
 season <- as.integer(Sys.getenv("CFB_SEASON", "2026"))
 assert(identical(season, PRODUCTION$supported_season),
-       "The frozen EB_features design only supports the 2026 season (see docs/MIGRATION_AUDIT_REPORT.md).")
+       "The frozen production models only support the 2026 season (see docs/MIGRATION_AUDIT_REPORT.md).")
 
-schedule <- NULL
+schedule <- NULL; schedule_dir <- NULL
 if (identical(Sys.getenv("CFB_REFRESH_SCHEDULE"), "true")) {
   live_cfg <- v4_config()
   live_cfg$cache_dir <- file.path(PATHS$state, "production_live")
   schedule <- read_schedule(season, live_cfg, refresh = TRUE)
+  schedule_dir <- live_cfg$cache_dir
 } else {
   message("Using the frozen ", season, " schedule (results through 2026-09-09 only). ",
           "Set CFB_REFRESH_SCHEDULE=true for current results.")
 }
 
-ratings <- v5_build(season = season, as_of = as_of, candidate = candidate, schedule = schedule)
+ratings <- production_build(season = season, as_of = as_of, schedule = schedule, schedule_dir = schedule_dir, candidate = candidate)
 
 ranking <- ratings %>%
   arrange(desc(power_rating), team_id) %>%
@@ -86,7 +90,12 @@ if (stale) {
                    design_hash = attr(ratings, "design_hash"), feature_hash = attr(ratings, "feature_hash"),
                    ratings = ranking)
   saveRDS(snapshot, file.path(PATHS$state, sprintf("production_ratings_%d_latest.rds", season)))
-  saveRDS(snapshot, file.path(PATHS$state, sprintf("production_ratings_%d_wk%02d.rds", season, week)))
+  # Guard (promotion): a week snapshot published by a different model is a historical record; never overwrite it.
+  wk_file <- file.path(PATHS$state, sprintf("production_ratings_%d_wk%02d.rds", season, week))
+  prior_model <- if (file.exists(wk_file)) readRDS(wk_file)$candidate else NULL
+  if (!is.null(prior_model) && !identical(prior_model, snapshot$candidate)) {
+    message("Week ", week, " snapshot was published by ", prior_model, "; keeping it and writing only the latest snapshot.")
+  } else saveRDS(snapshot, wk_file)
   cat("Wrote production snapshot for week", week, "to", PATHS$state, "\n")
 }
 

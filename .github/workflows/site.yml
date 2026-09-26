@@ -63,6 +63,8 @@ jobs:
             any::Matrix
             any::quantreg
             any::jsonlite
+            any::data.table
+            any::httr2
             any::cfbfastR
             sportsdataverse/cfbseedR@4a1c78e184773c22da43c40a9eb999d23283297f
 

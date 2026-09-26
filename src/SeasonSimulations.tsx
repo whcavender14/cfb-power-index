@@ -108,7 +108,7 @@ export default function SeasonSimulations({ simulations, ratings, loading, error
         <article><h3>The run</h3><p>{available
           ? `${simulations.simulation_count?.toLocaleString() ?? 'Unknown count'} simulations. ${simulations.playoff_format ?? 'Playoff format unavailable'}. ${simulations.wins_scope ?? 'Win-count definition unavailable'}.`
           : 'The supplied script configures 1,000 simulations and a 12-team playoff using 2026 automatic-bid rules and static power rankings. No completed run is available, so these are configured assumptions, not published results.'}</p></article>
-        <article><h3>Model &amp; update policy</h3><p>Simulations use vCurrent / EB_features; the ratings tab uses the frozen candidate selected by run_2026_rankings.R. The script assumes normal game margins, 3.0685 points of home advantage, 15.7875 residual SD, and −25 FCS power. Completed results are held fixed. Missing preseason projections and Vegas totals remain unavailable.</p></article>
+        <article><h3>Model &amp; update policy</h3><p>Simulations use the production model’s ratings (Current C2), the same ratings shown on the ratings tab. Game margins are normal, with 3.0685 points of home advantage and a 15.65-point SD. FCS and lower-division opponents use Current C2’s own ratings of those teams. Completed results are held fixed. Missing preseason projections and Vegas totals remain unavailable.</p></article>
       </div>
       <Sources extra={<a href={`${import.meta.env.BASE_URL}data/simulations.json`} download>Raw simulations.json</a>}>Simulation updated: {formatUpdated(simulations?.updated_at)}</Sources>
     </section>

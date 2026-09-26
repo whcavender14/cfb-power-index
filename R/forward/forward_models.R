@@ -76,3 +76,45 @@ fwd_model_round15 <- function(...) {
   fwd_assert(file.exists(R15_FREEZE), "Round 15 candidates are not frozen: no snapshot until a signed freeze manifest exists")
   stop("Round 15 plugin is added only at the Round 15 freeze, with its own reviewed code", call. = FALSE)
 }
+
+# ---- Current C2 (production model since 2026-09-26) and frozen Round 15 C2 (the builds Round 16 §9 names) ----------------
+# Both run on the committed, hashed 2026 forward build (data/frozen/c2 + model code; c2p_verify_frozen() before every run)
+# and on this snapshot's own archived inputs only:
+#   * the schedule this run pulled;
+#   * the archived play-by-play pulls (fwd_select_pulls: latest pre-cutoff pull per week, else late_pull = TRUE, as for K);
+#   * the FCS-involved schedule this run pulled and archived.
+# Information rule: C2's own (final games with kickoff + 24 h before the cutoff). Nothing is refitted or tuned.
+# Frozen C2 is called exactly as its 2023-25 predictions were produced (scripts/round15/c2_build.R): the C1 prior, scale
+# and precisions keyed to 2023; p2 and vbar keyed to 2023; lambda0 and omega keyed to 2022.
+# fwd_model_round15() still refuses Round 15 candidates in general; these are the two C2 builds Round 16 §9 names.
+fwd_c2_pulls <- function(archive, yr) {
+  pulls <- fwd_read_manifest(archive)[kind == "pbp" & season == yr]
+  fwd_assert(nrow(pulls) > 0, "No play-by-play pulls archived for this season")
+  pulls[, `:=`(file = file.path(archive, path), pulled_at = as.POSIXct(recorded_utc, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
+               season_type = sub("^plays_([a-z]+)_wk.*$", "\\1", basename(path)), week = as.integer(sub("^.*_wk(\\d+)_.*$", "\\1", basename(path))))][]
+}
+
+fwd_model_c2 <- function(g, raw_schedule, pulls, fcs_games, cutoff, targets, now) {
+  if (!exists("c2p_run")) source(PATHS$production_model)
+  v <- c2p_verify_frozen(); fwd_assert(all(v$ok), "Current C2 frozen build differs from its recorded checksums")
+  cut_at <- cutoff; y <- PRODUCTION_MODEL$c2$supported_season
+  sel <- fwd_select_pulls(pulls, cut_at)
+  plays <- rbindlist(lapply(seq_len(nrow(sel)), function(i) as.data.table(readRDS(sel$file[i]))[, `:=`(season = y, wk = sel$week[i], season_type = sel$season_type[i])]), fill = TRUE)
+  te <- as.data.table(targets)
+  x <- c2p_run(y, cut_at, as.data.frame(g), raw_schedule, cache_dir = tempfile("c2fwd"), fcs_games = fcs_games, plays = plays, targets = te)
+  fwd_assert(!any(te$game_id %in% x$games[final == TRUE & available_at < cut_at, game_id]), "Target game in C2 training")
+  S <- x$S
+  f2 <- r15_predict_season_c2(x$d, y, S$prior, S$a, S$lam, S$H, S$p2, S$vbar, S$lambda0, S$eos_full, S$omega)
+  mk <- function(pred, cand) {
+    pm <- as.data.table(pred)[, .(game_id = as.character(game_id), pred_margin)]
+    data.table(game_id = as.character(te$game_id), season = te$season, kickoff = te$kickoff, predicted_at = now, information_cutoff = cut_at,
+               home_id = te$home_id, away_id = te$away_id, neutral = te$neutral, pred_margin = pm$pred_margin[match(as.character(te$game_id), pm$game_id)],
+               candidate = cand, late_pull = any(sel$late_pull))
+  }
+  meta <- list(frozen_build = list(season_inputs_md5 = PRODUCTION_MODEL$c2$season_inputs_md5, code_md5 = as.list(PRODUCTION_MODEL$c2$code_md5),
+                                   research_tag = PRODUCTION_MODEL$c2$research_tag),
+               late_pull = any(sel$late_pull), pulls_used = sel[, .(season_type, week, file = basename(file), pulled_utc = fwd_iso(pulled_at), late_pull)],
+               coverage = x$coverage, information_rule = "final games (all divisions) with kickoff + 24 h < cutoff (Current C2's rule)")
+  list(c2_current = list(pred = mk(x$cur$pred, "C2_current"), meta = c(meta, list(group_levels = x$cur$levels))),
+       c2_frozen_r15 = list(pred = mk(f2, "C2_frozen_round15"), meta = meta))
+}

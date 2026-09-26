@@ -1,0 +1,64 @@
+Messages d'avis :
+All 29 frozen inputs match their recorded checksums.
+Message d'avis :
+Message d'avis :
+2026-09-25 21:06:05.211606: Invalid arguments or no game info data available! `clean_names()` requires that either names or dimnames be non-null.
+Il y a eu 13 avis (utilisez warnings() pour les visionner)
+Production model: C2_current
+Messages d'avis :
+# A tibble: 138 x 5
+    rank team              conference       power_rating games_played
+   <int> <chr>             <chr>                   <dbl>        <int>
+ 1     1 Ohio State        Big Ten                  28.2            3
+ 2     2 Texas             SEC                      28.0            2
+ 3     3 Notre Dame        FBS Independents         27.8            3
+ 4     4 Georgia           SEC                      25.8            3
+ 5     5 Alabama           SEC                      25.2            3
+ 6     6 Miami             ACC                      24.0            3
+ 7     7 LSU               SEC                      23.3            3
+ 8     8 Texas A&M         SEC                      21.4            3
+ 9     9 Indiana           Big Ten                  20.2            3
+10    10 Oregon            Big Ten                  20.0            3
+11    11 Utah              Big 12                   19.7            3
+12    12 Oklahoma          SEC                      19.6            3
+13    13 Ole Miss          SEC                      18.6            3
+14    14 Florida           SEC                      18.2            3
+15    15 Penn State        Big Ten                  18.0            3
+16    16 USC               Big Ten                  16.7            4
+17    17 Tennessee         SEC                      16.4            3
+18    18 Auburn            SEC                      15.2            3
+19    19 Mississippi State SEC                      14.1            3
+20    20 Iowa              Big Ten                  14.1            3
+21    21 BYU               Big 12                   14.0            3
+22    22 Texas Tech        Big 12                   13.5            3
+23    23 Nebraska          Big Ten                  13.4            3
+24    24 Louisville        ACC                      13.1            3
+25    25 Kansas State      Big 12                   12.9            3
+# i 113 more rows
+
+Wrote /Users/willcavender/Desktop/Revised CFB Modeling/.claude/worktrees/c2-production/output/rankings/current_2026_rankings.csv 
+Week 3 snapshot was published by EB_features; keeping it and writing only the latest snapshot.
+Wrote production snapshot for week 3 to <scratch>/e2e/state 
+2026-09-25 21:06:19.210922: Invalid arguments or no game info data available! `clean_names()` requires that either names or dimnames be non-null.
+Production model: C2_current
+Start simulation of 200 seasons (11 weeks to simulate) in 8 chunks.
+Registered S3 method overwritten by 'future':
+  method               from      
+  all.equal.connection parallelly
+i Chunks run sequentially. Set a parallel `future::plan()`, e.g.
+  `future::plan("multisession")`, to use more cores.
+DONE!
+Il y a eu 19 avis (utilisez warnings() pour les visionner)
+Keeping <scratch>/e2e/public/2026/week-03/ratings.json: week 3 was published by 'vCurrent / EB_features'.
+Keeping <scratch>/e2e/public/2026/week-03/simulations.json: week 3 was published by 'vCurrent / EB_features + cfbseedR'.
+Exported 138 FBS teams; 138 rated. Simulations: available.
+Message d'avis :
+Weekly pipeline complete. Outputs in /Users/willcavender/Desktop/Revised CFB Modeling/.claude/worktrees/c2-production/output 
+Rscript scripts/run_weekly_pipeline.R  38.26s user 1.53s system 102% cpu 38.832 total
+Keeping <scratch>/e2e/public/2026/week-03/ratings.json: week 3 was published by 'vCurrent / EB_features'.
+Keeping <scratch>/e2e/public/2026/week-03/simulations.json: week 3 was published by 'vCurrent / EB_features + cfbseedR'.
+Exported 138 FBS teams; 138 rated. Simulations: available.
+Message d'avis :
+Betting: 66 scheduled games, 66 real market quotes.
+Il y a eu 13 avis (utilisez warnings() pour les visionner)
+exit 0

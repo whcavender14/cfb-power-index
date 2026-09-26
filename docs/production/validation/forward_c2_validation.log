@@ -1,0 +1,18 @@
+Messages d'avis :
+1: le package 'tibble' a 'et'e compil'e avec la version R 4.3.3 
+2: le package 'data.table' a 'et'e compil'e avec la version R 4.3.3 
+3: le package 'digest' a 'et'e compil'e avec la version R 4.3.3 
+4: le package 'jsonlite' a 'et'e compil'e avec la version R 4.3.3 
+Message d'avis :
+le package 'httr2' a 'et'e compil'e avec la version R 4.3.3 
+[H1] PASS frozen C2 forward call vs frozen R15 C2 2025 predictions: 808 of 808, max 5.68e-14
+[1] TRUE
+[H2] PASS plugin Current C2 == production build predictions (week 4): 58 games, max 0.00e+00
+[H2] PASS plugin Current C2 vs pre-promotion comparison (rounded 0.1): 0.0491514
+[H2] PASS frozen R15 C2 predictions complete and finite: 58
+[H2] PASS frozen R15 C2 differs from Current C2 only modestly (FBS vs FBS): mean |diff| 1.31, max 4.15
+[H3] PASS plugin outputs carry no outcome/market/vendor fields: game_id,season,kickoff,predicted_at,information_cutoff,home_id,away_id,neutral,pred_margin,candidate,late_pull
+[H3] PASS late_pull recorded (dry-run pulls postdate the cutoff): TRUE
+
+7 checks, 7 passed, 0 failed
+exit 0

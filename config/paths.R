@@ -40,6 +40,9 @@ PATHS <- list(
   # --- Code ------------------------------------------------------------------
   model_engine   = file.path(PROJECT_ROOT, "R", "model", "cfb_power_ratings_vCurrent.R"),
   model_ops      = file.path(PROJECT_ROOT, "R", "model", "production_operations.R"),
+  # Production model selection (config/production_model.R) and the Current C2 adapter.
+  production_model = file.path(PROJECT_ROOT, "R", "production", "production_model.R"),
+  c2_production  = file.path(PROJECT_ROOT, "R", "production", "c2_production.R"),
   dynamic_cfp    = file.path(PROJECT_ROOT, "R", "simulation", "cfb_dynamic_playoffs.R"),
   simulate       = file.path(PROJECT_ROOT, "R", "simulation", "simulate_season.R"),
   betting_funs   = file.path(PROJECT_ROOT, "R", "publish", "betting_functions.R"),

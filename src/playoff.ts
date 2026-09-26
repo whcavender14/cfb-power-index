@@ -28,8 +28,8 @@ export type MarginModel = { hfa: number; sigma: number }
 
 export const P4 = ['SEC', 'Big Ten', 'ACC', 'Big 12']
 export const G6 = ['American Athletic', 'Conference USA', 'Mid-American', 'Mountain West', 'Pac-12', 'Sun Belt']
-/** Fallbacks match config/production.R if a snapshot omits its assumptions. */
-export const DEFAULT_MODEL: MarginModel = { hfa: 3.0685, sigma: 15.7875 }
+/** Fallbacks match the production model (config/production_model.R, Current C2) if a snapshot omits its assumptions. */
+export const DEFAULT_MODEL: MarginModel = { hfa: 3.0685, sigma: 15.65 }
 export const ROUND_NAMES = ['First round', 'Quarterfinals', 'Semifinals', 'National championship']
 
 /** Joins simulation odds to power ratings; teams without a rating or odds are dropped. */

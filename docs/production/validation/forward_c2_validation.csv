@@ -1,0 +1,8 @@
+section,check,value,pass
+H1,frozen C2 forward call vs frozen R15 C2 2025 predictions,"808 of 808, max 5.68e-14",TRUE
+H2,plugin Current C2 == production build predictions (week 4),"58 games, max 0.00e+00",TRUE
+H2,plugin Current C2 vs pre-promotion comparison (rounded 0.1),0.0491514,TRUE
+H2,frozen R15 C2 predictions complete and finite,58,TRUE
+H2,frozen R15 C2 differs from Current C2 only modestly (FBS vs FBS),"mean |diff| 1.31, max 4.15",TRUE
+H3,plugin outputs carry no outcome/market/vendor fields,"game_id,season,kickoff,predicted_at,information_cutoff,home_id,away_id,neutral,pred_margin,candidate,late_pull",TRUE
+H3,late_pull recorded (dry-run pulls postdate the cutoff),TRUE,TRUE

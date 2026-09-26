@@ -1,0 +1,9 @@
+tests/test_production_routing.R              exit=0 (3s)  PASS: frozen artifacts, model selection, simulation routing, exporter model names and week-archive protection.
+tests/test_reproduce_incumbent.R             exit=0 (4s)  PASS: frozen inputs verified; week-1 production snapshot reproduced exactly; zero-game identity holds.
+tests/test_public_export.R                   exit=0 (0s)  PASS: missing sources, exact previous week, same-week reruns, failed simulation, duplicate IDs.
+tests/test_betting_export.R                  exit=0 (0s)  PASS: upcoming-week selection, completed games, unknown times, market signs, provider priority, and fake-zero 
+tests/test_cfp_resume_ranking.R              exit=0 (1s)  PASS: resume ranking weighs schedule over raw record, still rewards winning, ignores own power; 2026 auto-bids
+tests/test_evaluation_helpers.R              exit=0 (0s)  PASS: metrics, tier map, P4-oriented bias, paired comparison and block bootstrap reproduce published values.
+tests/test_simulation_playoff_variance.R     exit=0 (0s)  PASS: CFP seeds vary by simulated resume, exclude FCS, and reject low-win locks.
+tests/forward/test_forward.R                 exit=0 (1s)  24 checks passed
+tests/c2/run_all.R                           exit=0 (65s)  ALL C2 VALIDATIONS PASSED

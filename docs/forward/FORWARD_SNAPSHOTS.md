@@ -4,9 +4,12 @@
 someone remembering to run a command. This system **collects and archives evidence only**. It never retrains, refits,
 promotes or deploys a model, and it never reads market data.
 
-**Status (2026-09-25).**
-- **Built and tested:** 24 unit checks pass, and live dry runs have been written to a scratch archive.
-- **Not yet activated:** activation needs your approval (§6).
+**Status (2026-09-26, production promotion of Current C2).**
+- **Plugins added:** Current C2 and frozen Round 15 C2.
+- **Dry run passed:** a full dry run to a scratch archive wrote all four models (incumbent, K, Current C2, frozen R15 C2) and
+  verified the manifest.
+- **Not yet activated:** activation needs your approval (§6). Promotion changes no forward rule, threshold, timing,
+  probability scale or comparison.
 
 ## 1. What runs, and when
 
@@ -36,6 +39,14 @@ days or has never been pulled.
    - The incumbent runs the frozen v5 design; its artifact hashes are checked.
    - K runs Round 13's code, copied byte-for-byte from tag `round13-frozen-c4819fd` (git blob `d9339f4b…`), with the frozen `w_2026 = 19.3141` (SHA-256 checked).
    - Round 15 candidates are refused until a signed Round 15 freeze manifest exists.
+   - **Current C2 and frozen Round 15 C2 (added 2026-09-26, Round 16 §9).** Both run on the committed 2026
+     forward build: `data/frozen/c2/c2_season_inputs_2026.rds` plus the model code, all MD5-checked against
+     `config/production_model.R` before every run.
+     - Inputs are this run's schedule pull, the archived play pulls (same `late_pull` rule as K) and this run's
+       FCS-involved schedule pull, which is archived as an input.
+     - Information rule: C2's own, final games with kickoff + 24 h before the cutoff.
+     - Frozen C2 is called exactly as its 2023–25 predictions were produced. Check H1 in
+       `docs/production/validation/` reproduces all 808 of its 2025 predictions.
 6. **Write-once, read-only files.** Each file is written to a temporary file, renamed atomically, then set read-only. An
    existing file is never overwritten.
 7. **Hash-chained manifest.**
@@ -57,6 +68,9 @@ inputs/<task>_<UTC stamp>/raw_schedule_2026.rds       live schedule pulled by th
 pbp/2026/plays_<type>_wk<NN>_<UTC stamp>.rds           raw play-by-play pulls
 snapshots/incumbent/2026/incumbent_2026_cut<YYYYMMDD>_<stamp>.csv (+ .md5, + .json)   v5_archive schema (Gate 5 compatible)
 snapshots/round13_K/2026/round13_K_2026_cut<YYYYMMDD>_<stamp>.csv (+ .json)
+snapshots/c2_current/2026/c2_current_2026_cut<YYYYMMDD>_<stamp>.csv (+ .json)          Current C2 (production model)
+snapshots/c2_frozen_r15/2026/c2_frozen_r15_2026_cut<YYYYMMDD>_<stamp>.csv (+ .json)    frozen Round 15 C2
+inputs/snapshot_<UTC stamp>/fcs_games_2026.rds         FCS-involved schedule used by the C2 models
 logs/<stamp>_<task>.log          full console output of each run
 ```
 
