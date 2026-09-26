@@ -57,7 +57,8 @@ test('Unavailable simulations cannot contain current forecasts', () => {
 test('Public files contain only the allowlisted JSON artifacts', () => {
   const walk = path => readdirSync(path, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(join(path, e.name)) : [join(path, e.name)])
   for (const file of walk(fileURLToPath(root))) {
-    assert.match(file, /\/(ratings|simulations|betting)\.json$/)
+    // v1 files, plus the CFPi+ page datasets (public/data/v2; docs/website/DATA_CONTRACT_V2.md)
+    assert.match(file, /\/(ratings|simulations|betting)\.json$|\/v2\/(index|teams|games|playoff|history|changes|conferences|scenario|resume)\.json$|\/v2\/team\/[a-z0-9-]+\.json$|\/v2\/\d{4}\/week-\d\d\/index\.json$/)
     const content = readFileSync(file, 'utf8')
     assert.doesNotMatch(content, /CFBD_API_KEY|Bearer\s|\/Users\/|training_ids|source_manifest/)
   }

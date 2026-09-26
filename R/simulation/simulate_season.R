@@ -155,6 +155,10 @@ run_season_simulation <- function(season = as.integer(Sys.getenv("CFB_SEASON", "
 
   sim$model_metadata <- model_metadata
   sim$ratings <- ratings
+  # Saved for the site exporter (R/publish/export_site_data.R), which never sources the model: the exact
+  # schedule and the per-team power (FBS and non-FBS) this simulation used. Nothing above reads them.
+  sim$schedule <- g
+  sim$team_power <- team_power
   sim$simulation_assumptions <- list(hfa = simulation_hfa, resid_sd = resid_sd, fcs_power = fcs_power,
                                      nonfbs_power_source = sim_params$nonfbs_power_source,
                                      selection = "dynamic resume ranking per simulation (wins above benchmark, adjusted margin, conference title)",

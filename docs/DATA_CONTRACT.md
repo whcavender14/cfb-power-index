@@ -1,5 +1,7 @@
 # Public data contract · version 1
 
+> The CFPi+ pages (Home, Rankings, Games, Playoff, Teams, Conferences, Model) read the version-2 page datasets in `public/data/v2`: see [website/DATA_CONTRACT_V2.md](website/DATA_CONTRACT_V2.md). The version-1 files below are unchanged and still feed `/simulations/`, `/betting/` and the PNG exports.
+
 The browser fetches `ratings.json` and `simulations.json` from `public/data/`. Each is an object containing a `teams` array, not a bare array. UTF-8 JSON, HTTPS logos, UTC ISO-8601 timestamps, and stable string team IDs are required. Team membership is the supplied season-specific FBS metadata, not a hard-coded count.
 
 ## Common envelope

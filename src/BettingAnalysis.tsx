@@ -130,7 +130,7 @@ export default function BettingAnalysis({ ratings }: { ratings: Dataset<Rating> 
           <button type="button" className="btn btn-icon" aria-label={sort.desc ? 'Sorted descending; switch to ascending' : 'Sorted ascending; switch to descending'} onClick={() => setSort(s => ({ ...s, desc: !s.desc }))}>{sort.desc ? <ArrowDown size={15} /> : <ArrowUp size={15} />}</button>
         </div>
         <div className="toolbar-end">
-          <span className="count" aria-live="polite">{rows.length} games</span>
+          <span className="count" aria-live="polite">{data ? `${rows.length} ${rows.length === 1 ? 'game' : 'games'}` : loading ? '' : '—'}</span>
           {data && <button type="button" className="btn" onClick={exportCsv} disabled={rows.length === 0}><FileDown size={15} aria-hidden="true" /><span>CSV</span></button>}
         </div>
       </div>
