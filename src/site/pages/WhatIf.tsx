@@ -5,16 +5,9 @@ import type { Game, GamesDoc, PlayoffDoc, ScenarioDoc } from '../data'
 import { kickoffText } from '../games'
 import { Link, useQueryParam } from '../router'
 import { aggregate, COUNTS_BELOW, decode, formatPicks, matching, parsePicks, WARN_BELOW, type Pick, type TeamResult } from '../scenario'
+import { Share } from '../ScenarioShare'
 
 const SHOW = 25
-
-/** A share of the matching seasons: a percentage, or "k of n" when there are too few seasons for percentages. */
-function Share({ k, n, base }: { k: number; n: number; base?: number | null }) {
-  if (n < COUNTS_BELOW) return <span className="cf-num">{k} of {n}</span>
-  const p = k / n
-  const d = base == null ? null : p - base
-  return <span className="cf-num">{pctText(p)}{d != null && Math.abs(d) >= 0.0005 && <span className={`cf-delta ${d > 0 ? 'is-up' : 'is-down'}`}> {d > 0 ? '▲' : '▼'}{Math.abs(d * 100).toFixed(1)}</span>}</span>
-}
 
 function GamePicker({ g, pick, onPick }: { g: Game; pick: Pick | undefined; onPick: (side: 'home' | 'away' | null) => void }) {
   const side = (s: 'home' | 'away') => {

@@ -1,12 +1,14 @@
-import type { ReactNode } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import { RESUME_INFO } from './Resume'
 import { DataGate, Freshness, Info, Missing, Movement, Num, Pct, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import NotFound from './NotFound'
-import type { Game, HistoryDoc, Leader, Leaders, NotableGame, RecordCount, TeamDoc } from '../data'
+import type { Game, HistoryDoc, Leader, Leaders, NotableGame, PlayoffTeam, RecordCount, ScenarioDoc, TeamDoc, TeamMeta } from '../data'
 import HistoryChart, { HistoryTable } from '../HistoryChart'
 import { HistoryNote } from './Compare'
 import { kickoffText, projection, Quality, QUALITY_INFO, WINPROB_INFO } from '../games'
-import { Link } from '../router'
+import { Link, useQueryParam } from '../router'
+import { aggregate, COUNTS_BELOW, decode, formatPicks, matching, parsePicks, WARN_BELOW, type Pick } from '../scenario'
+import { Share } from '../ScenarioShare'
 
 const LOC = { home: ['H', 'Home'], away: ['A', 'Away'], neutral: ['N', 'Neutral site'] } as const
 
@@ -38,8 +40,76 @@ function ScheduleRow({ g, id, pick }: { g: Game; id: string; pick?: ReactNode })
     <span className="cf-sched-loc" title={loc[1]}><span aria-hidden="true">{loc[0]}</span><span className="cf-sr">{loc[1]}</span></span>
     <span className="cf-sched-opp"><TeamLink id={oppId} name={oppName} size={26} sub={[g.neutral ? 'Neutral site' : home ? 'Home' : 'Away', oppFbs ? null : 'FCS'].filter(Boolean).join(' · ')} /></span>
     <span className="cf-sched-out">{outcome}</span>
-    {pick ?? <span className="cf-sched-q">{g.status === 'scheduled' ? <Quality value={g.quality} /> : null}</span>}
+    <span className="cf-sched-q">{g.status === 'scheduled' ? <Quality value={g.quality} /> : null}</span>
+    {pick}
   </li>
+}
+
+/** Win / loss toggle for one upcoming game: a pick for the what-if segment (click again to clear). */
+function PickToggle({ g, id, team, pick, onPick }: { g: Game; id: string; team: string; pick: Pick | undefined; onPick: (side: 'home' | 'away' | null) => void }) {
+  const ours: 'home' | 'away' = g.home_id === id ? 'home' : 'away', theirs = ours === 'home' ? 'away' : 'home'
+  const opp = ours === 'home' ? g.away_team : g.home_team
+  const btn = (side: 'home' | 'away', text: string, label: string) => {
+    const on = pick?.side === side
+    return <button type="button" className={`cf-wl${on ? ' is-on' : ''}${side === ours ? ' is-w' : ' is-l'}`} aria-pressed={on} aria-label={label} title={label} onClick={() => onPick(on ? null : side)}>{text}</button>
+  }
+  return <span className="cf-sched-pick" role="group" aria-label={`What if: Week ${g.week} vs ${opp}`}>
+    {btn(ours, 'W', `What if ${team} beats ${opp}`)}{btn(theirs, 'L', `What if ${team} loses to ${opp}`)}
+  </span>
+}
+
+function Delta({ now, base }: { now: number; base: number | null | undefined }) {
+  if (base == null) return null
+  const d = now - base
+  if (Math.abs(d) < 0.05) return <span className="cf-delta cf-muted"> ±0.0</span>
+  return <span className={`cf-delta ${d > 0 ? 'is-up' : 'is-down'}`}> {d > 0 ? '▲' : '▼'}{Math.abs(d).toFixed(1)}</span>
+}
+
+/** This team's odds in the simulated seasons where every pick happened (same filter as the What if? page; nothing is
+ *  re-simulated). Scenario data loads only once a pick exists. */
+function TeamWhatIf({ team, picks, games, base, nGames, onClear }: { team: TeamMeta; picks: Pick[]; games: Game[]; base: PlayoffTeam; nGames: number; onClear: () => void }) {
+  const scen = useData<ScenarioDoc>(picks.length ? 'scenario.json' : null)
+  const decoded = useMemo(() => scen.data ? decode(scen.data) : null, [scen.data])
+  const indep = team.conference === 'FBS Independents'
+  const byId = new Map(games.map(g => [g.game_id, g]))
+  const baseLosses = nGames - base.proj_wins
+  const published = <dl className="cf-kv cf-wi-kv">
+    <div><dt>Make playoff</dt><dd><Pct value={base.p_playoff} /></dd></div>
+    <div><dt>First-round bye</dt><dd><Pct value={base.p_bye} /></dd></div>
+    <div><dt>Conference title</dt><dd>{indep ? <Missing why="Independent: no conference title" /> : <Pct value={base.p_conf} />}</dd></div>
+    <div><dt>Expected record</dt><dd className="cf-num">{base.proj_wins.toFixed(1)}–{baseLosses.toFixed(1)}</dd></div>
+  </dl>
+  const link = `/whatif/?pick=${formatPicks(picks)}`
+  return <aside className="cf-wi" aria-labelledby="t-whatif">
+    <div className="cf-panel-head"><h3 id="t-whatif" className="cf-h3">What if?</h3>{picks.length > 0 && <button type="button" className="cf-btn cf-btn-sm" onClick={onClear}>Clear picks</button>}</div>
+    {picks.length === 0 ? <>
+      <p className="cf-small cf-muted">Pick <b>W</b> or <b>L</b> on any remaining game to see how {team.team}’s odds change. These are the published odds.</p>
+      {published}
+    </> : <DataGate source={scen} label="Scenario data">{() => {
+      const d = decoded!
+      const valid = picks.filter(p => d.games.has(p.gameId))
+      const sims = matching(d, valid), n = sims.length
+      const r = aggregate(d, sims).get(team.team_id)
+      const games = d.teamGames.get(team.team_id) ?? nGames
+      return <>
+        <ul className="cf-chips cf-wi-chips">{valid.map(p => { const g = byId.get(p.gameId); if (!g) return null
+          const won = (p.side === 'home') === (g.home_id === team.team_id); const opp = g.home_id === team.team_id ? g.away_team : g.home_team
+          return <li key={p.gameId} className="cf-chip">{won ? 'Beat' : 'Lose to'} {opp} <span className="cf-muted">(Wk {g.week})</span></li> })}</ul>
+        <p className={`cf-whatif-status${n < WARN_BELOW ? ' is-warn' : ''}`} role="status"><strong className="cf-num">{n.toLocaleString()}</strong> of {d.n.toLocaleString()} simulated seasons match.
+          {n === 0 ? ' This combination never happened in the simulations. Remove a pick.'
+            : n < COUNTS_BELOW ? ` Too few seasons for percentages (fewer than ${COUNTS_BELOW}); counts are shown instead. Treat them as anecdotes.`
+            : n < WARN_BELOW ? ` Fewer than ${WARN_BELOW} seasons: a 50% figure could be off by about 10 points either way. Read changes loosely.` : ''}
+          <Info text={`Each pick keeps only the simulated seasons in which that result happened; nothing is re-simulated and no rating changes. Below ${WARN_BELOW} matching seasons a warning appears; below ${COUNTS_BELOW} only counts are shown.`} label="About matching seasons" /></p>
+        {r && n > 0 && <dl className="cf-kv cf-wi-kv">
+          <div><dt>Make playoff</dt><dd><Share k={r.playoff} n={n} base={base.p_playoff} /></dd></div>
+          <div><dt>First-round bye</dt><dd><Share k={r.bye} n={n} base={base.p_bye} /></dd></div>
+          <div><dt>Conference title</dt><dd>{indep ? <Missing why="Independent: no conference title" /> : <Share k={r.conf} n={n} base={base.p_conf} />}</dd></div>
+          <div><dt>Expected record</dt><dd className="cf-num">{(r.wins / n).toFixed(1)}–{(games - r.wins / n).toFixed(1)}<Delta now={r.wins / n} base={base.proj_wins} /></dd></div>
+        </dl>}
+        <p className="cf-small cf-muted">▲▼ = change from the published odds (percentage points; wins for the record). <Link to={link}>Open these picks on the What if? page</Link> to add other games and see every team.</p>
+      </>
+    }}</DataGate>}
+  </aside>
 }
 
 const SOS_INFO = 'Mean CFPi+ rating of the opponents (FBS and non-FBS, as the model rates them). Higher = harder. Rank is among FBS teams.'
@@ -124,12 +194,17 @@ function TeamHistory({ id, name, slug }: { id: string; name: string; slug: strin
 
 export default function Team({ slug }: { slug: string }) {
   const doc = useData<TeamDoc>(`team/${slug}.json`)
+  const [param, setParam] = useQueryParam('pick')
   const directory = useTeams()
   if (directory.size && ![...directory.values()].some(t => t.slug === slug)) return <NotFound />
   return <DataGate source={doc} label="Team">{({ meta, team, summary: s, schedule, record_dist, resume, seed_dist, playoff, leaders }) => {
     const played = schedule.filter(g => g.status === 'final')
     const upcoming = schedule.filter(g => g.status === 'scheduled')
     const sims = meta.sim_status === 'available'
+    const upcomingIds = new Set(upcoming.map(g => g.game_id))
+    const picks = parsePicks(param).filter(p => upcomingIds.has(p.gameId))   // this team's remaining games only
+    const setPick = (g: Game, side: 'home' | 'away' | null) => setParam(formatPicks([...picks.filter(p => p.gameId !== g.game_id), ...(side ? [{ gameId: g.game_id, side }] : [])]))
+    const whatIf = sims && playoff && upcoming.length > 0
     return <>
       <nav className="cf-crumbs" aria-label="Breadcrumb"><Link to="/teams/">Teams</Link><span aria-hidden="true"> / </span><span aria-current="page">{team.team}</span></nav>
       <header className="cf-teamhead" style={{ ['--team' as string]: team.color ?? 'transparent' }}>
@@ -189,16 +264,24 @@ export default function Team({ slug }: { slug: string }) {
 
         <section className="cf-panel cf-sched-panel" aria-labelledby="t-sched">
           <h2 id="t-sched" className="cf-h2">Schedule</h2>
+          <div className={whatIf ? 'cf-sched-layout' : undefined}>
+          <div className="cf-sched-rem">
           {upcoming.length > 0 && <>
-            <h3 className="cf-h3">Remaining <Info text={`Projected margin (negative = favored) and ${WINPROB_INFO.charAt(0).toLowerCase()}${WINPROB_INFO.slice(1)} ${QUALITY_INFO}`} label="About projections" /></h3>
-            <ol className="cf-sched">{upcoming.map(g => <ScheduleRow key={g.game_id} g={g} id={team.team_id} />)}</ol>
+            <h3 className="cf-h3">Remaining <Info text={`Projected margin (negative = favored) and ${WINPROB_INFO.charAt(0).toLowerCase()}${WINPROB_INFO.slice(1)} ${QUALITY_INFO}${whatIf ? ' W / L: pick a result for the What if? panel.' : ''}`} label="About projections" /></h3>
+            <ol className="cf-sched">{upcoming.map(g => <ScheduleRow key={g.game_id} g={g} id={team.team_id}
+              pick={whatIf ? <PickToggle g={g} id={team.team_id} team={team.team} pick={picks.find(p => p.gameId === g.game_id)} onPick={side => setPick(g, side)} /> : undefined} />)}</ol>
           </>}
+          </div>
+          {whatIf && <TeamWhatIf team={team} picks={picks} games={upcoming} base={playoff!} nGames={schedule.length} onClear={() => setParam('')} />}
+          <div className="cf-sched-res">
           {played.length > 0 && <>
             <h3 className="cf-h3">Results</h3>
-            <ol className="cf-sched">{played.map(g => <ScheduleRow key={g.game_id} g={g} id={team.team_id} />)}</ol>
+            <ol className="cf-sched">{played.map(g => <ScheduleRow key={g.game_id} g={g} id={team.team_id} pick={whatIf ? <span className="cf-sched-pick" aria-hidden="true" /> : undefined} />)}</ol>
           </>}
           {schedule.length === 0 && <p className="cf-muted">Schedule unavailable.</p>}
           <p className="cf-small cf-muted"><Link to={`/games/?team=${team.slug}`}>All {team.team} games on the Games page</Link></p>
+          </div>
+          </div>
         </section>
       </div>
     </>
