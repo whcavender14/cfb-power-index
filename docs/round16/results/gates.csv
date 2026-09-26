@@ -1,0 +1,30 @@
+gate,rule,observed,pass
+G1,dLL(C-I) dev <= -0.0020 and 95% upper < 0,"-0.00729 [95% -0.01283, -0.00207]",TRUE
+G2a,dBrier(C-I) dev <= 0,"-0.00327 [95% -0.00570, -0.00100]",TRUE
+G2b,"recalibration slope in [0.90,1.10] and |CITL| <= 0.02 (dev)",slope 1.006; CITL +0.0052,TRUE
+G3a,dMAE <= +0.020 and 95% lower <= 0,"-0.1555 [95% -0.2833, -0.0271]",TRUE
+G3b,dRMSE <= +0.030,-0.1790,TRUE
+G3c,|bias(C)| <= |bias(I)| + 0.50 (dev),|0.687| vs |0.639| + 0.50,TRUE
+G3d,"pooled raw slope in [0.90,1.10] (dev)",0.998,TRUE
+G4,"no all-games gp bucket with slope outside [0.80,1.20] AND 90% interval wholly outside on that side","0:1.225[1.134,1.311] 1:1.195[1.101,1.270] 2-3:1.032[0.941,1.130] 4-6:0.855[0.797,0.911] 7+:0.993[0.948,1.036]",TRUE
+G5a,|FBS-vs-FCS bias| <= 3.0 (dev),+1.515,TRUE
+G5b,FBS-vs-FCS MAE(C) <= MAE(C2f) and <= MAE(I at -25) + 0.25 (dev),"13.595 vs C2f 15.912, I 15.354",TRUE
+G5c,first-game |bias| <= 4.0 (dev),+2.689,TRUE
+G5d,"FCS-vs-FCS slope [0.90,1.10], MAE <= C2f + 0.10, Spearman >= C2f - 0.02 (dev)",slope 1.064; MAE 13.034 vs C2f 13.261; Spearman 0.608 vs 0.583,TRUE
+G5e,every dev season: |final level - anchor| <= 4.0 and mean |dlevel| from cutoff 4 <= 0.50,2017:+0.56/0.14 2018:-2.88/0.12 2019:+0.78/0.08 2021:+1.48/0.13 2022:-2.30/0.12,TRUE
+G6a,no dev season with dLL > +0.003 AND 90% lower > 0,"2017:-0.0075[90% -0.0197,+0.0043] 2018:+0.0024[90% -0.0059,+0.0100] 2019:-0.0127[90% -0.0245,-0.0019] 2021:-0.0073[90% -0.0181,+0.0036] 2022:-0.0113[90% -0.0186,-0.0037]",TRUE
+G6b,gp 0-3 and gp 4+ (all games): fail only if dLL > +0.001 AND 90% lower > 0,"gp 0-3:-0.0074[90% -0.0176,+0.0031] gp 4+:-0.0072[90% -0.0120,-0.0028]",TRUE
+G6c,|P4-vs-G5 bias(C)| <= |bias(I)| (dev),|4.420| vs |5.768|,TRUE
+G6d,stability: mean |dP| and top-25 Kendall <= 1.25 x incumbent (dev),|dP| 0.943 vs 0.799; Kendall 0.0767 vs 0.0734,TRUE
+G6e,"market safety: beta_E(C) >= beta_E(I) - 0.10 and 95% upper >= 0 (close, dev)","-0.006 vs -0.008 [95% -0.131, 0.114]",TRUE
+G7-ll,2023-25 dLL <= +0.001,-0.00664,TRUE
+G7-mae,2023-25 dMAE <= +0.030,-0.2497,TRUE
+G7-slope,"2023-25 pooled raw slope in [0.90,1.10]",0.982,TRUE
+G7-tier,2023-25 |P4-vs-G5 bias| <= incumbent's,|0.338| vs |3.441|,TRUE
+G7-market,2023-25 beta_E(C) >= beta_E(I) - 0.10 (close),0.232 vs 0.017,TRUE
+G7-seasons,no 2023-25 season with dLL > +0.003 AND 90% lower > 0,"2023:-0.0045[90% -0.0130,+0.0032] 2024:-0.0057[90% -0.0170,+0.0061] 2025:-0.0097[90% -0.0212,+0.0016]",TRUE
+G7-G5a,2023-25 |FBS-vs-FCS bias| <= 3.0,+0.382,TRUE
+G7-G5c,2023-25 first-game |bias| <= 4.0,-0.138,TRUE
+G7-G5d,2023-25 FCS-vs-FCS slope / MAE / Spearman,slope 1.074; MAE 12.441 vs C2f 12.744; Spearman 0.614 vs 0.591,TRUE
+G7-G5e,"every 2023-25 season: FCS level within 4.0 of anchor, stable from cutoff 4",2023:+0.79/0.09 2024:-2.88/0.09 2025:-2.14/0.09,TRUE
+G0,integrity (G0a-G0e),all pass,TRUE

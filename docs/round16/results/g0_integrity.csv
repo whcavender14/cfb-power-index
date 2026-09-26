@@ -1,0 +1,18 @@
+id,check,pass,detail
+G0a,predeclaration and model manifest hashes,TRUE,9868031f4dde; 92855ee79487
+G0a,every model artifact hash (ROUND16_MODEL_MANIFEST.csv),TRUE,24 of 24 verify
+G0a,reference input output/c2r/stage1/capture.rds,TRUE,""
+G0a,reference input output/dev/round15/eval/ratings_replay.csv,TRUE,""
+G0a,E0 replay equals its Round 15 manifest,TRUE,""
+G0b,Current C2 rebuild reproduces c2_predictions.csv,TRUE,""
+G0b,Current C2 rebuild reproduces c2_fbs_vs_nonfbs_predictions.csv,TRUE,""
+G0b,Current C2 rebuild reproduces c2_ratings.csv,TRUE,""
+G0b,Current C2 rebuild reproduces c2_group_levels.csv,TRUE,""
+G0b,Current C2 rebuild reproduces c2_anchors.csv,TRUE,""
+G0c,validation: tests/c2/run_all.R,TRUE,""
+G0d,"anchors use only earlier seasons, never 2020",TRUE,""
+G0d,Round 15 leakage tests L1-L6 (shared inputs) pass,TRUE,""
+G0d,no market data referenced by Current C2's code,TRUE,""
+G0d,construction parameters frozen through 2022 (2023-25 use key 2023 / 2022),TRUE,""
+G0d,every rated team's games are all available before the cutoff,TRUE,46348 team-cutoffs
+G0e,"identical FBS-vs-FBS game IDs and cutoffs for I, C2f and C (3,868 / 2,398)",TRUE,""
