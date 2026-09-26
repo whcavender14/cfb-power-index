@@ -567,7 +567,8 @@ depth <- read_opt(file.path(site_state, sprintf("depth_charts_%d.rds", site_seas
 if (is.null(depth)) depth <- read_opt(file.path(PATHS$reference, "depth_charts", sprintf("depth_charts_%d.rds", site_season)))
 if (!is.null(depth) && !is.data.frame(depth)) depth <- NULL                               # pre-Round-18 nested format
 usage_stats <- if (!is.null(ps) && identical(as.integer(attr(ps, "end_week")), week)) ps else NULL
-unlink(file.path(site_out, "usage"), recursive = TRUE)
+dir.create(file.path(site_out, "usage"), showWarnings = FALSE, recursive = TRUE)   # files are overwritten in place (deleting the folder makes iCloud keep conflict copies)
+usage_written <- character()
 n_usage <- 0L
 for (k in seq_len(nrow(meta))) {
   u <- team_player_usage(meta$school[k], usage_raw, usage_stats, rosters)
@@ -587,7 +588,9 @@ for (k in seq_len(nrow(meta))) {
                          defense_through_week = if (!is.null(usage_stats)) week else NA), u),
                   file.path(site_out, "usage", paste0(meta$slug[k], ".json")))
   n_usage <- n_usage + 1L
+  usage_written <- c(usage_written, paste0(meta$slug[k], ".json"))
 }
+file.remove(setdiff(list.files(file.path(site_out, "usage"), pattern = "^[a-z0-9-]+\\.json$", full.names = TRUE), file.path(site_out, "usage", usage_written)))   # stale teams only
 message("Players by usage: ", n_usage, " teams.")
 
 if (!is.na(week)) {

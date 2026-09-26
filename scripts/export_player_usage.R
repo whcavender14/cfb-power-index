@@ -17,7 +17,8 @@ depth <- if (file.exists(dfile)) readRDS(dfile) else NULL
 if (!is.null(depth) && !is.data.frame(depth)) depth <- NULL
 stats <- if (!is.null(ps) && identical(as.integer(attr(ps, "end_week")), as.integer(week))) ps else NULL
 if (is.null(stats)) message("No player stats for week ", week, ": defense omitted.")
-unlink(file.path(v2, "usage"), recursive = TRUE); dir.create(file.path(v2, "usage"))
+dir.create(file.path(v2, "usage"), showWarnings = FALSE)   # overwrite in place (deleting the folder makes iCloud keep conflict copies)
+written <- character()
 n <- 0L
 for (k in seq_len(nrow(teams))) {
   u <- team_player_usage(teams$team[k], usage, stats, rosters)
@@ -36,5 +37,7 @@ for (k in seq_len(nrow(teams))) {
                     defense_through_week = if (!is.null(stats)) week else NA), u),
              file.path(v2, "usage", paste0(teams$slug[k], ".json")), auto_unbox = TRUE, na = "null", null = "null", digits = 6)
   n <- n + 1L
+  written <- c(written, paste0(teams$slug[k], ".json"))
 }
+file.remove(setdiff(list.files(file.path(v2, "usage"), pattern = "^[a-z0-9-]+\\.json$", full.names = TRUE), file.path(v2, "usage", written)))
 cat(sprintf("usage: %d teams\n", n))
