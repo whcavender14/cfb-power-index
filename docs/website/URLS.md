@@ -23,3 +23,5 @@ All paths are under the GitHub Pages base `/cfb-power-index/` (set in `vite.conf
 Slugs: lower-case school name, accents removed, `&` → `and`, other characters → `-` (e.g. `san-jose-state`, `hawaii`, `texas-a-and-m`). Transliteration uses stringi, so slugs are identical on macOS and Linux. Conference slugs follow the same rule (`fbs-independents`).
 
 Old single-page links still work: `#ratings` → `/rankings/`, `#simulations` → `/simulations/`, `#betting` → `/betting/`, `#methodology` → `/model/`.
+
+| `/games/<game_id>/` | Matchup breakdown: model forecast, sportsbook line and total when quoted (evaluation only), head-to-head ratings and stats, key players | `games.json`, `index.json`, `efficiency.json`, `usage/<slug>.json`, `betting.json` | |

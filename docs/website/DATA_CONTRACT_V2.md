@@ -149,3 +149,10 @@ attempts)), `third_pct`, `to_margin` (opponent turnovers minus own, season total
 (FBS, 1 = best; lower-is-better stats ranked ascending: `basic_method.lower_is_better`; `pass_share` ranked from most
 passing, descriptive). Source: CFBD game team stats, one call per regular-season week, cached in
 `output/state/game_team_stats_<season>.rds`. Display only.
+
+### Round 18 additions for the matchup page
+- `games.json` games carry `venue` (name only, from the raw CFBD schedule; display only).
+- `public/data/betting.json` games carry `market_total` (the over/under from the same sportsbook quote as
+  `market_spread`), null when not quoted. Evaluation and display only: never a model input. Quotes exist only for games
+  not yet kicked off at export time; the matchup page omits the market section otherwise. CFPi+ has no total or
+  implied score of its own (it predicts margins).

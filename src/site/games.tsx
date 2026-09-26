@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react'
 import type { Game } from './data'
 import { fmt, Info, Missing, pctText, TeamLink } from './components'
+import { Link } from './router'
 
 // Display helpers for games. Every number comes precomputed from games.json (R/publish/export_site_data.R).
 
@@ -60,5 +62,21 @@ export function GameCard({ g }: { g: Game }) {
       <ProjectionText g={g} />
       {p?.prob != null && <span className="cf-muted">Win prob. <span className="cf-num">{pctText(p.prob)}</span> <Info text={WINPROB_INFO} label="About win probability" /></span>}
     </div>
+    <Link to={`/games/${g.game_id}/`} className="cf-more cf-gamecard-link">Matchup breakdown</Link>
   </article>
 }
+
+/** One sportsbook quote per game for the upcoming week (public/data/betting.json), home perspective. Evaluation and
+ *  display only: never an input to CFPi+. Optional: an empty map when the file or a game's quote is missing. */
+export type Line = { game_id: string; market_spread: number | null; market_total?: number | null; market_provider: string | null; home_team: string; away_team: string; market_retrieved_at?: string | null }
+export function useLines(): Map<string, Line> {
+  const [lines, setLines] = useState(new Map<string, Line>())
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}data/betting.json`).then(r => r.ok ? r.json() : null).then(body => {
+      if (body?.schema_version === 1 && Array.isArray(body.games)) setLines(new Map((body.games as Line[]).filter(g => g.market_spread != null).map(g => [g.game_id, g])))
+    }).catch(() => { /* lines are optional */ })
+  }, [])
+  return lines
+}
+export const lineText = (l: Line) => l.market_spread === 0 ? 'Pick’em' : l.market_spread! < 0
+  ? `${l.home_team} ${String(l.market_spread).replace('-', '−')}` : `${l.away_team} −${l.market_spread}`

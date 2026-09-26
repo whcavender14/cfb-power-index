@@ -231,6 +231,10 @@ if (!is.null(sim) && !is.null(sim$schedule) && !is.null(sim$team_power)) {
     sim_home_win = ifelse(known | is.na(gsm), NA, r4(gs$home_percentage[gsm])),
     quality = ifelse(known, NA, quality),
     in_ratings = g$final %in% TRUE & g$available_at < snap$as_of, stringsAsFactors = FALSE)
+  # Venue name for the matchup page (display only), from the raw schedule the simulation used.
+  raw_sched <- NULL
+  for (f in file.path(site_state, c("simulation_live", "production_live"), sprintf("raw_schedule_%d.rds", site_season))) if (is.null(raw_sched) && file.exists(f)) raw_sched <- as.data.frame(readRDS(f))
+  games$venue <- if (!is.null(raw_sched) && all(c("game_id", "venue") %in% names(raw_sched))) raw_sched$venue[match(games$game_id, as.character(raw_sched$game_id))] else NA_character_
   # One row per team per game, for schedule strength, strength of record and weekly explanations.
   loc_h <- ifelse(neutral, 0, 1)
   sides <- data.frame(

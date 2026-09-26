@@ -23,7 +23,7 @@ export type Game = {
   home_conference: string | null; away_conference: string | null; status: 'final' | 'scheduled'
   home_points: number | null; away_points: number | null
   spread_home: number | null; win_prob_home: number | null; sim_home_win: number | null; quality: number | null
-  in_ratings: boolean
+  in_ratings: boolean; venue?: string | null
 }
 export type TeamMeta = {
   team_id: string; slug: string; team: string; mascot: string | null; abbreviation: string | null; conference: string | null

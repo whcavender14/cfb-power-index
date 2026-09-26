@@ -6,6 +6,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 const dist = new URL('../dist/', import.meta.url)
 const shell = readFileSync(new URL('index.html', dist), 'utf8')
 const teams = JSON.parse(readFileSync(new URL('../public/data/v2/teams.json', import.meta.url), 'utf8')).teams
+const games = JSON.parse(readFileSync(new URL('../public/data/v2/games.json', import.meta.url), 'utf8')).games
 const conferences = JSON.parse(readFileSync(new URL('../public/data/v2/conferences.json', import.meta.url), 'utf8')).conferences
 
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
@@ -32,6 +33,7 @@ const routes = [
   ['model', 'Model | CFPi+', 'How the Cavender Football Power Index (CFPi+) rates teams and simulates the season.'],
   ['simulations', 'Season simulations | CFPi+', 'CFPi+ season simulation table and shareable graphics.'],
   ['betting', 'Betting lines | CFPi+', 'CFPi+ model lines compared with sportsbook lines, for reference.'],
+  ...games.map(g => [`games/${g.game_id}`, `${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team} | CFPi+`, `${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team}, Week ${g.week}: CFPi+ forecast, sportsbook line and a side-by-side team comparison.`]),
   ...teams.map(t => [`teams/${t.slug}`, `${t.team} | CFPi+`, `${t.team} ${t.mascot ?? ''}: CFPi+ rating, schedule, projections and playoff odds.`.replace(/\s+/g, ' ')]),
 ]
 for (const [path, title, description] of routes) {
