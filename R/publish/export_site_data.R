@@ -566,7 +566,7 @@ for (k in seq_len(nrow(meta))) {
   if (is.null(u) && is.null(d)) next
   if (is.null(u)) u <- list(offense = NULL, defense = NULL)
   u$depth <- d
-  u$depth_source <- if (!is.null(d)) list(name = "TWO·DEEP", url = paste0(TWODEEP_BASE, if (meta$slug[k] %in% names(TWODEEP_SLUG)) TWODEEP_SLUG[[meta$slug[k]]] else meta$slug[k]),
+  u$depth_source <- if (!is.null(d)) list(name = "TWO\u00b7DEEP", url = paste0(TWODEEP_BASE, if (meta$slug[k] %in% names(TWODEEP_SLUG)) TWODEEP_SLUG[[meta$slug[k]]] else meta$slug[k]),
                                           fetched_at = iso_utc(attr(depth, "fetched_at"))) else NULL
   write_site_json(c(list(meta = meta_block, team_id = meta$team_id[k],
                          offense_source = "CollegeFootballData player usage, season to date",
