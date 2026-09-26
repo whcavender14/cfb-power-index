@@ -56,13 +56,12 @@ export function Matchup({ g, size = 22 }: { g: Game; size?: number }) {
 export function GameCard({ g }: { g: Game }) {
   const p = projection(g)
   return <article className="cf-gamecard">
-    <div className="cf-gamecard-top"><span className="cf-muted">{kickoffText(g)}{g.neutral ? ' · Neutral' : ''}</span><Quality value={g.quality} /></div>
+    <div className="cf-gamecard-top"><Link to={`/games/${g.game_id}/`} className="cf-rowlink cf-muted" aria-label={`${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team}: matchup breakdown`}>{kickoffText(g)}{g.neutral ? ' · Neutral' : ''}</Link><Quality value={g.quality} /></div>
     <Matchup g={g} size={26} />
     <div className="cf-gamecard-foot">
       <ProjectionText g={g} />
       {p?.prob != null && <span className="cf-muted">Win prob. <span className="cf-num">{pctText(p.prob)}</span> <Info text={WINPROB_INFO} label="About win probability" /></span>}
     </div>
-    <Link to={`/games/${g.game_id}/`} className="cf-more cf-gamecard-link">Matchup breakdown</Link>
   </article>
 }
 

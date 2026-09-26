@@ -1,5 +1,6 @@
 import ShareButton from '../ShareButton'
 import { useMemo } from 'react'
+import { ChevronRight } from 'lucide-react'
 import { DataGate, Freshness, Info, Missing, PageHead, pctText, Select, SortTh, sortRows, useData, useTeams, type Sort } from '../components'
 import type { GamesDoc, Game } from '../data'
 import { GameCard, kickoffText, lineText, Matchup, projection, ProjectionText, Quality, QUALITY_INFO, useLines, WINPROB_INFO } from '../games'
@@ -59,25 +60,26 @@ export default function Games() {
         {meta.ratings_as_of && <p className="cf-note">Projections use ratings through Week {meta.ratings_week}. Games played since then keep their projection until the next weekly update adds the result.</p>}
         {sorted.length === 0 ? <div className="cf-state"><p className="cf-state-title">No games match these filters</p></div> : <>
           <div className="cf-table-wrap cf-desktop">
-            <table className="cf-table">
+            <table className="cf-table cf-games-table">
               <caption className="cf-sr">Games, sortable</caption>
+              <colgroup><col className="cf-c-kick" /><col /><col className="cf-c-proj" /><col className="cf-c-prob" /><col className="cf-c-qual" />{showLines && <col className="cf-c-line" />}<col className="cf-c-go" /></colgroup>
               <thead><tr>
                 <SortTh label="Kickoff" sortKey="kickoff" sort={sort} onSort={onSort} align="start" />
                 <th scope="col" className="cf-th-start">Matchup</th>
                 <th scope="col" className="cf-th-start">Projection / result</th>
                 <SortTh label="Win prob." sortKey="prob" sort={sort} onSort={onSort} info={WINPROB_INFO} />
                 <SortTh label="Quality" sortKey="quality" sort={sort} onSort={onSort} info={QUALITY_INFO} />
-                <th scope="col" className="cf-th-end"><span className="cf-sr">Matchup breakdown</span></th>
                 {showLines && <th scope="col" className="cf-th-end"><span className="cf-th">Line <Info text="A single sportsbook line retrieved from CollegeFootballData for this week's games. It is shown for reference only and is never an input to CFPi+." label="About lines" /></span></th>}
+                <th scope="col" className="cf-th-go"><span className="cf-sr">Open matchup</span></th>
               </tr></thead>
-              <tbody>{sorted.map(g => { const p = projection(g); const l = lines.get(g.game_id); return <tr key={g.game_id}>
-                <td className="cf-nowrap cf-muted">{activeWeek == null && <span className="cf-small">Wk {g.week} · </span>}{kickoffText(g)}</td>
+              <tbody>{sorted.map(g => { const p = projection(g); const l = lines.get(g.game_id); return <tr key={g.game_id} className="cf-row-link">
+                <td className="cf-nowrap cf-muted"><Link to={`/games/${g.game_id}/`} className="cf-rowlink" aria-label={`${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team}: matchup breakdown`}>{activeWeek == null && <span className="cf-small">Wk {g.week} · </span>}{kickoffText(g)}</Link></td>
                 <td><Matchup g={g} /></td>
                 <td><ProjectionText g={g} /></td>
                 <td className="cf-td-end cf-num">{p?.prob != null ? pctText(p.prob) : <Missing why="No projection" />}</td>
                 <td className="cf-td-end"><Quality value={g.quality} /></td>
-                <td className="cf-td-end"><Link to={`/games/${g.game_id}/`} className="cf-more cf-nowrap">Breakdown</Link></td>
                 {showLines && <td className="cf-td-end cf-num">{l ? lineText(l) : <Missing why="No line" />}</td>}
+                <td className="cf-td-go"><ChevronRight size={16} aria-hidden="true" /></td>
               </tr> })}</tbody>
             </table>
           </div>

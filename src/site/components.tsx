@@ -66,7 +66,7 @@ export function TeamLogo({ id, name, size = 28 }: { id?: string | null; name: st
 export function TeamLink({ id, name, logo = true, size = 24, sub }: { id: string; name?: string; logo?: boolean; size?: number; sub?: ReactNode }) {
   const team = useTeams().get(id)
   const label = team?.team ?? name ?? '—'
-  const body = <>{logo && <TeamLogo id={id} name={label} size={size} />}<span className="cf-team-text"><span className="cf-team-name">{label}</span>{sub && <span className="cf-team-sub">{sub}</span>}</span></>
+  const body = <>{logo && <TeamLogo id={id} name={label} size={size} />}<span className="cf-team-text"><span className="cf-team-name" title={label}>{label}</span>{sub && <span className="cf-team-sub">{sub}</span>}</span></>
   return team ? <Link className="cf-team" to={`/teams/${team.slug}/`}>{body}</Link> : <span className="cf-team">{body}</span>
 }
 
