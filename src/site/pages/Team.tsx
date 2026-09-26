@@ -7,7 +7,7 @@ import HistoryChart, { HistoryTable } from '../HistoryChart'
 import { HistoryNote } from './Compare'
 import { kickoffText, projection, Quality, QUALITY_INFO, WINPROB_INFO } from '../games'
 import { Link, useQueryParam } from '../router'
-import { aggregate, COUNTS_BELOW, decode, formatPicks, matching, parsePicks, WARN_BELOW, type Pick } from '../scenario'
+import { COUNTS_BELOW, decode, formatPicks, parsePicks, scenarioResults, WARN_BELOW, type Pick } from '../scenario'
 import { Share } from '../ScenarioShare'
 
 const LOC = { home: ['H', 'Home'], away: ['A', 'Away'], neutral: ['N', 'Neutral site'] } as const
@@ -88,8 +88,8 @@ function TeamWhatIf({ team, picks, games, base, nGames, onClear }: { team: TeamM
     </> : <DataGate source={scen} label="Scenario data">{() => {
       const d = decoded!
       const valid = picks.filter(p => d.games.has(p.gameId))
-      const sims = matching(d, valid), n = sims.length
-      const r = aggregate(d, sims).get(team.team_id)
+      const { sims, res } = scenarioResults(d, valid), n = sims.length
+      const r = res.get(team.team_id)
       const games = d.teamGames.get(team.team_id) ?? nGames
       return <>
         <ul className="cf-chips cf-wi-chips">{valid.map(p => { const g = byId.get(p.gameId); if (!g) return null

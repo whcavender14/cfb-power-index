@@ -4,7 +4,7 @@ import { DataGate, Freshness, Info, PageHead, pctText, Select, TeamLink, TeamLog
 import type { Game, GamesDoc, PlayoffDoc, ScenarioDoc } from '../data'
 import { kickoffText } from '../games'
 import { Link, useQueryParam } from '../router'
-import { aggregate, COUNTS_BELOW, decode, formatPicks, matching, parsePicks, WARN_BELOW, type Pick, type TeamResult } from '../scenario'
+import { COUNTS_BELOW, decode, formatPicks, parsePicks, scenarioResults, WARN_BELOW, type Pick, type TeamResult } from '../scenario'
 import { Share } from '../ScenarioShare'
 
 const SHOW = 25
@@ -45,9 +45,8 @@ export default function WhatIf() {
       const byId = new Map(games.map(g => [g.game_id, g]))
       const valid = picks.filter(p => d.games.has(p.gameId))
       const ignored = picks.length - valid.length
-      const sims = matching(d, valid)
+      const { sims, res } = scenarioResults(d, valid)
       const n = sims.length
-      const res = aggregate(d, sims)
       const base = new Map(po.teams.map(t => [t.team_id, t]))
       const weeks = [...new Set(future.map(g => g.week))].sort((a, b) => a - b)
       const week = weekParam ? Number(weekParam) : weeks[0]

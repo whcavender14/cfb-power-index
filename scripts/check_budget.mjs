@@ -21,7 +21,7 @@ for (const f of js.filter(f => f !== entry)) check(`Chunk ${f.replace(/-[\w-]{8}
 for (const f of assets.filter(f => f.endsWith('.css'))) check('CSS (all pages)', gz(`${dist}assets/${f}`), 20)
 check('Home data (index + teams)', gz(`${data}index.json`) + gz(`${data}teams.json`), 30)
 check('games.json (Games, What if)', gz(`${data}games.json`), 50)
-check('scenario.json (What if, lazy)', gz(`${data}scenario.json`), 250)
+check('scenario.json (What if, lazy)', gz(`${data}scenario.json`), 1200)   // 10,000 simulations (was 250 KB at 1,000)
 const teamFiles = readdirSync(`${data}team`)
 check('Largest team file', Math.max(...teamFiles.map(f => gz(`${data}team/${f}`))), 5)
 const sm = readdirSync(here('../public/logos/sm/'))

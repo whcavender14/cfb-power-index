@@ -49,7 +49,7 @@ test('rejects leaders from a different week than the ratings', () => {
   assert.ok(broken('team/alabama.json', d => { d.leaders.through_week = 2 }).some(e => e.includes('leaders cover week')))
 })
 test('rejects a scenario file that does not reproduce the published odds', () => {
-  assert.ok(broken('scenario.json', d => { const b = Buffer.from(d.data, 'base64'); const n = d.n, nb = Math.ceil(n / 8), base = d.game_ids.length * nb; const T = d.team_ids.length; for (let s = 0; s < n; s++) b[base + T * n + s] = 0; d.data = b.toString('base64') }).some(e => e.includes('reproduce')))
+  assert.ok(broken('scenario.json', d => { const b = Buffer.from(d.data, 'base64'); const n = d.n, nb = Math.ceil(n / 8), base = d.game_ids.length * nb; for (let s = 0; s < n; s++) b[base + s] = 1; d.data = b.toString('base64') }).some(e => e.includes('reproduce')))
 })
 test('rejects resume ranks out of the approved order', () => {
   assert.ok(broken('resume.json', d => { const a = d.teams.find(t => t.resume_rank === 1), b = d.teams.find(t => t.resume_rank === 2); a.resume_rank = 2; b.resume_rank = 1 }).some(e => e.includes('tie-break order') || e.includes('disagree')))

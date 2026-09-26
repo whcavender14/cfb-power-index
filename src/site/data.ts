@@ -70,7 +70,7 @@ export type Conference = {
   exp_playoff: number | null; sos_avg: number | null
   nonconf_wins: number | null; nonconf_losses: number | null; nonconf_fbs_wins: number | null; nonconf_fbs_losses: number | null
 }
-export type ScenarioDoc = { meta: Meta; n: number; game_ids: string[]; team_ids: string[]; team_games: number[]; layout: string; data: string }
+export type ScenarioDoc = { meta: Meta; format?: number; known_wins?: number[]; game_home?: number[]; game_away?: number[]; n: number; game_ids: string[]; team_ids: string[]; team_games: number[]; layout: string; data: string }
 export type ResumeRow = { team_id: string; resume_rank: number | null; sor: number | null; sos_played: number | null; sos_played_rank: number | null; wins: number | null; losses: number | null; games: number; predictive_rank: number | null; best_win: NotableGame | null; worst_loss: NotableGame | null }
 export type ResumeDoc = { meta: Meta; method: { metric: string; benchmark: string; tiebreaks: string; proposal: string }; teams: ResumeRow[] }
 export type Efficiency = {

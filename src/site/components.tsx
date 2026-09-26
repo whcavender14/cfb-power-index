@@ -79,7 +79,7 @@ const MINUS = '−'
 export const fmt = (v: number | null | undefined, digits = 1) => isNum(v) ? (Object.is(Number(v.toFixed(digits)), -0) ? 0 : Number(v.toFixed(digits))).toFixed(digits).replace('-', MINUS) : null
 export const fmtSigned = (v: number | null | undefined, digits = 1) => { const s = fmt(v, digits); return s === null ? null : (Number(v!.toFixed(digits)) > 0 ? `+${s}` : s) }
 
-/** Probabilities from 1,000 simulations: exact zeros and ones show as "<0.1%" / ">99.9%", never a hard 0 or 100. */
+/** Simulation probabilities: exact zeros and ones show as "<0.1%" / ">99.9%", never a hard 0 or 100. */
 export function pctText(p: number | null | undefined, digits = 1): string | null {
   if (!isNum(p)) return null
   if (p <= 0) return '<0.1%'

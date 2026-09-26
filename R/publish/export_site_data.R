@@ -250,8 +250,10 @@ if (!is.null(sim) && !is.null(sim$schedule) && !is.null(sim$team_power)) {
 
 # ---- Scenario data (What-if page): stored simulation outcomes, packed ---------
 # For each remaining regular-season game, one bit per simulation (1 = home team won; bit s of byte s %/% 8 is sim s+1,
-# lowest bit first, as packBits writes it). Then, for each FBS team (team_ids order) and each simulation, one byte each
-# for seed (0 = not in the field), wins, and flags (8 = conference title, low 3 bits = CFP exit round 0-5).
+# lowest bit first, as packBits writes it). Then, for each FBS team (team_ids order) and each simulation, one packed
+# byte: seed (low 4 bits, 0 = not in the field) + 16 x conference title + 32 x CFP exit round 0-5. Simulated wins are
+# not stored: they equal known_wins plus the remaining games won (game_home / game_away give each game's team indices,
+# -1 = not FBS), which is checked here. (format 2; format 1, before 10,000 simulations, stored seed / wins / flags bytes.)
 scenario <- NULL
 if (!is.null(games) && !is.null(team_sim)) {
   fut <- games[games$status == "scheduled", ]
@@ -267,11 +269,25 @@ if (!is.null(games) && !is.null(team_sim)) {
   sc_ids <- team_sim$team_id
   sst <- st[order(match(st$team_id, sc_ids), st$sim), ]
   stopifnot(nrow(sst) == length(sc_ids) * n_sims, all(sst$sim == rep(seq_len(n_sims), length(sc_ids))))
-  tbytes <- c(ifelse(is.na(sst$seed), 0L, sst$seed), sst$wins, as.integer(sst$conf_champ) * 8L + sst$exit)
+  seed <- ifelse(is.na(sst$seed), 0L, sst$seed)
+  stopifnot(all(seed <= 15L), all(sst$exit >= 0L & sst$exit <= 5L))
+  tbytes <- seed + 16L * as.integer(sst$conf_champ) + 32L * sst$exit
+  fin <- games[games$status == "final", ]
+  hw <- fin$home_points > fin$away_points
+  known_wins <- vapply(sc_ids, function(id) sum(fin$home_id == id & hw) + sum(fin$away_id == id & !hw), 0L)
+  game_home <- match(fut$home_id, sc_ids) - 1L; game_home[is.na(game_home)] <- -1L
+  game_away <- match(fut$away_id, sc_ids) - 1L; game_away[is.na(game_away)] <- -1L
+  derived <- matrix(known_wins, length(sc_ids), n_sims)
+  for (i in seq_len(nrow(fut))) {
+    if (game_home[i] >= 0) derived[game_home[i] + 1L, ] <- derived[game_home[i] + 1L, ] + bits[i, ]
+    if (game_away[i] >= 0) derived[game_away[i] + 1L, ] <- derived[game_away[i] + 1L, ] + !bits[i, ]
+  }
+  stopifnot("simulated wins must equal known wins + remaining games won" = identical(as.integer(t(derived)), as.integer(sst$wins)))
   stopifnot(all(tbytes >= 0 & tbytes <= 255))
   team_games <- as.integer(tapply(sst$games, sst$team_id, function(v) { stopifnot(length(unique(v)) == 1L); v[1] })[sc_ids])
-  scenario <- list(meta = NULL, n = n_sims, game_ids = I(fut$game_id), team_ids = I(sc_ids), team_games = I(team_games),
-                   layout = "games: n_games x ceil(n/8) bytes (bit s%8 of byte s/8 = sim s, 1 = home win); then seed, wins, flags: n_teams x n bytes each (flags: 8 = conf title, low 3 bits = exit round)",
+  scenario <- list(meta = NULL, format = 2L, n = n_sims, game_ids = I(fut$game_id), team_ids = I(sc_ids), team_games = I(team_games),
+                   known_wins = I(as.integer(known_wins)), game_home = I(game_home), game_away = I(game_away),
+                   layout = "games: n_games x ceil(n/8) bytes (bit s%8 of byte s/8 = sim s, 1 = home win); then packed: n_teams x n bytes (low 4 bits = seed, 16 = conf title, bits 5-7 = exit round); wins = known_wins + remaining games won",
                    data = base64_enc(as.raw(c(gbytes, tbytes))))
 }
 
