@@ -17,6 +17,7 @@
 #   history.json             CFPi+ rating history (preseason, reconstructed and published weeks)
 #   changes.json             what changed since the previous week (same history source as movement)
 #   conferences.json         conference aggregates (membership from team metadata)
+#   efficiency.json          raw EPA/play and success rate per team (R/publish/team_efficiency.R; display only)
 #   <season>/week-NN/index.json   weekly archive (kept if a different model published it)
 # =============================================================================
 suppressPackageStartupMessages(library(jsonlite))
@@ -524,6 +525,15 @@ for (k in seq_len(nrow(meta))) {
                        playoff = if (!is.null(team_sim)) { x <- as.list(team_sim[team_sim$team_id == id, ]); x[-1] <- lapply(x[-1], r4); x } else NULL),
                   file.path(site_out, "team", paste0(meta$slug[k], ".json")))
 }
+# Raw efficiency (display only; never feeds the model). Skipped, and the old file removed, when no play-by-play is cached.
+source(file.path(PATHS$root, "R", "publish", "team_efficiency.R"), local = TRUE)
+eff_plays <- tryCatch(read_site_plays(site_state), error = function(e) { message("Efficiency: ", conditionMessage(e)); NULL })
+eff_ids <- if (is.null(games)) character() else games$game_id[games$in_ratings %in% TRUE]
+if (!is.null(eff_plays) && length(eff_ids)) {
+  write_site_json(efficiency_doc(team_efficiency(eff_plays, data.frame(team_id = meta$team_id, school = meta$school), eff_ids),
+                                 meta_block, length(eff_ids), week), file.path(site_out, "efficiency.json"))
+} else { message("Efficiency: no cached play-by-play; efficiency.json not written."); unlink(file.path(site_out, "efficiency.json")) }
+
 if (!is.na(week)) {
   target <- file.path(site_out, as.character(site_season), sprintf("week-%02d", week), "index.json")
   old <- if (file.exists(target)) tryCatch(fromJSON(target)$meta$model, error = function(e) NULL) else NULL

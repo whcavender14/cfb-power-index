@@ -73,6 +73,14 @@ export type Conference = {
 export type ScenarioDoc = { meta: Meta; n: number; game_ids: string[]; team_ids: string[]; team_games: number[]; layout: string; data: string }
 export type ResumeRow = { team_id: string; resume_rank: number | null; sor: number | null; sos_played: number | null; sos_played_rank: number | null; wins: number | null; losses: number | null; games: number; predictive_rank: number | null; best_win: NotableGame | null; worst_loss: NotableGame | null }
 export type ResumeDoc = { meta: Meta; method: { metric: string; benchmark: string; tiebreaks: string; proposal: string }; teams: ResumeRow[] }
+export type Efficiency = {
+  team_id: string; plays: number | null; def_plays: number | null; off_rush_plays: number | null; off_pass_plays: number | null
+  sr: number | null; net_epa: number | null; off_epa: number | null; off_rush_epa: number | null; off_pass_epa: number | null
+  def_epa: number | null; def_rush_epa: number | null; def_pass_epa: number | null
+  sr_rank: number | null; net_epa_rank: number | null; off_epa_rank: number | null; off_rush_epa_rank: number | null; off_pass_epa_rank: number | null
+  def_epa_rank: number | null; def_rush_epa_rank: number | null; def_pass_epa_rank: number | null
+}
+export type EfficiencyDoc = { meta: Meta; method: { adjusted: boolean; source: string; scope: string; plays: string; success: string; ranks: string }; teams: Efficiency[] }
 export type ConferencesDoc = { meta: Meta; conferences: Conference[] }
 
 const cache = new Map<string, Promise<unknown>>()

@@ -612,3 +612,22 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
   .cf-sched-row.has-pick .cf-sched-pick { grid-area: pick; justify-self: end; margin-top: 4px; }
 }
 @media (pointer: coarse) { .cf-wl { width: 40px; height: 36px; } }
+/* Team page: efficiency */
+.cf-span-all { grid-column: 1 / -1; }
+.cf-tag { font-family: var(--cf-font); font-size: .6875rem; font-weight: 600; letter-spacing: .01em; padding: 2px 8px; border-radius: 999px; background: var(--cf-fill); color: var(--cf-ink-2); }
+.cf-eff { display: grid; gap: var(--s4); }
+.cf-eff-group .cf-h3 { margin: 0 0 4px !important; font-size: .8125rem; color: var(--cf-muted); font-weight: 600; display: block !important; }
+.cf-eff-note { font-weight: 400; }
+.cf-eff-rows { margin: 0; display: grid; }
+.cf-eff-row { display: grid; grid-template-columns: minmax(0, 1fr) 4.5rem 3.6rem 5.5rem; gap: var(--s3); align-items: center; min-height: 34px; border-bottom: 1px solid var(--cf-line); font-size: .9375rem; }
+.cf-eff-row:last-child { border-bottom: 0; }
+.cf-eff-row dt { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+.cf-eff-row dd { margin: 0; }
+.cf-eff-val { text-align: right; font-weight: 600; }
+.cf-eff-rank { text-align: right; font-size: .8125rem; color: var(--cf-muted); }
+.cf-eff-bar { height: 6px; border-radius: 3px; background: var(--cf-fill); overflow: hidden; }
+.cf-eff-bar i { display: block; height: 100%; border-radius: 3px; background: var(--cf-faint); }
+.cf-eff-bar i.is-good { background: var(--cf-up); }
+.cf-eff-bar i.is-bad { background: var(--cf-down); }
+@media (max-width: 420px) { .cf-eff-row { grid-template-columns: minmax(0, 1fr) 4rem 3.4rem 3rem; gap: var(--s2); } }
+.cf-eff-foot { margin: var(--s3) 0 0; }

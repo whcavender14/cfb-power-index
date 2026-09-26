@@ -118,3 +118,14 @@ A weekly copy of `index.json` plus `nonfbs[]` (`{team_id, team, power}`, the mod
 | `team/*.json` | ~9 KB / ~2 KB each |
 
 Budgets: `PERFORMANCE.md`. Per-simulation data is published only in `scenario.json`, packed, for the What-if page.
+
+## efficiency.json (raw per-play efficiency; display only)
+
+Written by `R/publish/team_efficiency.R` (from `export_site_data.R`, or alone with `scripts/export_team_efficiency.R`).
+Never feeds the ratings or the simulation. Source: CFBD play-by-play (`ppa` = expected points added), regular-season
+games with `in_ratings = true`, all opponents, all quarters, **not opponent-adjusted** (`method.adjusted = false`).
+
+`teams[]`: `team_id`, play counts (`plays`, `def_plays`, `off_rush_plays`, `off_pass_plays`), `sr` (offensive success
+rate, 0–1), `net_epa` (= `off_epa − def_epa`), `off_epa`, `off_rush_epa`, `off_pass_epa`, `def_epa`, `def_rush_epa`,
+`def_pass_epa` (EPA per play allowed; lower is better), and `<metric>_rank` for each (FBS, 1 = best; defense ranks
+ascending). `method` holds the plain-language definitions shown on the page.
