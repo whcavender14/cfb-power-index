@@ -870,3 +870,6 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-panel-head, .cf-section > .cf-panel-head { align-items: center; }
 .cf-panel-head .cf-share-row { align-items: center; }
 .cf-panel-head .cf-share { flex-direction: row; align-items: center; }
+/* What if: "<logo> Team makes the field in X% of these seasons" on one centred line */
+.cf-wi-lead { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin: 0 0 var(--s2); }
+.cf-wi-lead .cf-team-name { font-weight: 600; }

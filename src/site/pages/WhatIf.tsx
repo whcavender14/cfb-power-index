@@ -105,7 +105,7 @@ export default function WhatIf() {
           {f && <section className="cf-panel" aria-labelledby="wi-seed">
             <div className="cf-panel-head"><h2 id="wi-seed" className="cf-h2">Seed odds</h2>
               <Select label="Team" value={f.team_id} onChange={setFocus}>{[...res.values()].sort((a, b) => (directory.get(a.team_id)?.team ?? '').localeCompare(directory.get(b.team_id)?.team ?? '')).map(r => <option key={r.team_id} value={r.team_id}>{directory.get(r.team_id)?.team}</option>)}</Select></div>
-            <p><TeamLink id={f.team_id} size={24} /> makes the field in <Share k={f.playoff} n={n} /> of these seasons.</p>
+            <p className="cf-wi-lead"><TeamLink id={f.team_id} size={24} /> <span>makes the field in <Share k={f.playoff} n={n} /> of these seasons.</span></p>
             <div className="cf-seedbars" role="img" aria-label={f.seeds.map((c, i) => `Seed ${i + 1}: ${c} seasons`).join(', ')}>
               {f.seeds.map((c, i) => <span key={i} className="cf-seedbar"><span className="cf-dist-val">{c ? (n < COUNTS_BELOW ? c : pctText(c / n, 0)) : ''}</span><i style={{ height: `${Math.max(...f.seeds) ? (c / Math.max(...f.seeds)) * 100 : 0}%` }} /><b>{i + 1}</b></span>)}
             </div>
