@@ -91,6 +91,11 @@ export default function Matchup({ id }: { id: string }) {
     const modelLine = g.spread_home == null ? null : -g.spread_home                 // betting convention, home perspective
     const line = lines.get(g.game_id)
     const diff = modelLine != null && line?.market_spread != null ? modelLine - line.market_spread : null
+    // Value side: the team the model likes more than the market does, at the market's number (home-perspective spread m,
+    // negative = home favored). Model less bullish on the home team than Vegas (diff > 0) -> away team at -m; else home at m.
+    const signedLine = (v: number) => v === 0 ? 'Pick’em' : v > 0 ? `+${fmt(v)}` : `−${fmt(-v)}`
+    const valueSide = diff == null || line?.market_spread == null ? null : diff > 0
+      ? `${g.away_team} ${signedLine(-line.market_spread)}` : `${g.home_team} ${signedLine(line.market_spread)}`
     const sa = stars(ua.data), sh = stars(uh.data)
     const groups = STAT_GROUPS.map(gr => ({ ...gr, defs: gr.defs.filter(d => statValue(ea, d.key) != null || statValue(eh, d.key) != null) })).filter(gr => gr.defs.length)
     const sep = g.neutral ? 'vs' : 'at'
@@ -124,14 +129,14 @@ export default function Matchup({ id }: { id: string }) {
             {line.market_provider && <span className="cf-mu-tile-s">{line.market_provider}</span>}
           </div>}
           {line && diff != null && <div className="cf-mu-tile">
-            <span className="cf-mu-tile-k">Model implied value <Info text="Where the model’s line differs from the Vegas line, in points: the side the model rates better than the market does. A comparison only, not a pick or advice; the market is never a model input." label="About model implied value" /></span>
-            <strong className="cf-mu-tile-v">{Math.abs(diff) < 0.05 ? 'None' : <>{diff < 0 ? g.home_team : g.away_team} <span className="cf-num">+{fmt(Math.abs(diff))}</span></>}</strong>
-            <span className="cf-mu-tile-s">{Math.abs(diff) < 0.05 ? 'Model and Vegas agree' : `Model is ${fmt(Math.abs(diff))} pts more on ${diff < 0 ? g.home_team : g.away_team}`}</span>
+            <span className="cf-mu-tile-k">Model implied value <Info text="The side the model likes better than the market does, at the Vegas number. If Vegas has the home team −10.5 and the model only −4.1, the value is the away team +10.5. A comparison only, not a pick or advice; the market is never a model input." label="About model implied value" /></span>
+            <strong className="cf-mu-tile-v">{Math.abs(diff) < 0.05 ? 'None' : valueSide}</strong>
+            <span className="cf-mu-tile-s">{Math.abs(diff) < 0.05 ? 'Model and Vegas agree' : `Model line is ${fmt(Math.abs(diff))} pts from Vegas`}</span>
           </div>}
           {line?.market_total != null && <div className="cf-mu-tile">
             <span className="cf-mu-tile-k">Vegas points total</span>
             <strong className="cf-mu-tile-v cf-num">{fmt(line.market_total)}</strong>
-            <span className="cf-mu-tile-s">Over/under · the model has no total</span>
+            <span className="cf-mu-tile-s">O/U</span>
           </div>}
           {g.quality != null && <div className="cf-mu-tile">
             <span className="cf-mu-tile-k">Watchability <Info text={QUALITY_INFO} label="About watchability" /></span>
