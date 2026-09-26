@@ -8,7 +8,7 @@ All paths are under the GitHub Pages base `/cfb-power-index/` (set in `vite.conf
 | `/rankings/` | CFPi+ (predictive) rankings table | `index.json` | `q` search, `conf`, `sort`, `dir` |
 | `/rankings/resume/` | Résumé ranking (strength of record) | `resume.json` | `sort`, `dir` |
 | `/changes/` | What changed this week | `index.json`, `changes.json` | `sort`, `dir` |
-| `/compare/` | Rating history, 2–5 teams | `history.json` | `teams=georgia,alabama` (team slugs, commas) |
+| `/compare/`, `/history/` | Retired (Round 18); redirect to Home. Each team page keeps its rating-history chart | | |
 | `/games/` | Every game: results and projections | `games.json` (+ `betting.json` for lines) | `week` (number or `all`), `conf`, `team` (slug), `sort`, `dir` |
 | `/playoff/` | Playoff odds, projected field, seed probabilities | `playoff.json` | `show=all`, sort keys |
 | `/whatif/` | Pick winners; odds from matching simulated seasons | `scenario.json` (lazy), `games.json`, `playoff.json` | `pick=<game_id>:home,<game_id>:away`, `week` |

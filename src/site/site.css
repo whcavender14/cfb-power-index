@@ -393,7 +393,6 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-details > summary { cursor: pointer; color: var(--cf-accent); font-size: .875rem; width: max-content; }
 .cf-details[open] > summary { margin-bottom: var(--s2); }
 
-.cf-compare-bar { align-items: flex-end; }
 .cf-chips { display: flex; flex-wrap: wrap; gap: var(--s2); margin: 0; padding: 0; list-style: none; flex: 1 1 auto; }
 .cf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 6px 5px 10px; border-radius: 999px; background: var(--cf-fill-2); font-size: .875rem; font-weight: 500; }
 .cf-chip button { display: grid; place-items: center; width: 22px; height: 22px; border: 0; border-radius: 50%; background: transparent; color: var(--cf-muted); cursor: pointer; }

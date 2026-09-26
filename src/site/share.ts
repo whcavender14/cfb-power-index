@@ -8,7 +8,6 @@ import { pctText } from './components'
 const W = 1200, PAD = 48
 const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, "Segoe UI", Roboto, sans-serif'
 const K = { bg: '#f5f5f7', card: '#ffffff', ink: '#1d1d1f', ink2: '#3a3a3c', muted: '#6e6e73', line: '#e5e5ea', fill: '#f2f2f7', accent: '#0066cc', up: '#1d7a3a', down: '#c0362c' }
-export const SERIES = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4']
 
 type Ctx = CanvasRenderingContext2D
 export type Logos = Map<string, HTMLImageElement>

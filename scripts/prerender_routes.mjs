@@ -20,7 +20,9 @@ const routes = [
   ['playoff', 'Playoff | CFPi+', 'College Football Playoff odds, seed probabilities and a projected 12-team field from CFPi+ simulations.'],
   ['teams', 'Teams | CFPi+', 'Every FBS team, searchable and sortable by CFPi+ power rating, offense, defense, schedule strength and strength of record.'],
   ['conferences', 'Conferences | CFPi+', 'How each FBS conference compares as a group in CFPi+: average and median rating, top-25 depth and expected playoff teams.'],
-  ['compare', 'Rating history | CFPi+', 'CFPi+ rating history by week. Compare up to five teams.'],
+  // Retired (Round 18): History moved off the site; the shells stay so old links load and redirect to Home.
+  ['compare', 'CFPi+ | College Football Power Ratings', 'CFPi+ college football power ratings.'],
+  ['history', 'CFPi+ | College Football Power Ratings', 'CFPi+ college football power ratings.'],
   ['rankings/resume', 'Résumé ranking | CFPi+', 'CFPi+ résumé ranking: FBS teams ordered by strength of record, shown next to the predictive CFPi+ rank.'],
   ['whatif', 'What if? | CFPi+', 'Pick winners of upcoming games and see CFPi+ playoff, bye, conference-title and seed odds from the matching simulated seasons.'],
   // Retired: What changed moved to Home. The shells stay so old links load and redirect instead of 404ing.
