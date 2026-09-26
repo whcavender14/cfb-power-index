@@ -323,19 +323,23 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-dist-val { font-size: .6875rem; color: var(--cf-muted); font-variant-numeric: tabular-nums; }
 .cf-dist-col b { font-size: .75rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .cf-sched { list-style: none; margin: 0; padding: 0; }
-.cf-sched-row { display: grid; grid-template-columns: 2.6rem 9.5rem 1fr auto 4.5rem; gap: var(--s3); align-items: center; min-height: 44px; border-bottom: 1px solid var(--cf-line); font-size: .875rem; }
+.cf-sched-row { display: grid; grid-template-columns: 2.6rem 9rem 1.5rem minmax(10rem, 1fr) auto 5rem; gap: var(--s3); align-items: center; min-height: 48px; border-bottom: 1px solid var(--cf-line); font-size: .875rem; }
 .cf-sched-row:last-child { border-bottom: 0; }
-.cf-sched-opp { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
-.cf-sched-opp .cf-at { width: 1.2rem; }
+.cf-sched-wk, .cf-sched-date { white-space: nowrap; }
+.cf-sched-panel { grid-column: 1 / -1; }
+.cf-sched-loc { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 6px; background: var(--cf-fill-2); font-size: .6875rem; font-weight: 600; color: var(--cf-ink-2); }
+.cf-sched-opp { display: flex; align-items: center; min-width: 0; }
 .cf-sched-out { text-align: right; white-space: nowrap; }
-.cf-sched-q { text-align: right; }
+.cf-sched-q { display: flex; justify-content: flex-end; }
 .cf-result b { display: inline-block; width: 1.2em; font-weight: 700; }
 .cf-result.is-win b { color: var(--cf-up); }
 .cf-result.is-loss b { color: var(--cf-down); }
 @media (max-width: 759px) {
-  .cf-sched-row { grid-template-columns: 1fr auto; grid-template-areas: "opp out" "date q"; row-gap: 2px; padding: 8px 0; }
+  .cf-sched-row { grid-template-columns: 1.5rem minmax(0, 1fr) auto; grid-template-areas: "loc opp out" "loc date q"; column-gap: var(--s2); row-gap: 0; padding: 8px 0; }
   .cf-sched-wk { display: none; }
-  .cf-sched-opp { grid-area: opp; } .cf-sched-out { grid-area: out; } .cf-sched-date { grid-area: date; font-size: .75rem; } .cf-sched-q { grid-area: q; }
+  .cf-sched-loc { grid-area: loc; align-self: start; margin-top: 3px; }
+  .cf-sched-opp { grid-area: opp; } .cf-sched-out { grid-area: out; } .cf-sched-date { grid-area: date; font-size: .75rem; padding-left: 36px; } .cf-sched-q, .cf-sched-row > .cf-sched-pick { grid-area: q; justify-self: end; }
+  .cf-hide-xs { display: none; }
 }
 
 /* Prose (Model page) */

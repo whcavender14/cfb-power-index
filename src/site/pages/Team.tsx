@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { RESUME_INFO } from './Resume'
 import { DataGate, Freshness, Info, Missing, Movement, Num, Pct, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import NotFound from './NotFound'
@@ -7,11 +8,16 @@ import { HistoryNote } from './Compare'
 import { kickoffText, projection, Quality, QUALITY_INFO, WINPROB_INFO } from '../games'
 import { Link } from '../router'
 
-function ScheduleRow({ g, id }: { g: Game; id: string }) {
+const LOC = { home: ['H', 'Home'], away: ['A', 'Away'], neutral: ['N', 'Neutral site'] } as const
+
+/** One schedule row: opponent logo and name (linked for FBS teams; a monogram placeholder for teams without a logo),
+ *  site (home / away / neutral), then the result or the forecast with this team's win probability. */
+function ScheduleRow({ g, id, pick }: { g: Game; id: string; pick?: ReactNode }) {
   const home = g.home_id === id
   const oppId = home ? g.away_id : g.home_id
   const oppName = home ? g.away_team : g.home_team
-  const site = g.neutral ? 'vs' : home ? 'vs' : 'at'
+  const oppFbs = home ? g.away_fbs : g.home_fbs
+  const loc = LOC[g.neutral ? 'neutral' : home ? 'home' : 'away']
   let outcome = <Missing />
   if (g.status === 'final') {
     const us = home ? g.home_points! : g.away_points!, them = home ? g.away_points! : g.home_points!
@@ -22,16 +28,17 @@ function ScheduleRow({ g, id }: { g: Game; id: string }) {
     if (p) {
       const ours = p.favoriteId === id
       const prob = g.win_prob_home == null ? null : home ? g.win_prob_home : 1 - g.win_prob_home
-      outcome = <span className="cf-proj"><span className="cf-num">{ours ? '' : '+'}{p.margin < 0.05 ? 'Even' : `${ours ? '−' : ''}${p.margin.toFixed(1)}`}</span>
-        <span className="cf-muted"> · </span><span className="cf-num">{pctText(prob)}</span><span className="cf-muted"> to win</span></span>
+      outcome = <span className="cf-proj"><span className="cf-num">{p.margin < 0.05 ? 'Even' : `${ours ? '−' : '+'}${p.margin.toFixed(1)}`}</span>
+        <span className="cf-muted"> · </span><span className="cf-num">{pctText(prob, 0)}</span><span className="cf-muted cf-hide-xs"> to win</span></span>
     }
   }
-  return <li className={`cf-sched-row${g.status === 'final' ? ' is-final' : ''}`}>
+  return <li className={`cf-sched-row${g.status === 'final' ? ' is-final' : ''}${pick ? ' has-pick' : ''}`}>
     <span className="cf-sched-wk cf-muted">Wk {g.week}</span>
     <span className="cf-sched-date cf-muted">{kickoffText(g)}</span>
-    <span className="cf-sched-opp"><span className="cf-at">{site}</span><TeamLink id={oppId} name={oppName} size={22} sub={g.neutral ? 'Neutral site' : undefined} /></span>
+    <span className="cf-sched-loc" title={loc[1]}><span aria-hidden="true">{loc[0]}</span><span className="cf-sr">{loc[1]}</span></span>
+    <span className="cf-sched-opp"><TeamLink id={oppId} name={oppName} size={26} sub={[g.neutral ? 'Neutral site' : home ? 'Home' : 'Away', oppFbs ? null : 'FCS'].filter(Boolean).join(' · ')} /></span>
     <span className="cf-sched-out">{outcome}</span>
-    <span className="cf-sched-q">{g.status === 'scheduled' ? <Quality value={g.quality} /> : null}</span>
+    {pick ?? <span className="cf-sched-q">{g.status === 'scheduled' ? <Quality value={g.quality} /> : null}</span>}
   </li>
 }
 
@@ -180,7 +187,7 @@ export default function Team({ slug }: { slug: string }) {
 
         <TeamHistory id={team.team_id} name={team.team} slug={team.slug} />
 
-        <section className="cf-panel" aria-labelledby="t-sched">
+        <section className="cf-panel cf-sched-panel" aria-labelledby="t-sched">
           <h2 id="t-sched" className="cf-h2">Schedule</h2>
           {upcoming.length > 0 && <>
             <h3 className="cf-h3">Remaining <Info text={`Projected margin (negative = favored) and ${WINPROB_INFO.charAt(0).toLowerCase()}${WINPROB_INFO.slice(1)} ${QUALITY_INFO}`} label="About projections" /></h3>
