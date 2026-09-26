@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { DataGate, fmt, fmtSigned, Info, Missing, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import type { EfficiencyDoc, Efficiency, Game, GamesDoc, IndexDoc, KeyPlayer, TeamRow, UsageDoc } from '../data'
-import { kickoffText, projection, useLines, WINPROB_INFO } from '../games'
+import { kickoffText, QUALITY_INFO, useLines } from '../games'
 import { Link } from '../router'
 import { STAT_GROUPS, statRank, statValue, type StatDef } from '../stats'
 import NotFound from './NotFound'
@@ -87,7 +87,6 @@ export default function Matchup({ id }: { id: string }) {
     const effs = new Map((eff.data?.teams ?? []).map(t => [t.team_id, t]))
     const ea = effs.get(g.away_id), eh = effs.get(g.home_id)
     const total = (eff.data?.teams ?? []).filter(t => t.plays != null || t.games != null).length
-    const p = projection(g)
     const probHome = g.win_prob_home, probAway = probHome == null ? null : 1 - probHome
     const modelLine = g.spread_home == null ? null : -g.spread_home                 // betting convention, home perspective
     const line = lines.get(g.game_id)
@@ -110,29 +109,38 @@ export default function Matchup({ id }: { id: string }) {
       </header>
       <h1 className="cf-sr">{g.away_team} {sep} {g.home_team}, Week {g.week}</h1>
 
-      <div className="cf-mu-grid">
-        <section className="cf-panel" aria-labelledby="mu-fc">
-          <h2 id="mu-fc" className="cf-h2">Model forecast</h2>
-          {p && probHome != null ? <dl className="cf-kv cf-kv-2">
-            <div><dt>Model line <Info text={MODEL_LINE_INFO} label="About the model line" /></dt><dd>{spreadText(g.home_team, g.away_team, modelLine!)}</dd></div>
-            <div><dt>Projected margin</dt><dd>{p.margin < 0.05 ? 'Even' : <>{p.favorite} by <span className="cf-num">{fmt(p.margin)}</span></>}</dd></div>
-            <div><dt>{g.away_team} win <Info text={WINPROB_INFO} label="About win probability" /></dt><dd className="cf-num">{pctText(probAway)}</dd></div>
-            <div><dt>{g.home_team} win</dt><dd className="cf-num">{pctText(probHome)}</dd></div>
-          </dl> : <p className="cf-muted">{g.status === 'final' ? 'Final. The site shows forecasts for upcoming games only; the pre-game projection is not stored.' : 'No projection for this game.'}</p>}
-          <p className="cf-small cf-muted">The model predicts the margin, not points, so it has no implied score or total of its own.</p>
-        </section>
-
-        {line && <section className="cf-panel" aria-labelledby="mu-mk">
-          <h2 id="mu-mk" className="cf-h2">Sportsbook line <span className="cf-tag">Evaluation only</span> <Info text={MARKET_INFO} label="About the sportsbook line" /></h2>
-          <dl className="cf-kv cf-kv-2">
-            <div><dt>Market line{line.market_provider ? ` (${line.market_provider})` : ''}</dt><dd>{spreadText(g.home_team, g.away_team, line.market_spread!)}</dd></div>
-            <div><dt>Model line</dt><dd>{modelLine != null ? spreadText(g.home_team, g.away_team, modelLine) : <Missing />}</dd></div>
-            {line.market_total != null && <div><dt>Market total (over/under)</dt><dd className="cf-num">{fmt(line.market_total)}</dd></div>}
-            {diff != null && <div><dt>Model vs market</dt><dd>{Math.abs(diff) < 0.05 ? 'Same line' : <><span className="cf-num">{fmt(Math.abs(diff))}</span> pts more on {diff < 0 ? g.home_team : g.away_team}</>}</dd></div>}
-          </dl>
-          <p className="cf-small cf-muted">Not a CFPi+ input. The total is the market’s; CFPi+ does not forecast totals.</p>
-        </section>}
-      </div>
+      <section className="cf-panel cf-mu-fc" aria-labelledby="mu-fc">
+        <h2 id="mu-fc" className="cf-h2">Forecast and line {line && <span className="cf-tag">Vegas figures: evaluation only</span>}</h2>
+        {g.status === 'final' && <p className="cf-muted">Final. Forecasts and lines are shown for upcoming games only; the pre-game figures are not stored.</p>}
+        {g.status !== 'final' && <div className="cf-mu-tiles">
+          <div className="cf-mu-tile is-model">
+            <span className="cf-mu-tile-k">Model line <Info text={MODEL_LINE_INFO} label="About the model line" /></span>
+            <strong className="cf-mu-tile-v">{modelLine != null ? spreadText(g.home_team, g.away_team, modelLine) : <Missing why="No projection" />}</strong>
+            {probHome != null && <span className="cf-mu-tile-s">Win: {g.away_team} <span className="cf-num">{pctText(probAway)}</span> · {g.home_team} <span className="cf-num">{pctText(probHome)}</span></span>}
+          </div>
+          {line && <div className="cf-mu-tile">
+            <span className="cf-mu-tile-k">Vegas line <Info text={MARKET_INFO} label="About the Vegas line" /></span>
+            <strong className="cf-mu-tile-v">{spreadText(g.home_team, g.away_team, line.market_spread!)}</strong>
+            {line.market_provider && <span className="cf-mu-tile-s">{line.market_provider}</span>}
+          </div>}
+          {line && diff != null && <div className="cf-mu-tile">
+            <span className="cf-mu-tile-k">Model implied value <Info text="Where the model’s line differs from the Vegas line, in points: the side the model rates better than the market does. A comparison only, not a pick or advice; the market is never a model input." label="About model implied value" /></span>
+            <strong className="cf-mu-tile-v">{Math.abs(diff) < 0.05 ? 'None' : <>{diff < 0 ? g.home_team : g.away_team} <span className="cf-num">+{fmt(Math.abs(diff))}</span></>}</strong>
+            <span className="cf-mu-tile-s">{Math.abs(diff) < 0.05 ? 'Model and Vegas agree' : `Model is ${fmt(Math.abs(diff))} pts more on ${diff < 0 ? g.home_team : g.away_team}`}</span>
+          </div>}
+          {line?.market_total != null && <div className="cf-mu-tile">
+            <span className="cf-mu-tile-k">Vegas points total</span>
+            <strong className="cf-mu-tile-v cf-num">{fmt(line.market_total)}</strong>
+            <span className="cf-mu-tile-s">Over/under · the model has no total</span>
+          </div>}
+          {g.quality != null && <div className="cf-mu-tile">
+            <span className="cf-mu-tile-k">Watchability <Info text={QUALITY_INFO} label="About watchability" /></span>
+            <strong className="cf-mu-tile-v"><span className="cf-num">{g.quality}</span><small> / 100</small></strong>
+            <span className="cf-mu-meter" aria-hidden="true"><i style={{ width: `${g.quality}%` }} /></span>
+          </div>}
+        </div>}
+        {g.status !== 'final' && !line && <p className="cf-small cf-muted cf-mu-fc-note">No Vegas line available: lines are pulled only for games that have not kicked off when the data updates.</p>}
+      </section>
 
       {(ra || rh || groups.length > 0) && <section className={`cf-panel cf-mu-compare${oneSided ? ` is-one-${oneSided}` : ''}`} aria-labelledby="mu-cmp">
         <div className="cf-mu-cmp-head">

@@ -847,3 +847,22 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 #mu-stars { margin-bottom: var(--s4); }
 .cf-mu-stars .cf-h3 { margin-bottom: var(--s3) !important; }
 .cf-mu-star:first-child { padding-top: 0; }
+/* Matchup: forecast and line tiles (one row on desktop; equal heights) */
+.cf-mu-fc { margin-top: var(--s4); }
+.cf-mu-fc .cf-h2 { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; margin-bottom: var(--s3); }
+.cf-mu-tiles { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); align-items: stretch; }
+.cf-mu-tile { display: grid; align-content: start; gap: 4px; padding: var(--s3); border-radius: var(--cf-radius-sm); background: var(--cf-fill-2); box-shadow: inset 0 0 0 1px var(--cf-line); min-width: 0; }
+.cf-mu-tile.is-model { box-shadow: inset 3px 0 0 var(--cf-accent), inset 0 0 0 1px var(--cf-line); }
+.cf-mu-tile-k { display: inline-flex; align-items: center; gap: 4px; font-size: .75rem; font-weight: 500; color: var(--cf-muted); }
+.cf-mu-tile-v { font-family: var(--cf-font-display); font-size: 1.3125rem; line-height: 1.2; letter-spacing: -.015em; }
+.cf-mu-tile-v small { font-size: .8125rem; font-weight: 500; color: var(--cf-muted); }
+.cf-mu-tile-s { font-size: .75rem; color: var(--cf-ink-2); }
+.cf-mu-meter { display: block; height: 6px; margin-top: 4px; border-radius: 3px; background: var(--cf-fill); overflow: hidden; }
+.cf-mu-meter i { display: block; height: 100%; background: var(--cf-ink-2); border-radius: 3px; }
+.cf-mu-fc-note { margin: var(--s3) 0 0; }
+@media (max-width: 759px) {
+  .cf-mu-tiles { grid-template-columns: 1fr 1fr; gap: var(--s2); }
+  .cf-mu-tile.is-model { grid-column: 1 / -1; }
+  .cf-mu-tile { padding: var(--s2) var(--s3); }
+  .cf-mu-tile-v { font-size: 1.0625rem; }
+}
