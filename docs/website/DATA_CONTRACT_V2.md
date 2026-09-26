@@ -129,3 +129,14 @@ games with `in_ratings = true`, all opponents, all quarters, **not opponent-adju
 rate, 0–1), `net_epa` (= `off_epa − def_epa`), `off_epa`, `off_rush_epa`, `off_pass_epa`, `def_epa`, `def_rush_epa`,
 `def_pass_epa` (EPA per play allowed; lower is better), and `<metric>_rank` for each (FBS, 1 = best; defense ranks
 ascending). `method` holds the plain-language definitions shown on the page.
+
+## Depth charts (weekly input; display only)
+
+`R/publish/pull_depth_charts.R`, run from `scripts/03_export_public_data.R` after the player-stats pull (skip with
+`CFB_PULL_DEPTH=false`). Source: TWO·DEEP (thetwodeep.com), used with the owner's permission; CollegeFootballData has no
+depth charts. Writes `output/state/depth_charts_<season>.rds`: a data frame with one row per team, spot and depth
+(`season, week, team_id, slug, order, unit, group, slot, depth, player, jersey, snaps_pct, fetched_at`), keyed by season,
+week (the ratings week) and team_id; earlier weeks are kept. The committed copy `data/reference/depth_charts/` is the last
+good file (the CI state is clean each run; the workflow commits the copy). A failed or thin pull (< 100 teams, or the
+first 10 teams all failing) logs a warning and keeps the last good file; the run continues. The team pages read the latest
+week per team from `usage/<slug>.json` (`depth`, `depth_source.week`).

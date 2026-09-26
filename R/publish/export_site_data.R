@@ -556,18 +556,22 @@ source(file.path(PATHS$root, "R", "publish", "player_usage.R"), local = TRUE)
 usage_raw <- pull_player_usage(site_season)
 rosters <- pull_rosters(site_season)
 source(file.path(PATHS$root, "R", "publish", "depth_charts.R"), local = TRUE)
-depth <- read_opt(file.path(site_state, sprintf("depth_charts_%d.rds", site_season)))   # scripts/pull_depth_charts.R
+depth <- read_opt(file.path(site_state, sprintf("depth_charts_%d.rds", site_season)))   # R/publish/pull_depth_charts.R
+if (is.null(depth)) depth <- read_opt(file.path(PATHS$reference, "depth_charts", sprintf("depth_charts_%d.rds", site_season)))
+if (!is.null(depth) && !is.data.frame(depth)) depth <- NULL                               # pre-Round-18 nested format
 usage_stats <- if (!is.null(ps) && identical(as.integer(attr(ps, "end_week")), week)) ps else NULL
 unlink(file.path(site_out, "usage"), recursive = TRUE)
 n_usage <- 0L
 for (k in seq_len(nrow(meta))) {
   u <- team_player_usage(meta$school[k], usage_raw, usage_stats, rosters)
-  d <- if (!is.null(depth) && !is.null(depth[[meta$slug[k]]])) enrich_depth(depth[[meta$slug[k]]], if (!is.null(rosters)) rosters[rosters$team == meta$school[k], , drop = FALSE] else NULL) else NULL
+  dr <- if (!is.null(depth)) depth_rows(depth, meta$team_id[k]) else NULL
+  d <- if (!is.null(dr)) enrich_depth(dr, if (!is.null(rosters)) rosters[rosters$team == meta$school[k], , drop = FALSE] else NULL) else NULL
   if (is.null(u) && is.null(d)) next
   if (is.null(u)) u <- list(offense = NULL, defense = NULL)
   u$depth <- d
   u$depth_source <- if (!is.null(d)) list(name = "TWO\u00b7DEEP", url = paste0(TWODEEP_BASE, if (meta$slug[k] %in% names(TWODEEP_SLUG)) TWODEEP_SLUG[[meta$slug[k]]] else meta$slug[k]),
-                                          fetched_at = iso_utc(attr(depth, "fetched_at"))) else NULL
+                                          fetched_at = iso_utc(max(depth$fetched_at[depth$team_id == meta$team_id[k]])),
+                                          week = max(depth$week[depth$team_id == meta$team_id[k]])) else NULL
   write_site_json(c(list(meta = meta_block, team_id = meta$team_id[k],
                          offense_source = "CollegeFootballData player usage, season to date",
                          offense_pulled_at = if (!is.null(usage_raw)) iso_utc(attr(usage_raw, "pulled_at")) else NA,

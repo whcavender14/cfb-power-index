@@ -33,14 +33,17 @@ parse_twodeep <- function(page) {
     key <- paste(group, slot)
     if (key %in% seen) next                                  # the page repeats the chart for its mobile layout
     links <- regmatches(row, gregexpr('<a class="td-plink".*?</a>', row, perl = TRUE))[[1]]
-    if (!length(links)) next
-    players <- lapply(head(links, 2L), function(a) {
+    players <- list()
+    for (a in links) {                                        # depth order: codes <slot>1, <slot>2, ...; stop at the first break
+      code <- twodeep_first('color:#98948a;flex:none">([^<]+)<', a)
+      want <- paste0(slot, length(players) + 1L)
+      if (is.na(code) || twodeep_text(code) != want) break
       name <- twodeep_first('class="td-pname"[^>]*>([^<]+)<', a)
-      jersey <- twodeep_first('font-size:17px;background:[^"]*">(\\d+)<', a)
-      snaps <- twodeep_first("(\\d+)% snaps", a)
-      list(name = twodeep_text(name), jersey = suppressWarnings(as.integer(jersey)), snaps = suppressWarnings(as.integer(snaps)))
-    })
-    players <- Filter(function(p) !is.na(p$name), players)
+      if (is.na(name)) break
+      players[[length(players) + 1L]] <- list(name = twodeep_text(name),
+        jersey = suppressWarnings(as.integer(twodeep_first('font-size:17px;background:[^"]*">(\\d+)<', a))),
+        snaps = suppressWarnings(as.integer(twodeep_first("(\\d+)% snaps", a))))
+    }
     if (!length(players)) next
     seen <- c(seen, key)
     rows[[length(rows) + 1L]] <- list(group = group, slot = slot, players = players)
@@ -50,7 +53,9 @@ parse_twodeep <- function(page) {
 
 pull_depth_charts <- function(slugs, pause = 1.5) {
   out <- list()
-  for (s in slugs) {
+  for (i in seq_along(slugs)) {
+    s <- slugs[i]
+    if (i == 11L && !length(out)) { message("Depth charts: the first 10 teams all failed; giving up (site down or changed)."); break }
     url <- paste0(TWODEEP_BASE, if (s %in% names(TWODEEP_SLUG)) TWODEEP_SLUG[[s]] else s)
     page <- tryCatch({
       req <- httr2::request(url) |> httr2::req_user_agent("CFPi+ site export (with TWO-DEEP's permission)") |>
@@ -93,4 +98,33 @@ enrich_depth <- function(rows, roster) {
     out[[length(out) + 1L]] <- r
   }
   out
+}
+
+# Long format for the weekly input file: one row per team, spot and depth. Keyed by season, week and team_id.
+depth_long <- function(dc, teams, season, week) {
+  id <- setNames(as.character(teams$team_id), teams$slug)
+  out <- lapply(names(dc), function(slug) {
+    rows <- dc[[slug]]
+    do.call(rbind, lapply(seq_along(rows), function(i) {
+      r <- rows[[i]]
+      data.frame(season = as.integer(season), week = as.integer(week), team_id = unname(id[slug]), slug = slug,
+                 order = i, unit = depth_unit(r$group), group = r$group, slot = r$slot, depth = seq_along(r$players),
+                 player = vapply(r$players, `[[`, "", "name"),
+                 jersey = vapply(r$players, function(p) if (is.null(p$jersey)) NA_integer_ else as.integer(p$jersey), 0L),
+                 snaps_pct = vapply(r$players, function(p) if (is.null(p$snaps)) NA_integer_ else as.integer(p$snaps), 0L),
+                 stringsAsFactors = FALSE)
+    }))
+  })
+  x <- do.call(rbind, out)
+  x$fetched_at <- attr(dc, "fetched_at")
+  x[!is.na(x$team_id), ]
+}
+# Latest week's chart for one team back to the nested rows the page uses (starter + first backup per spot).
+depth_rows <- function(long, team_id, keep = 2L) {
+  x <- long[long$team_id == team_id, , drop = FALSE]
+  if (!nrow(x)) return(NULL)
+  x <- x[x$week == max(x$week), , drop = FALSE]
+  x <- x[order(x$order, x$depth), , drop = FALSE]
+  lapply(split(x, x$order), function(r) list(group = r$group[1], slot = r$slot[1],
+    players = lapply(seq_len(min(nrow(r), keep)), function(j) list(name = r$player[j], jersey = r$jersey[j], snaps = r$snaps_pct[j]))))
 }
