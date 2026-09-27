@@ -966,3 +966,5 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-co-out { color: var(--cf-down); }
 .cf-co-note { margin: 0; padding: var(--s3) var(--s4); }
 @media (max-width: 719px) { .cf-confodds .cf-co-n { min-width: 2.75rem; } .cf-confodds td:nth-child(2), .cf-confodds th:nth-child(2) { position: sticky; left: 0; background: var(--cf-surface); z-index: 1; min-width: 7.5rem; max-width: 7.5rem; } }
+.cf-confodds :is(th, td):is(:nth-child(1), :nth-child(3), :nth-child(4)) { text-align: center; }
+.cf-confodds th:is(:nth-child(1), :nth-child(3), :nth-child(4)) .cf-th { justify-content: center; }
