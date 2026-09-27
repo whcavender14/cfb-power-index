@@ -1020,15 +1020,43 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-hs-field input::-webkit-search-decoration, .cf-hs-field input::-webkit-search-results-button { display: none; }
 @keyframes cf-hs-fade { from { opacity: 0; } }
 
-/* Home ticker: two identical rows slide left by exactly one row for a seamless loop. */
-.cf-tk { display: flex; align-items: center; gap: var(--s3); margin: var(--s3) 0 var(--s5); padding: 0 var(--s2) 0 var(--s4); height: 52px; border-radius: 999px; background: var(--cf-surface); box-shadow: var(--cf-shadow); overflow: hidden; }
-.cf-tk-label { flex: none; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--cf-accent); }
-.cf-tk-track { flex: 1; min-width: 0; display: flex; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent); }
-.cf-tk-row { flex: none; min-width: 100%; display: flex; margin: 0; padding: 0; list-style: none; animation: cf-tk 50s linear infinite; }
+/* Home ticker: Vegas cards. Two identical rows slide left by exactly one row for a seamless loop. */
+.cf-tk { display: flex; align-items: center; gap: var(--s3); margin: var(--s3) 0 var(--s5); padding: var(--s2) var(--s2) var(--s2) var(--s4); border-radius: var(--cf-radius, 14px); background: var(--cf-surface); box-shadow: var(--cf-shadow); overflow: hidden; }
+.cf-tk-label { flex: none; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--cf-accent); line-height: 1.25; }
+.cf-tk-label span { display: block; font-weight: 500; color: var(--cf-muted); text-transform: none; letter-spacing: 0; }
+.cf-tk-track { flex: 1; min-width: 0; display: flex; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent); }
+.cf-tk-row { flex: none; min-width: 100%; display: flex; gap: var(--s2); padding: 0 var(--s1) 0 0; margin: 0; list-style: none; animation: cf-tk 60s linear infinite; }
 .cf-tk:hover .cf-tk-row, .cf-tk:focus-within .cf-tk-row, .cf-tk.is-paused .cf-tk-row { animation-play-state: paused; }
-.cf-tk-link { display: flex; align-items: center; gap: 8px; padding: 0 var(--s5); white-space: nowrap; font-size: .875rem; color: var(--cf-ink); }
-.cf-tk-link:hover { text-decoration: none; color: var(--cf-accent); }
-.cf-tk-teams { font-weight: 600; }
+.cf-tk-item { flex: none; }
+.cf-tk .cf-tk-item > a.cf-tk-link.cf-tk-link, .cf-tk .cf-tk-item > a.cf-tk-link:hover, .cf-tk-link * { text-decoration: none; }
+.cf-tk-link { display: block; width: 158px; padding: 6px 10px; border-radius: 10px; font-size: .8125rem; line-height: 1.2; color: var(--cf-ink); }
+.cf-tk-link:hover, .cf-tk-link:focus-visible { background: var(--cf-fill-2); }
+.cf-tk-top { display: flex; justify-content: space-between; gap: 6px; font-size: .6875rem; margin-bottom: 4px; white-space: nowrap; }
+.cf-tk-team { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+.cf-tk-rk { min-width: 1.6em; font-size: .6875rem; color: var(--cf-muted); text-align: right; }
+.cf-tk-ab { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-tk-fav .cf-tk-ab, .cf-tk-fav .cf-tk-sp { font-weight: 800; }
+.cf-tk-sp { font-variant-numeric: tabular-nums; }
 .cf-tk-btn { flex: none; width: 30px; height: 30px; }
 @keyframes cf-tk { to { transform: translateX(-100%); } }
 @media (prefers-reduced-motion: reduce) { .cf-tk-track { overflow-x: auto; } .cf-tk-row { animation: none; } .cf-tk-row[aria-hidden] { display: none; } .cf-tk-btn { display: none; } }
+
+/* Home title */
+.cf-title { display: flex; align-items: center; flex-wrap: wrap; gap: 4px var(--s3); margin: var(--s4) 0 var(--s1); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
+.cf-title-mark { font-size: clamp(2rem, 6vw, 2.75rem); font-weight: 800; background: linear-gradient(135deg, var(--cf-ink) 30%, var(--cf-accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cf-title-bar { align-self: stretch; width: 2px; min-height: 1.6em; border-radius: 2px; background: linear-gradient(var(--cf-accent), transparent); opacity: .55; }
+.cf-title-name { font-size: clamp(1rem, 3vw, 1.5rem); font-weight: 500; letter-spacing: -0.01em; color: var(--cf-muted); }
+
+/* Logo + rank only: a static, swipeable strip. */
+.cf-tk-static { padding: var(--s3) var(--s4); overflow-x: auto; }
+.cf-tk-static .cf-tk-row { animation: none; width: 100%; min-width: 0; justify-content: space-between; gap: var(--s2); }
+.cf-tk-static .cf-tk-link { width: auto; min-width: 72px; padding: 6px 12px; }
+.cf-tk-rk-solo { min-width: 0; margin-left: auto; font-size: .875rem; font-weight: 600; color: var(--cf-ink); }
+.cf-tk-static .cf-tk-team { gap: 10px; }
+
+/* Both teams in the top 30: thin gold outline. */
+.cf-tk .cf-tk-item > a.cf-tk-marquee { background: transparent; box-shadow: inset 0 0 0 1.5px #d4a017; }
+.cf-tk .cf-tk-item > a.cf-tk-marquee:hover { background: var(--cf-fill-2); }
+
+/* A little air between the freshness line and the layout below it. */
+.cf-fresh + .cf-whatif-layout { margin-top: var(--s3); }

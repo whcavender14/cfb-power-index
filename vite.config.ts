@@ -7,5 +7,7 @@ import tailwindcss from '@tailwindcss/vite'
 // Every route is prerendered as its own index.html after the build (scripts/prerender_routes.mjs).
 export default defineConfig(({ command }) => ({
   plugins: [react(), tailwindcss()],
+  // Data files are rewritten by the export scripts; a full-page reload on each write flashes the dev page white.
+  server: { watch: { ignored: ['**/public/data/**', '**/docs/**', '**/data/**', '**/R/**', '**/archive_reference/**'] } },
   base: process.env.CFPI_BASE ?? (command === 'build' ? '/cfb-power-index/' : '/'),
 }))

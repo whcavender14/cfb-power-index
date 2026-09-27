@@ -84,9 +84,9 @@ export default function Home() {
     const contenders = teams.filter(t => t.p_playoff != null && t.p_playoff > 0).sort((a, b) => b.p_playoff! - a.p_playoff! || (a.rank ?? 999) - (b.rank ?? 999)).slice(0, 12)
     const sims = meta.sim_status === 'available'
     return <>
-      <h1 className="cf-sr">CFPi+ college football power ratings</h1>
+      <h1 className="cf-title" aria-label="CFPi, Cavender Football Power Index"><span className="cf-title-mark" aria-hidden="true">CFPi</span><span className="cf-title-bar" aria-hidden="true" /><span className="cf-title-name" aria-hidden="true">Cavender Football Power Index</span></h1>
       <Freshness meta={meta} />
-      <Ticker games={top_games ?? []} week={meta.current_week} />
+      <Ticker teams={teams} />
 
       <div className="cf-questions">
         <Question id="q-best" q="Who are the best teams?" more="Full rankings" to="/rankings/">
