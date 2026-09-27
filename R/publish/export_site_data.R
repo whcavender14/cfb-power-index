@@ -273,6 +273,20 @@ if (!is.null(games) && !is.null(team_sim)) {
   gbytes <- unlist(lapply(seq_len(nrow(fut)), function(i) as.integer(packBits(c(bits[i, ], rep(FALSE, nb * 8 - n_sims)), "raw"))))
   sc_ids <- team_sim$team_id
   sst <- st[order(match(st$team_id, sc_ids), st$sim), ]
+  # Playoff swing for a game (Home page): each team's chance of making the field in the simulated seasons where it wins /
+  # loses that game. The same filter the What if? page applies to one pick; nothing is re-simulated.
+  infield_m <- matrix(!is.na(sst$seed), nrow = length(sc_ids), ncol = n_sims, byrow = TRUE)
+  game_swing <- function(game_id) {
+    i <- match(game_id, fut$game_id); if (is.na(i)) return(NULL)
+    hw <- bits[i, ]
+    one <- function(team_id, wins_mask, loses_mask) {
+      t <- match(team_id, sc_ids); if (is.na(t)) return(NULL)
+      list(win = r4(mean(infield_m[t, wins_mask])), lose = r4(mean(infield_m[t, loses_mask])), base = r4(mean(infield_m[t, ])),
+           n_win = sum(wins_mask), n_lose = sum(loses_mask))
+    }
+    out <- list(home = one(fut$home_id[i], hw, !hw), away = one(fut$away_id[i], !hw, hw))
+    Filter(Negate(is.null), out)
+  }
   stopifnot(nrow(sst) == length(sc_ids) * n_sims, all(sst$sim == rep(seq_len(n_sims), length(sc_ids))))
   seed <- ifelse(is.na(sst$seed), 0L, sst$seed)
   stopifnot(all(seed <= 15L), all(sst$exit >= 0L & sst$exit <= 5L))
@@ -466,7 +480,9 @@ top_games <- if (!is.null(games) && !is.na(current_week)) {
   head(tg[order(-tg$quality, tg$kickoff), ], 6)
 } else NULL
 
-index <- list(meta = meta_block, teams = rows, top_games = top_games)
+# Playoff swing (win / lose) for each featured game, for the Home page cards. Display only.
+top_swing <- if (!is.null(top_games) && exists("game_swing")) Filter(length, setNames(lapply(top_games$game_id, game_swing), top_games$game_id)) else NULL
+index <- list(meta = meta_block, teams = rows, top_games = top_games, top_swing = if (length(top_swing)) top_swing else NULL)
 history_doc <- NULL
 if (!is.null(rat)) {
   pts <- c(list(pre = list(week = NA_integer_, as_of = NA_character_, source = "preseason",

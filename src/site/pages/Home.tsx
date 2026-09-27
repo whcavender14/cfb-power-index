@@ -78,7 +78,7 @@ function WhatChanged({ meta, teams }: { meta: Meta; teams: TeamRow[] }) {
 
 export default function Home() {
   const index = useData<IndexDoc>('index.json')
-  return <DataGate source={index} label="Ratings">{({ meta, teams, top_games }) => {
+  return <DataGate source={index} label="Ratings">{({ meta, teams, top_games, top_swing }) => {
     const ranked = teams.filter(t => t.rank != null).sort((a, b) => a.rank! - b.rank!)
     const contenders = teams.filter(t => t.p_playoff != null && t.p_playoff > 0).sort((a, b) => b.p_playoff! - a.p_playoff! || (a.rank ?? 999) - (b.rank ?? 999)).slice(0, 12)
     const sims = meta.sim_status === 'available'
@@ -114,7 +114,8 @@ export default function Home() {
         <Question id="q-games" q={`Which games matter${meta.current_week != null ? ` in Week ${meta.current_week}` : ' this week'}?`} more="All games" to={meta.current_week != null ? `/games/?week=${meta.current_week}` : '/games/'}
           info={<Info text={QUALITY_INFO} label="How games are chosen" />}>
           {top_games && top_games.length
-            ? <div className="cf-q-games">{top_games.slice(0, 4).map(g => <GameCard key={g.game_id} g={g} />)}</div>
+            ? <><div className="cf-q-games">{top_games.slice(0, 4).map(g => <GameCard key={g.game_id} g={g} swing={top_swing?.[g.game_id]} />)}</div>
+              {top_swing && <p className="cf-small cf-muted cf-swing-note"><b className="cf-swing-w">▲</b> / <b className="cf-swing-l">▼</b> = the team’s playoff chance if it wins / loses that game, from the simulated seasons (same filter as <Link to="/whatif/">What if?</Link>).</p>}</>
             : <p className="cf-muted">No upcoming games with projections.</p>}
         </Question>
       </div>

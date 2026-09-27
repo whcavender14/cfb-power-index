@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { Game } from './data'
+import type { Game, GameSwing, Swing } from './data'
 import { fmt, Info, Missing, pctText, TeamLink } from './components'
 import { Link } from './router'
 
@@ -53,11 +53,26 @@ export function Matchup({ g, size = 22 }: { g: Game; size?: number }) {
 }
 
 /** Compact card for the homepage module and phone layouts. */
-export function GameCard({ g }: { g: Game }) {
+const MIN_SEASONS = 100   // fewer matching simulated seasons: no percentage (same floor as the What if? warning)
+function SwingFigure({ sw, team }: { sw: Swing; team: string }) {
+  const one = (kind: 'W' | 'L', v: number, n: number) => n < MIN_SEASONS
+    ? <b className="cf-swing-x" title={`Too few simulated seasons (${n}) for a reliable figure`}>{kind} —</b>
+    : <b className={kind === 'W' ? 'cf-swing-w' : 'cf-swing-l'}>{kind === 'W' ? '▲' : '▼'} <span className="cf-num">{Math.round(v * 100) === 0 && v > 0 ? '<1' : Math.round(v * 100)}%</span></b>
+  return <span className="cf-swing" title={`${team}: playoff chance ${pctText(sw.base)} now; ${pctText(sw.win)} if it wins, ${pctText(sw.lose)} if it loses`}>
+    {one('W', sw.win, sw.n_win)}{one('L', sw.lose, sw.n_lose)}
+  </span>
+}
+/** The two teams of a card, each with its playoff chance if it wins (▲) or loses (▼) this game. */
+function SwingMatchup({ g, swing }: { g: Game; swing: GameSwing }) {
+  const row = (id: string, name: string, sw?: Swing) => <div className="cf-swing-row"><TeamLink id={id} name={name} size={26} />{sw && <SwingFigure sw={sw} team={name} />}</div>
+  return <div className="cf-swing-rows">{row(g.away_id, g.away_team, swing.away)}{row(g.home_id, g.home_team, swing.home)}</div>
+}
+
+export function GameCard({ g, swing }: { g: Game; swing?: GameSwing }) {
   const p = projection(g)
   return <article className="cf-gamecard">
     <div className="cf-gamecard-top"><Link to={`/games/${g.game_id}/`} className="cf-rowlink cf-muted" aria-label={`${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team}: matchup breakdown`}>{kickoffText(g)}{g.neutral ? ' · Neutral' : ''}</Link><Quality value={g.quality} /></div>
-    <Matchup g={g} size={26} />
+    {swing && (swing.home || swing.away) ? <SwingMatchup g={g} swing={swing} /> : <Matchup g={g} size={26} />}
     <div className="cf-gamecard-foot">
       <ProjectionText g={g} />
       {p?.prob != null && <span className="cf-muted">Win prob. <span className="cf-num">{pctText(p.prob)}</span> <Info text={WINPROB_INFO} label="About win probability" /></span>}

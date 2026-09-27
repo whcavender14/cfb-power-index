@@ -929,3 +929,12 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-mu-row.is-better-home { background: linear-gradient(to left, color-mix(in srgb, var(--cf-up) 24%, transparent), transparent 32%); }
 .cf-mu-a.is-better::before, .cf-mu-h.is-better::before { display: none; }
 @media (max-width: 759px) { .cf-mu-row.is-better-away { background: linear-gradient(to right, color-mix(in srgb, var(--cf-up) 26%, transparent), transparent 38%); } .cf-mu-row.is-better-home { background: linear-gradient(to left, color-mix(in srgb, var(--cf-up) 26%, transparent), transparent 38%); } }
+/* Home: playoff swing (win / lose) on the featured game cards */
+.cf-gamecard .cf-swing-rows { display: grid; gap: 6px; }
+.cf-swing-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); min-width: 0; position: relative; z-index: 1; }
+.cf-swing { display: inline-flex; gap: var(--s3); flex: none; font-size: .8125rem; }
+.cf-swing b { font-weight: 600; white-space: nowrap; }
+.cf-swing-w { color: var(--cf-up); } .cf-swing-l { color: var(--cf-down); } .cf-swing-x { color: var(--cf-muted); }
+.cf-swing-note { margin: var(--s2) 0 0; }
+.cf-swing-note b { font-weight: 600; }
+.cf-swing-note a { text-decoration: underline; }

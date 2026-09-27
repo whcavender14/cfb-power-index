@@ -48,6 +48,19 @@ export function validateSiteData(dir = root) {
 
   // Rankings
   const rows = index.teams ?? []
+  // Home-page playoff swing: base equals the published playoff probability; win/lose average back to it.
+  for (const [gid, sw] of Object.entries(index.top_swing ?? {})) {
+    const g = (index.top_games ?? []).find(x => x.game_id === gid)
+    if (!g) { fail(`index.json top_swing: ${gid} is not a featured game`); continue }
+    for (const [side, id] of [['home', g.home_id], ['away', g.away_id]]) {
+      const x = sw[side]; if (!x) continue
+      const p = rows.find(r => r.team_id === id)?.p_playoff
+      const n = x.n_win + x.n_lose
+      if (n !== meta.sim_count) fail(`index.json top_swing ${gid} ${side}: ${n} seasons != sim_count`)
+      if (p != null && Math.abs(x.base - p) > 1e-3) fail(`index.json top_swing ${gid} ${side}: base ${x.base} != p_playoff ${p}`)
+      if (Math.abs((x.win * x.n_win + x.lose * x.n_lose) / n - x.base) > 2e-3) fail(`index.json top_swing ${gid} ${side}: win/lose do not average to base`)
+    }
+  }
   if (rows.length !== dirIds.size) fail(`index.json has ${rows.length} teams, teams.json has ${dirIds.size}`)
   const ranks = []
   for (const r of rows) {

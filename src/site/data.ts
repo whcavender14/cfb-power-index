@@ -34,7 +34,10 @@ export type PlayoffTeam = {
   p_bye: number; p_host: number; p_qf: number; p_sf: number; p_final: number; p_champ: number
   mean_seed: number | null; seed_dist?: number[]
 }
-export type IndexDoc = { meta: Meta; teams: TeamRow[]; top_games: Game[] | null }
+/** A team's playoff chance in the simulated seasons where it wins / loses one game (the What if? filter for a single pick). */
+export type Swing = { win: number; lose: number; base: number; n_win: number; n_lose: number }
+export type GameSwing = { home?: Swing; away?: Swing }
+export type IndexDoc = { meta: Meta; teams: TeamRow[]; top_games: Game[] | null; top_swing?: Record<string, GameSwing> | null }
 export type TeamsDoc = { meta: Meta; teams: TeamMeta[] }
 export type GamesDoc = { meta: Meta; games: Game[] }
 export type PlayoffDoc = {
