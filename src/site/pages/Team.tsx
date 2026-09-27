@@ -4,6 +4,7 @@ const DepthChartSection = lazy(() => import('../DepthChart'))
 import { RESUME_INFO } from './Resume'
 import { DataGate, Freshness, Info, Missing, Movement, Num, Pct, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import NotFound from './NotFound'
+import { PlayerLink } from '../player'
 import type { EfficiencyDoc, Game, HistoryDoc, Leader, Leaders, NotableGame, PlayoffTeam, RecordCount, ScenarioDoc, TeamDoc, TeamMeta } from '../data'
 import HistoryChart, { HistoryNote, HistoryTable } from '../HistoryChart'
 import { kickoffText, projection, Quality, QUALITY_INFO, WINPROB_INFO } from '../games'
@@ -44,6 +45,19 @@ function ScheduleRow({ g, id, pick }: { g: Game; id: string; pick?: ReactNode })
     <span className="cf-sched-q">{g.status === 'scheduled' ? <Quality value={g.quality} /> : null}</span>
     {pick}
   </li>
+}
+
+/** The schedule in week order with a bye entry for every week between the first and last game that the team does not play. */
+type SchedItem = { bye: false; g: Game } | { bye: true; week: number }
+function scheduleItems(schedule: Game[]): SchedItem[] {
+  const games = [...schedule].sort((a, b) => a.week - b.week || a.kickoff.localeCompare(b.kickoff))
+  const out: SchedItem[] = []
+  games.forEach((g, i) => {
+    const prev = games[i - 1]
+    if (prev) for (let w = prev.week + 1; w < g.week; w++) out.push({ bye: true, week: w })
+    out.push({ bye: false, g })
+  })
+  return out
 }
 
 /** Win / loss toggle for one upcoming game: a pick for the what-if segment (click again to clear). */
@@ -171,7 +185,7 @@ function StatLeaders({ leaders }: { leaders: Leaders }) {
         <h3 className="cf-h3">{g.title}</h3>
         {leaders[g.key].length === 0 ? <p className="cf-muted cf-small">None yet</p> :
           <ol className="cf-leader-list">{leaders[g.key].map(p => <li key={p.athlete_id}>
-            <span className="cf-leader-name">{p.player}{p.position ? <span className="cf-muted"> · {p.position}</span> : null}</span>
+            <span className="cf-leader-name"><PlayerLink id={p.athlete_id}>{p.player}</PlayerLink>{p.position ? <span className="cf-muted"> · {p.position}</span> : null}</span>
             <span className="cf-leader-line cf-num">{g.line(p)}</span>
           </li>)}</ol>}
       </div>)}
@@ -224,7 +238,6 @@ export default function Team({ slug }: { slug: string }) {
   const directory = useTeams()
   if (directory.size && ![...directory.values()].some(t => t.slug === slug)) return <NotFound />
   return <DataGate source={doc} label="Team">{({ meta, team, summary: s, schedule, record_dist, resume, seed_dist, playoff, leaders }) => {
-    const played = schedule.filter(g => g.status === 'final')
     const upcoming = schedule.filter(g => g.status === 'scheduled')
     const sims = meta.sim_status === 'available'
     const upcomingIds = new Set(upcoming.map(g => g.game_id))
@@ -294,24 +307,19 @@ export default function Team({ slug }: { slug: string }) {
         <Suspense fallback={null}><DepthChartSection slug={team.slug} team={team} /></Suspense>
 
         <section className="cf-panel cf-sched-panel" aria-labelledby="t-sched">
-          <h2 id="t-sched" className="cf-h2">Schedule</h2>
+          <h2 id="t-sched" className="cf-h2">Schedule <Info text={`Results for played games; for the rest, projected margin (negative = favored) and ${WINPROB_INFO.charAt(0).toLowerCase()}${WINPROB_INFO.slice(1)} ${QUALITY_INFO}${whatIf ? ' W / L: pick a result for the What if? panel.' : ''}`} label="About projections" /></h2>
           <div className={whatIf ? 'cf-sched-layout' : undefined}>
           <div className="cf-sched-rem">
-          {upcoming.length > 0 && <>
-            <h3 className="cf-h3">Remaining <Info text={`Projected margin (negative = favored) and ${WINPROB_INFO.charAt(0).toLowerCase()}${WINPROB_INFO.slice(1)} ${QUALITY_INFO}${whatIf ? ' W / L: pick a result for the What if? panel.' : ''}`} label="About projections" /></h3>
-            <ol className="cf-sched">{upcoming.map(g => <ScheduleRow key={g.game_id} g={g} id={team.team_id}
-              pick={whatIf ? <PickToggle g={g} id={team.team_id} team={team.team} pick={picks.find(p => p.gameId === g.game_id)} onPick={side => setPick(g, side)} /> : undefined} />)}</ol>
-          </>}
-          </div>
-          {whatIf && <TeamWhatIf team={team} picks={picks} games={upcoming} base={playoff!} nGames={schedule.length} onClear={() => setParam('')} />}
-          <div className="cf-sched-res">
-          {played.length > 0 && <>
-            <h3 className="cf-h3">Results</h3>
-            <ol className="cf-sched">{played.map(g => <ScheduleRow key={g.game_id} g={g} id={team.team_id} pick={whatIf ? <span className="cf-sched-pick" aria-hidden="true" /> : undefined} />)}</ol>
-          </>}
-          {schedule.length === 0 && <p className="cf-muted">Schedule unavailable.</p>}
+          {schedule.length === 0 ? <p className="cf-muted">Schedule unavailable.</p>
+            : <ol className="cf-sched">{scheduleItems(schedule).map(it => it.bye
+              ? <li key={`bye-${it.week}`} className="cf-sched-bye"><span className="cf-sched-wk cf-muted">Wk {it.week}</span><span className="cf-sched-byeline">Bye week</span></li>
+              : <ScheduleRow key={it.g.game_id} g={it.g} id={team.team_id}
+                  pick={whatIf ? (it.g.status === 'scheduled'
+                    ? <PickToggle g={it.g} id={team.team_id} team={team.team} pick={picks.find(p => p.gameId === it.g.game_id)} onPick={side => setPick(it.g, side)} />
+                    : <span className="cf-sched-pick" aria-hidden="true" />) : undefined} />)}</ol>}
           <p className="cf-small cf-muted"><Link to={`/games/?team=${team.slug}`}>All {team.team} games on the Games page</Link></p>
           </div>
+          {whatIf && <TeamWhatIf team={team} picks={picks} games={upcoming} base={playoff!} nGames={schedule.length} onClear={() => setParam('')} />}
           </div>
         </section>
       </div>

@@ -4,7 +4,8 @@
 # Display only: nothing here feeds the model. Source: CollegeFootballData game team stats
 # (cfbfastR::cfbd_game_team_stats, one call per regular-season week), which carry both sides of every game.
 # Per-game averages over the regular-season games that entered the ratings (FCS opponents included):
-#   points / points allowed, total / passing (net) / rushing yards and the same allowed, pass share of plays
+#   points / points allowed, total / passing (net) / rushing yards and the same allowed, yards per play (total yards over
+#   pass attempts + rush attempts; CFBD counts sacks as rushes), first downs, pass share of plays
 #   (pass attempts / (pass + rush attempts)), third-down conversion %, turnover margin (opponent turnovers minus own:
 #   a season total, not per game), penalty yards.
 # Ranks among FBS teams, 1 = best: lower is better for everything "allowed" and for penalty yards; the pass share is
@@ -40,12 +41,14 @@ team_basic_stats <- function(gts, teams, game_ids) {
   x <- g[, .(games = .N, ppg = mean(num(points)), papg = mean(num(points_allowed)),
              ypg = mean(num(total_yards)), pass_ypg = mean(num(net_passing_yards)), rush_ypg = mean(num(rushing_yards)),
              ya_pg = mean(num(total_yards_allowed)), pass_ya_pg = mean(num(net_passing_yards_allowed)), rush_ya_pg = mean(num(rushing_yards_allowed)),
+             ypp = sum(num(total_yards), na.rm = TRUE) / (sum(pass_att, na.rm = TRUE) + sum(num(rushing_attempts), na.rm = TRUE)),
+             fd_pg = mean(num(first_downs)),
              pass_share = sum(pass_att, na.rm = TRUE) / (sum(pass_att, na.rm = TRUE) + sum(num(rushing_attempts), na.rm = TRUE)),
              third_pct = sum(third_conv, na.rm = TRUE) / sum(third_att, na.rm = TRUE),
              to_margin = sum(num(turnovers_allowed), na.rm = TRUE) - sum(num(turnovers), na.rm = TRUE),
              pen_ypg = mean(pen_yds, na.rm = TRUE)), by = school]
   out <- merge(data.table(team_id = as.character(teams$team_id), school = teams$school), x, by = "school", all.x = TRUE)
-  higher <- c("ppg", "ypg", "pass_ypg", "rush_ypg", "third_pct", "to_margin", "pass_share")
+  higher <- c("ppg", "ypg", "ypp", "fd_pg", "pass_ypg", "rush_ypg", "third_pct", "to_margin", "pass_share")
   lower <- c("papg", "ya_pg", "pass_ya_pg", "rush_ya_pg", "pen_ypg")
   for (k in higher) out[, (paste0(k, "_rank")) := ifelse(is.na(get(k)), NA_integer_, rank(-get(k), ties.method = "min", na.last = "keep"))]
   for (k in lower) out[, (paste0(k, "_rank")) := ifelse(is.na(get(k)), NA_integer_, rank(get(k), ties.method = "min", na.last = "keep"))]

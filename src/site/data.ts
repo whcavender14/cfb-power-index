@@ -86,16 +86,17 @@ export type Efficiency = {
   sr_rank: number | null; net_epa_rank: number | null; off_epa_rank: number | null; off_rush_epa_rank: number | null; off_pass_epa_rank: number | null
   def_epa_rank: number | null; def_rush_epa_rank: number | null; def_pass_epa_rank: number | null
 } & Partial<Record<BasicKey | `${BasicKey}_rank`, number | null>> & { games?: number | null }
-export type BasicKey = 'ppg' | 'papg' | 'ypg' | 'pass_ypg' | 'rush_ypg' | 'ya_pg' | 'pass_ya_pg' | 'rush_ya_pg' | 'pass_share' | 'third_pct' | 'to_margin' | 'pen_ypg'
+export type BasicKey = 'ppg' | 'papg' | 'ypg' | 'pass_ypg' | 'rush_ypg' | 'ya_pg' | 'pass_ya_pg' | 'rush_ya_pg' | 'ypp' | 'fd_pg' | 'pass_share' | 'third_pct' | 'to_margin' | 'pen_ypg'
 export type EfficiencyDoc = { meta: Meta; method: { adjusted: boolean; source: string; scope: string; plays: string; success: string; ranks: string }
   basic_method?: { source: string; scope: string; turnover_margin: string; pass_share: string; lower_is_better: string[] } | null; teams: Efficiency[] }
 export type RosterBits = { jersey?: number | null; height?: number | null; roster_pos?: string | null; headshot?: string | null }
 export type UsageOff = { athlete_id: string; name: string; position: string | null; usg_overall: number; usg_pass: number; usg_rush: number } & RosterBits
 export type UsageDef = { athlete_id: string; name: string; position: string | null; tackles: number; tfl: number; sacks: number; int: number; pd: number } & RosterBits
+export type DepthSeason = { gp: number; pass_cmp: number; pass_att: number; pass_yds: number; pass_td: number; pass_int: number; rush_car: number; rush_yds: number; rush_td: number; rec: number; rec_yds: number; rec_td: number; tkl: number; tfl: number; sacks: number; int: number; pd: number }
 export type KeyPlayer = { athlete_id: string; name: string; position: string | null; role: 'passing' | 'rushing' | 'receiving' | 'defense'; jersey: number | null; headshot: string | null
   pass_cmp: number; pass_att: number; pass_yds: number; pass_td: number; pass_int: number; rush_car: number; rush_yds: number; rush_td: number
   rec: number; rec_yds: number; rec_td: number; tackles: number; tfl: number; sacks: number; int: number }
-export type DepthPlayer = { name: string; jersey: number | null; snaps: number | null; height?: number | null; headshot?: string | null }
+export type DepthPlayer = { name: string; jersey: number | null; snaps: number | null; height?: number | null; headshot?: string | null; athlete_id?: string | null; season?: DepthSeason | null }
 export type DepthRow = { group: string; slot: string; unit: 'offense' | 'defense'; players: DepthPlayer[] }
 export type UsageDoc = {
   meta: Meta; team_id: string; offense_source: string; offense_pulled_at: string | null; defense_through_week: number | null
