@@ -21,6 +21,7 @@ for (f in list.files(file.path(v2, "team"), full.names = TRUE)) {
 for (f in list.files(file.path(v2, "usage"), full.names = TRUE)) {
   u <- fromJSON(f, simplifyVector = FALSE)
   for (side in list(u$offense, u$defense)) for (g in side) ids <- c(ids, vapply(g, function(p) as.character(p$athlete_id), ""))
+  ids <- c(ids, vapply(u$key_players, function(p) as.character(p$athlete_id), ""))
 }
 roster <- pull_rosters(season)
 # Depth-chart (TWO-DEEP) starters carry names only: match them to the team roster by name to get an athlete id.

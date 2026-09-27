@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { PlayerLink } from '../player'
 import { DataGate, fmt, fmtSigned, Info, Missing, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import type { EfficiencyDoc, Efficiency, Game, GamesDoc, IndexDoc, KeyPlayer, TeamRow, UsageDoc } from '../data'
 import { kickoffText, QUALITY_INFO, useLines } from '../games'
@@ -33,7 +34,7 @@ function StatSides({ d, a, h }: { d: StatDef; a?: Efficiency; h?: Efficiency }) 
     away={va == null ? <Missing /> : valRank(d.show(va), ra)} home={vh == null ? <Missing /> : valRank(d.show(vh), rh)} />
 }
 
-type Star = { key: string; name: string; pos: string; line: string; headshot?: string | null; jersey?: number | null }
+type Star = { id: string; key: string; name: string; pos: string; line: string; headshot?: string | null; jersey?: number | null }
 const yd = (n: number) => `${n.toLocaleString()} yds`
 /** Season stat line for a key player (CFBD season stats through the ratings week), by the role they were picked for. */
 function statLine(p: KeyPlayer): string {
@@ -46,13 +47,13 @@ function statLine(p: KeyPlayer): string {
   }
 }
 function stars(u: UsageDoc | null): Star[] {
-  return (u?.key_players ?? []).map(p => ({ key: `${p.role}-${p.athlete_id}`, name: p.name, pos: p.position ?? '', line: statLine(p), headshot: p.headshot, jersey: p.jersey }))
+  return (u?.key_players ?? []).map(p => ({ key: `${p.role}-${p.athlete_id}`, id: p.athlete_id, name: p.name, pos: p.position ?? '', line: statLine(p), headshot: p.headshot, jersey: p.jersey }))
 }
 function StarCard({ s }: { s: Star }) {
   const [broken, setBroken] = useState(false)
   return <li className="cf-mu-star">
     <span className="cf-dc-face">{s.headshot && !broken ? <img src={s.headshot} alt="" loading="lazy" onError={() => setBroken(true)} /> : <span aria-hidden="true">{s.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('')}</span>}</span>
-    <span className="cf-mu-star-text"><strong>{s.name}</strong><span className="cf-muted cf-small">{s.pos}{s.jersey != null ? ` · #${s.jersey}` : ''}</span><span className="cf-small cf-num">{s.line}</span></span>
+    <span className="cf-mu-star-text"><strong><PlayerLink id={s.id}>{s.name}</PlayerLink></strong><span className="cf-muted cf-small">{s.pos}{s.jersey != null ? ` · #${s.jersey}` : ''}</span><span className="cf-small cf-num">{s.line}</span></span>
   </li>
 }
 
