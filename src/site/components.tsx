@@ -53,7 +53,7 @@ function inkOn(hex: string): string {
 /** Small same-origin logo (public/logos/sm, 144 px), then the full mirrored logo, then the CDN, then a monogram. */
 export function TeamLogo({ id, name, size = 28 }: { id?: string | null; name: string; size?: number }) {
   const team = useTeams().get(id ?? '')
-  const sources = [id && team ? `${import.meta.env.BASE_URL}logos/sm/${id}.png` : null, id && team ? `${import.meta.env.BASE_URL}logos/${id}.png` : null, team?.logo ?? null].filter(Boolean) as string[]
+  const sources = [id && team ? `${import.meta.env.BASE_URL}logos/sm/${id}.png` : null, id && team ? `${import.meta.env.BASE_URL}logos/${id}.png` : null, team?.logo ?? (id && !team ? `https://cdn.collegefootballdata.com/logos/500/${id}.png` : null)].filter(Boolean) as string[]
   const [index, setIndex] = useState(0)
   const style = { width: size, height: size }
   if (index >= sources.length) {

@@ -18,6 +18,7 @@ const Model = lazy(() => import('./pages/Model'))
 const LegacySimulations = lazy(() => import('./pages/Legacy').then(m => ({ default: m.LegacySimulations })))
 const LegacyBetting = lazy(() => import('./pages/Legacy').then(m => ({ default: m.LegacyBetting })))
 import NotFound from './pages/NotFound'
+import { PlayerProvider } from './player'
 
 const NAV = [
   { to: '/', label: 'Home' },
@@ -90,7 +91,7 @@ export default function Site() {
   const isActive = (to: string) => to === '/' ? path === '/' : section.startsWith(to)
   const links = (cls: string) => NAV.map(n => <Link key={n.to} to={n.to} className={cls} aria-current={isActive(n.to) ? 'page' : undefined}>{n.label}</Link>)
 
-  return <TeamsContext.Provider value={directory}>
+  return <TeamsContext.Provider value={directory}><PlayerProvider>
     <a href="#cf-main" className="cf-skip">Skip to content</a>
     <header className="cf-header">
       <div className="cf-wrap cf-header-row">
@@ -121,5 +122,5 @@ export default function Site() {
         </p>
       </div>
     </footer>
-  </TeamsContext.Provider>
+  </PlayerProvider></TeamsContext.Provider>
 }
