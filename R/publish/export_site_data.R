@@ -302,6 +302,22 @@ if (!is.null(games) && !is.null(team_sim)) {
     if (game_away[i] >= 0) derived[game_away[i] + 1L, ] <- derived[game_away[i] + 1L, ] + !bits[i, ]
   }
   stopifnot("simulated wins must equal known wins + remaining games won" = identical(as.integer(t(derived)), as.integer(sst$wins)))
+  # Conference win distribution (Conferences page): the same known + remaining-games-won count, restricted to conference
+  # games. p_ge[k + 1] = share of simulated seasons in which the team wins at least k conference games (k = 0 .. total).
+  cfin <- fin$conference_game %in% TRUE; cfut <- fut$conference_game %in% TRUE
+  conf_known <- vapply(sc_ids, function(id) sum(cfin & fin$home_id == id & hw) + sum(cfin & fin$away_id == id & !hw), 0L)
+  conf_left <- vapply(sc_ids, function(id) sum(cfut & (fut$home_id == id | fut$away_id == id)), 0L)
+  conf_played <- vapply(sc_ids, function(id) sum(cfin & (fin$home_id == id | fin$away_id == id)), 0L)
+  cwm <- matrix(conf_known, length(sc_ids), n_sims)
+  for (i in which(cfut)) {
+    if (game_home[i] >= 0) cwm[game_home[i] + 1L, ] <- cwm[game_home[i] + 1L, ] + bits[i, ]
+    if (game_away[i] >= 0) cwm[game_away[i] + 1L, ] <- cwm[game_away[i] + 1L, ] + !bits[i, ]
+  }
+  conf_standings <- setNames(lapply(seq_along(sc_ids), function(t) {
+    total <- conf_played[t] + conf_left[t]
+    list(conf_wins = conf_known[t], conf_losses = conf_played[t] - conf_known[t], conf_games = total,
+         avg_wins = r4(mean(cwm[t, ])), p_ge = I(vapply(0:total, function(k) r4(mean(cwm[t, ] >= k)), 0)))
+  }), sc_ids)
   stopifnot(all(tbytes >= 0 & tbytes <= 255))
   team_games <- as.integer(tapply(sst$games, sst$team_id, function(v) { stopifnot(length(unique(v)) == 1L); v[1] })[sc_ids])
   scenario <- list(meta = NULL, format = 2L, n = n_sims, game_ids = I(fut$game_id), team_ids = I(sc_ids), team_games = I(team_games),
@@ -403,7 +419,8 @@ conferences <- lapply(sort(unique(meta$conference)), function(cn) {
        sos_avg = if (!is.null(resume)) r4(mean(pick(resume, ids, "sos_all"))) else NA,
        nonconf_wins = if (!is.null(nc)) sum(nc$margin > 0) else NA, nonconf_losses = if (!is.null(nc)) sum(nc$margin < 0) else NA,
        nonconf_fbs_wins = if (!is.null(nc)) sum(nc$margin > 0 & nc$opp_fbs) else NA,
-       nonconf_fbs_losses = if (!is.null(nc)) sum(nc$margin < 0 & nc$opp_fbs) else NA)
+       nonconf_fbs_losses = if (!is.null(nc)) sum(nc$margin < 0 & nc$opp_fbs) else NA,
+       standings = if (cn != "FBS Independents" && exists("conf_standings")) unname(Filter(Negate(is.null), lapply(ids, function(i) if (!is.null(conf_standings[[i]])) c(list(team_id = i), conf_standings[[i]])))) else NULL)
 })
 cavg <- vapply(conferences, function(x) x$avg_power, 0)
 crank <- rank(-cavg, ties.method = "min")

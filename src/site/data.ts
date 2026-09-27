@@ -72,7 +72,10 @@ export type Conference = {
   avg_power: number | null; median_power: number | null; top25: number; best_rank: number | null; avg_rank: number | null
   exp_playoff: number | null; sos_avg: number | null
   nonconf_wins: number | null; nonconf_losses: number | null; nonconf_fbs_wins: number | null; nonconf_fbs_losses: number | null
+  standings?: ConfStanding[]
 }
+/** Simulated conference wins for one team: p_ge[k] = share of simulated seasons with at least k conference wins (k = 0..conf_games). */
+export type ConfStanding = { team_id: string; conf_wins: number; conf_losses: number; conf_games: number; avg_wins: number; p_ge: number[] }
 export type ScenarioDoc = { meta: Meta; format?: number; known_wins?: number[]; game_home?: number[]; game_away?: number[]; n: number; game_ids: string[]; team_ids: string[]; team_games: number[]; layout: string; data: string }
 export type ResumeRow = { team_id: string; resume_rank: number | null; sor: number | null; sos_played: number | null; sos_played_rank: number | null; wins: number | null; losses: number | null; games: number; predictive_rank: number | null; best_win: NotableGame | null; worst_loss: NotableGame | null }
 export type ResumeDoc = { meta: Meta; method: { metric: string; benchmark: string; tiebreaks: string; proposal: string }; teams: ResumeRow[] }

@@ -957,3 +957,12 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
   .cf-calc-out { grid-template-columns: 1fr 1fr; }
   .cf-calc-logos { grid-column: 1 / -1; }
 }
+
+/* Conference win odds (Conferences detail): chance to win at least N conference games; cells tinted by probability. */
+.cf-confodds th, .cf-confodds td { white-space: nowrap; }
+.cf-confodds .cf-co-n { text-align: center; min-width: 3.25rem; }
+.cf-co-cell { text-align: center; font-size: .875rem; padding-left: 4px; padding-right: 4px; }
+.cf-co-done { color: var(--cf-up); font-weight: 700; }
+.cf-co-out { color: var(--cf-down); }
+.cf-co-note { margin: 0; padding: var(--s3) var(--s4); }
+@media (max-width: 719px) { .cf-confodds .cf-co-n { min-width: 2.75rem; } .cf-confodds td:nth-child(2), .cf-confodds th:nth-child(2) { position: sticky; left: 0; background: var(--cf-surface); z-index: 1; min-width: 7.5rem; max-width: 7.5rem; } }
