@@ -22,6 +22,8 @@ export const STAT_GROUPS: StatGroup[] = [
     { key: 'ypg', label: 'Total yards', show: n1 },
     { key: 'pass_ypg', label: 'Passing yards', show: n1, info: 'Net passing yards (sack yardage subtracted).' },
     { key: 'rush_ypg', label: 'Rushing yards', show: n1 },
+    { key: 'ypp', label: 'Yards per play', show: v => fmt(v, 2)!, info: 'Total yards divided by pass attempts plus rush attempts. Sacks count as rushes in the box score, so they are included.' },
+    { key: 'fd_pg', label: 'First downs', show: n1 },
     { key: 'pass_share', label: 'Pass / rush split', show: v => `${Math.round(v * 100)}% / ${100 - Math.round(v * 100)}%`, neutral: true, info: 'Share of plays that were passes (pass attempts / (pass + rush attempts)). Rank 1 = most pass-heavy; neither end is better.' },
   ] },
   { id: 'defense', title: 'Defense', note: 'yards allowed per game · lower is better', defs: [

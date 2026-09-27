@@ -86,7 +86,7 @@ export type Efficiency = {
   sr_rank: number | null; net_epa_rank: number | null; off_epa_rank: number | null; off_rush_epa_rank: number | null; off_pass_epa_rank: number | null
   def_epa_rank: number | null; def_rush_epa_rank: number | null; def_pass_epa_rank: number | null
 } & Partial<Record<BasicKey | `${BasicKey}_rank`, number | null>> & { games?: number | null }
-export type BasicKey = 'ppg' | 'papg' | 'ypg' | 'pass_ypg' | 'rush_ypg' | 'ya_pg' | 'pass_ya_pg' | 'rush_ya_pg' | 'pass_share' | 'third_pct' | 'to_margin' | 'pen_ypg'
+export type BasicKey = 'ppg' | 'papg' | 'ypg' | 'pass_ypg' | 'rush_ypg' | 'ya_pg' | 'pass_ya_pg' | 'rush_ya_pg' | 'ypp' | 'fd_pg' | 'pass_share' | 'third_pct' | 'to_margin' | 'pen_ypg'
 export type EfficiencyDoc = { meta: Meta; method: { adjusted: boolean; source: string; scope: string; plays: string; success: string; ranks: string }
   basic_method?: { source: string; scope: string; turnover_margin: string; pass_share: string; lower_is_better: string[] } | null; teams: Efficiency[] }
 export type RosterBits = { jersey?: number | null; height?: number | null; roster_pos?: string | null; headshot?: string | null }

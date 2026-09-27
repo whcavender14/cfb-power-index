@@ -146,7 +146,7 @@ week per team from `usage/<slug>.json` (`depth`, `depth_source.week`).
 ### efficiency.json: standard team stats (Round 18)
 
 `R/publish/team_basic_stats.R` adds, per team: `games` (regular-season games in the ratings), `ppg`, `papg`, `ypg`,
-`pass_ypg` (net), `rush_ypg`, `ya_pg`, `pass_ya_pg`, `rush_ya_pg` (per game), `pass_share` (pass attempts / (pass + rush
+`pass_ypg` (net), `rush_ypg`, `ypp` (total yards / (pass + rush attempts)), `fd_pg` (first downs per game), `ya_pg`, `pass_ya_pg`, `rush_ya_pg` (per game), `pass_share` (pass attempts / (pass + rush
 attempts)), `third_pct`, `to_margin` (opponent turnovers minus own, season total), `pen_ypg`, each with `<key>_rank`
 (FBS, 1 = best; lower-is-better stats ranked ascending: `basic_method.lower_is_better`; `pass_share` ranked from most
 passing, descriptive). Source: CFBD game team stats, one call per regular-season week, cached in
