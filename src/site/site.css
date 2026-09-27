@@ -238,8 +238,6 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-card-stats dd { margin: 0; font-size: .875rem; font-variant-numeric: tabular-nums; }
 
 /* ── Home ─────────────────────────────────────────────────────────────── */
-.cf-home-grid { display: grid; gap: var(--s4); grid-template-columns: 1fr; }
-@media (min-width: 900px) { .cf-home-grid { grid-template-columns: 1.1fr 1fr; } }
 .cf-list { list-style: none; margin: 0; padding: 0; }
 .cf-list-row { display: flex; align-items: center; gap: var(--s3); min-height: 44px; border-bottom: 1px solid var(--cf-line); }
 .cf-list-row:last-child { border-bottom: 0; }
@@ -250,7 +248,6 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-list-wide { min-width: 9rem; font-weight: 500; }
 
 /* Games */
-.cf-gamegrid { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
 .cf-gamelist { display: grid; gap: var(--s2); }
 .cf-gamecard { background: var(--cf-surface); border-radius: var(--cf-radius); padding: var(--s3) var(--s4); box-shadow: var(--cf-shadow); display: grid; gap: var(--s2); }
 .cf-gamecard-top, .cf-gamecard-foot { display: flex; justify-content: space-between; align-items: center; gap: var(--s2); font-size: .8125rem; flex-wrap: wrap; }
@@ -276,11 +273,6 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-spark-col b { font-size: .625rem; font-weight: 500; color: var(--cf-muted); }
 
 /* Teams index */
-.cf-teamgroups { display: grid; gap: var(--s4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); align-items: start; }
-.cf-teamlist { list-style: none; margin: 0; padding: 0; display: grid; }
-.cf-teamlist li { min-height: 40px; display: flex; align-items: center; border-bottom: 1px solid var(--cf-line); }
-.cf-teamlist li:last-child { border-bottom: 0; }
-.cf-confgrid { display: grid; gap: var(--s4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); align-items: start; margin-top: var(--s4); }
 
 /* Team page */
 .cf-teamhead { display: grid; grid-template-columns: auto 1fr; gap: var(--s4); align-items: center; padding: var(--s5) var(--s4); background: var(--cf-surface); border-radius: var(--cf-radius); box-shadow: var(--cf-shadow); border-top: 4px solid var(--team); }
@@ -396,7 +388,6 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-chip button:hover { background: var(--cf-fill); color: var(--cf-ink); }
 .cf-chip button:active { transform: scale(.94); }
 
-.cf-panel-links { display: inline-flex; gap: var(--s3); }
 
 /* What changed */
 .cf-movers-grid { display: grid; gap: var(--s4); grid-template-columns: 1fr; margin-bottom: var(--s5); }
@@ -423,7 +414,6 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-conf-stats div { display: grid; gap: 2px; }
 .cf-conf-stats dt { display: inline-flex; align-items: center; gap: 4px; font-size: .75rem; color: var(--cf-muted); }
 .cf-conf-stats dd { margin: 0; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.012em; }
-.cf-conf-logos { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; opacity: .9; }
 .cf-statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: var(--s4); margin: var(--s3) 0 var(--s5); padding: var(--s4); background: var(--cf-surface); border-radius: var(--cf-radius); box-shadow: var(--cf-shadow); }
 .cf-statgrid div { display: grid; gap: 2px; align-content: start; }
 .cf-statgrid dt { display: inline-flex; align-items: center; gap: 4px; font-size: .75rem; font-weight: 500; color: var(--cf-muted); }
@@ -546,9 +536,6 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-q-more { align-self: flex-start; margin-top: var(--s3); display: inline-flex; align-items: center; min-height: 44px; }
 .cf-q-games { display: grid; gap: var(--s2); }
 .cf-q-games .cf-gamecard { box-shadow: none; background: var(--cf-fill-2); }
-.cf-q-movers-grid { display: grid; gap: var(--s4); grid-template-columns: 1fr 1fr; }
-@media (max-width: 480px) { .cf-q-movers-grid { grid-template-columns: 1fr; } }
-.cf-q-movers .cf-h3 { font-size: .8125rem; font-weight: 600; color: var(--cf-muted); margin-bottom: 2px; }
 /* Touch targets: 44 × 44 pt hit areas on touch screens without changing the visual size of small controls. */
 .cf-info-btn, .cf-chip button { position: relative; }
 .cf-info-btn::after, .cf-chip button::after { content: ""; position: absolute; inset: -6px; }
@@ -621,7 +608,7 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 
 /* Side-by-side panels are equal height: grids stretch their items, panels lay content out as a column, and any spare
    height goes to the body (lists spread their rows) or sits above the closing footnote, never as a gap at the bottom. */
-.cf-questions, .cf-team-grid, .cf-conf-grid, .cf-movers-grid, .cf-bracket { align-items: stretch !important; }
+.cf-questions, .cf-team-grid, .cf-conf-grid, .cf-movers-grid { align-items: stretch !important; }
 .cf-questions > .cf-panel, .cf-team-grid > .cf-panel, .cf-conf-grid > .cf-panel, .cf-movers-grid > .cf-panel { display: flex; flex-direction: column; }
 .cf-team-grid > .cf-panel > :last-child:is(p), .cf-conf-grid > .cf-panel > :last-child:is(p, figure) { margin-top: auto; }
 .cf-q-body { display: flex; flex-direction: column; }
@@ -774,11 +761,6 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-mu-team.is-home .cf-mu-score { margin-left: 0; margin-right: auto; }
 .cf-mu-mid { display: grid; justify-items: center; gap: 2px; text-align: center; }
 .cf-mu-vs { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--cf-muted); }
-.cf-mu-grid { display: grid; gap: var(--s4); margin-top: var(--s4); grid-template-columns: 1fr; align-items: stretch; }
-@media (min-width: 900px) { .cf-mu-grid { grid-template-columns: 1fr 1fr; } .cf-mu-grid > :only-child { grid-column: 1 / -1; } }
-.cf-mu-grid > .cf-panel { display: flex; flex-direction: column; }
-.cf-mu-grid > .cf-panel > p:last-child { margin-top: auto; margin-bottom: 0; padding-top: var(--s2); }
-.cf-mu-grid .cf-kv dd { font-size: 1.0625rem; }
 .cf-mu-compare, .cf-mu-compare + .cf-panel { margin-top: var(--s4); }
 .cf-mu-cmp-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--s3); margin-bottom: var(--s2); font-weight: 600; }
 .cf-mu-cmp-head span { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
