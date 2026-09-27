@@ -81,7 +81,6 @@ h1 { font-size: clamp(1.75rem, 1.3rem + 2vw, 2.5rem); line-height: 1.08; letter-
 h2, .cf-h2 { font-size: 1.3125rem; line-height: 1.2; letter-spacing: -.021em; font-weight: 650; }
 .cf-h3 { font-size: 1rem; line-height: 1.25; letter-spacing: -.012em; font-weight: 600; margin: 0 0 var(--s3); }
 .cf-lede { margin: var(--s2) 0 0; font-size: 1.0625rem; line-height: 1.47; letter-spacing: -.016em; color: var(--cf-ink-2); max-width: 46rem; }
-.cf-eyebrow { margin: 0 0 var(--s2); font-size: .8125rem; font-weight: 600; letter-spacing: .01em; color: var(--cf-muted); }
 
 /* ── Header: the one translucent layer; content scrolls beneath it ───── */
 .cf-header { position: sticky; top: 0; z-index: 40; background: var(--cf-chrome); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--cf-line); }
@@ -125,8 +124,6 @@ h2, .cf-h2 { font-size: 1.3125rem; line-height: 1.2; letter-spacing: -.021em; fo
 
 /* ── Page furniture ───────────────────────────────────────────────────── */
 .cf-pagehead { margin-bottom: var(--s5); }
-.cf-hero { margin-bottom: var(--s6); }
-.cf-hero h1 { font-size: clamp(2rem, 1.4rem + 3vw, 3.25rem); letter-spacing: -.034em; }
 .cf-fresh { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s4); margin: var(--s3) 0 0; font-size: .8125rem; color: var(--cf-muted); }
 .cf-fresh span + span::before { content: ""; }
 .cf-section { margin-top: var(--s6); }
@@ -640,7 +637,7 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 
 /* Tighter vertical rhythm */
 .cf-main { padding-top: var(--s5); padding-bottom: var(--s6); }
-.cf-hero, .cf-pagehead { margin-bottom: var(--s4); }
+.cf-pagehead { margin-bottom: var(--s4); }
 .cf-section { margin-top: var(--s5); }
 .cf-team-grid { margin-top: var(--s4); }
 .cf-dist { margin: var(--s4) 0 var(--s2); }
@@ -1022,3 +1019,11 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-hs-field input:focus-visible { outline: 0; }
 .cf-hs-field input::-webkit-search-decoration, .cf-hs-field input::-webkit-search-results-button { display: none; }
 @keyframes cf-hs-fade { from { opacity: 0; } }
+
+/* Home snapshot: four leaders at a glance. */
+.cf-snap { list-style: none; margin: var(--s3) 0 var(--s5); padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); }
+.cf-snap-tile { display: grid; gap: 6px; padding: var(--s3) var(--s4); border-radius: var(--cf-radius); background: var(--cf-surface); box-shadow: var(--cf-shadow); min-width: 0; }
+.cf-snap-label { font-size: .75rem; font-weight: 600; color: var(--cf-muted); }
+.cf-snap-tile .cf-team-name { font-size: 1.0625rem; font-weight: 650; }
+.cf-snap-val { font-size: .875rem; color: var(--cf-ink-2); }
+@media (max-width: 899px) { .cf-snap { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import ShareButton from '../ShareButton'
-import { DataGate, Freshness, Info, Movement, Num, Pct, TeamLink, useData, useTeams } from '../components'
+import { DataGate, Freshness, Info, Movement, Num, Pct, pctText, TeamLink, useData, useTeams } from '../components'
 import type { ChangesDoc, IndexDoc, Meta, TeamChange, TeamRow } from '../data'
 import { GameCard, QUALITY_INFO } from '../games'
 import { Link } from '../router'
@@ -82,13 +82,26 @@ export default function Home() {
     const ranked = teams.filter(t => t.rank != null).sort((a, b) => a.rank! - b.rank!)
     const contenders = teams.filter(t => t.p_playoff != null && t.p_playoff > 0).sort((a, b) => b.p_playoff! - a.p_playoff! || (a.rank ?? 999) - (b.rank ?? 999)).slice(0, 12)
     const sims = meta.sim_status === 'available'
+    const top = (key: 'p_champ' | 'off_rank' | 'def_rank') => key === 'p_champ'
+      ? teams.filter(t => t.p_champ != null).sort((a, b) => b.p_champ! - a.p_champ!)[0]
+      : teams.find(t => t[key] === 1)
+    const fav = sims ? top('p_champ') : undefined, off = top('off_rank'), def = top('def_rank')
+    const snap = [
+      ranked[0] && { label: 'No. 1 overall', row: ranked[0], value: `${signedText(ranked[0].power!)} pts vs average` },
+      off && { label: 'Best offense', row: off, value: `${signedText(off.off!)} pts vs average` },
+      def && { label: 'Best defense', row: def, value: `${Math.abs(def.def!).toFixed(1)} pts better than average` },
+      fav && { label: 'Title favorite', row: fav, value: `${pctText(fav.p_champ, 1)} to win it all` },
+    ]
     return <>
-      <header className="cf-hero">
-        <p className="cf-eyebrow">{meta.season} college football</p>
-        <h1>Every FBS team, rated.</h1>
-        <p className="cf-lede">{sims && meta.sim_count ? `Opponent-adjusted power ratings and ${meta.sim_count.toLocaleString()} simulated seasons from CFPi+.` : 'Opponent-adjusted power ratings from CFPi+.'}</p>
-        <Freshness meta={meta} />
-      </header>
+      <h1 className="cf-sr">CFPi+ college football power ratings</h1>
+      <Freshness meta={meta} />
+      <ul className="cf-snap" aria-label="Season snapshot">
+        {snap.map(t => t && <li key={t.label} className="cf-snap-tile">
+          <span className="cf-snap-label">{t.label}</span>
+          <TeamLink id={t.row.team_id} size={32} />
+          <span className="cf-snap-val cf-num">{t.value}</span>
+        </li>)}
+      </ul>
 
       <div className="cf-questions">
         <Question id="q-best" q="Who are the best teams?" more="Full rankings" to="/rankings/">
