@@ -911,3 +911,15 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-games-table th.cf-th-match { padding-left: 8px; padding-right: 8px; }
 .cf-match-head { display: grid; grid-template-columns: minmax(0, 1fr) 1.25rem minmax(0, 1fr); gap: 0 4px; }
 .cf-match-head > span:first-child, .cf-match-head > span:last-child { padding-left: 32px; }   /* logo (22px) + gap (10px), so labels start where team names do */
+/* Games: scoreboard layout. Away team right-aligned into the "at", home team left-aligned out of it, so each game reads
+   as one centred unit; "Away" / "Home" headers sit over the names (logo width + gap = 32px). */
+.cf-row-link .cf-matchup > .cf-team:first-child { justify-self: end; flex-direction: row-reverse; text-align: right; }
+.cf-row-link .cf-matchup > .cf-team:first-child .cf-team-text { justify-items: end; }
+.cf-row-link .cf-matchup > .cf-team:last-child { justify-self: start; }
+.cf-match-head > span:first-child { padding-left: 0; padding-right: 32px; text-align: right; }
+.cf-match-head > span:last-child { padding-left: 32px; text-align: left; }
+.cf-row-link .cf-matchup { grid-template-columns: minmax(0, 1fr) 2.25rem minmax(0, 1fr); gap: 0; }
+.cf-match-head { grid-template-columns: minmax(0, 1fr) 2.25rem minmax(0, 1fr); gap: 0; }
+.cf-row-link .cf-matchup .cf-at { text-align: center; }
+@media (min-width: 760px) { .cf-games-table .cf-c-line { width: 8rem; } }
+.cf-row-link .cf-matchup, .cf-match-head { grid-template-columns: minmax(0, 1fr) 1.75rem minmax(0, 1fr); }
