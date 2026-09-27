@@ -108,7 +108,7 @@ export default function Playoff() {
           <div className="cf-panel-head">
             <h2 id="po-odds">Playoff odds</h2>
             <span className="cf-share-row"><label className="cf-check"><input type="checkbox" checked={scope === 'all'} onChange={e => setScope(e.target.checked ? 'all' : '')} /> Show all {rows.length} teams</label>
-              <ShareButton label="CFP odds PNG" run={async () => (await import('../graphics')).playoffOddsPng(doc.data!, teams)} /></span>
+              <ShareButton label="CFP odds PNG" run={async () => { await (await import('../huntPng')).huntPng(doc.data!, teams) }} /></span>
           </div>
           <div className="cf-table-wrap cf-desktop">
             <table className="cf-table">

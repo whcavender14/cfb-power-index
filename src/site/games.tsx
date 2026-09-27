@@ -82,7 +82,8 @@ export function GameCard({ g, swing }: { g: Game; swing?: GameSwing }) {
 
 /** One sportsbook quote per game for the upcoming week (public/data/betting.json), home perspective. Evaluation and
  *  display only: never an input to CFPi+. Optional: an empty map when the file or a game's quote is missing. */
-export type Line = { game_id: string; market_spread: number | null; market_total?: number | null; market_provider: string | null; home_team: string; away_team: string; market_retrieved_at?: string | null }
+export type Line = { game_id: string; market_spread: number | null; market_total?: number | null; market_provider: string | null; home_team: string; away_team: string; market_retrieved_at?: string | null
+  week?: number; kickoff?: string; time_tbd?: boolean | null; away_team_id?: string; home_team_id?: string }
 export function useLines(): Map<string, Line> {
   const [lines, setLines] = useState(new Map<string, Line>())
   useEffect(() => {
