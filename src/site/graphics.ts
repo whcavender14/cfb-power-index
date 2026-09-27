@@ -1,6 +1,6 @@
-// The six shareable graphics. Each takes data the page already loaded and returns when the PNG is saved.
-import type { ChangesDoc, Game, HistoryDoc, Meta, PlayoffDoc, TeamMeta, TeamRow } from './data'
-import { bar, COLORS as K, frame, INNER, LEFT, logo, logosFor, move, pct, render, SERIES, signed, table, teamCell, text, type Col } from './share'
+// The shareable graphics (the playoff bracket download is ./bracketPng.ts). Each takes data the page already loaded and returns when the PNG is saved.
+import type { ChangesDoc, Game, Meta, PlayoffDoc, TeamMeta, TeamRow } from './data'
+import { bar, COLORS as K, frame, INNER, LEFT, logo, logosFor, move, pct, render, signed, table, teamCell, text, type Col } from './share'
 
 type Dir = Map<string, TeamMeta>
 const file = (meta: Meta, name: string) => `cfpi-${name}-${meta.season}-wk${String(meta.ratings_week ?? 0).padStart(2, '0')}.png`
@@ -69,41 +69,6 @@ export async function playoffOddsPng(doc: PlayoffDoc, dir: Dir) {
   })
 }
 
-export async function playoffFieldPng(doc: PlayoffDoc, dir: Dir) {
-  const f = doc.representative_field
-  if (!f) throw new Error('No projected field')
-  const by = new Map(f.seeds.map(s => [s.seed, s]))
-  const logos = await logosFor(f.seeds.map(s => s.team_id), dir)
-  const h = 222 + 560 + 110
-  await render(file(doc.meta, 'playoff-field'), h, ctx => {
-    const t = frame(ctx, h, 'Projected playoff field', 'The most likely complete 12-team seeding across the simulated seasons.', doc.meta)
-    const seedRow = (seed: number, x: number, y: number, w: number) => {
-      const s = by.get(seed)!; const name = nm(dir, s.team_id)
-      text(ctx, String(seed), x, y + 6, { size: 16, weight: 700, color: K.muted })
-      logo(ctx, logos, s.team_id, name, x + 44, y, 30)
-      text(ctx, name, x + 68, y + 6, { size: 17, weight: 600, max: w - 150 })
-      text(ctx, s.bid === 'auto' ? 'Auto' : 'At-large', x + w - 12, y + 5, { size: 12.5, weight: 600, color: s.bid === 'auto' ? K.accent : K.muted, align: 'right' })
-    }
-    const card = (x: number, y: number, w: number, hh: number) => { ctx.beginPath(); ctx.roundRect(x, y, w, hh, 14); ctx.fillStyle = K.fill; ctx.fill() }
-    // Byes
-    card(LEFT, t, 330, 530)
-    text(ctx, 'FIRST-ROUND BYES', LEFT + 20, t + 34, { size: 12, weight: 600, color: K.muted, track: '0.6px' })
-    for (let s = 1; s <= 4; s++) seedRow(s, LEFT + 20, t + 76 + (s - 1) * 58, 300)
-    // First round: 5v12, 8v9, 6v11, 7v10 with the bye team each winner meets
-    const games: [number, number, number][] = [[8, 9, 1], [5, 12, 4], [7, 10, 2], [6, 11, 3]]
-    const gx = LEFT + 360, gw = (INNER - 360 - 20) / 2
-    games.forEach(([a, b, next], i) => {
-      const x = gx + (i % 2) * (gw + 20), y = t + Math.floor(i / 2) * 280
-      card(x, y, gw, 250)
-      text(ctx, `FIRST ROUND · AT NO. ${a}`, x + 20, y + 34, { size: 12, weight: 600, color: K.muted, track: '0.6px' })
-      seedRow(a, x + 20, y + 82, gw - 20)
-      seedRow(b, x + 20, y + 140, gw - 20)
-      text(ctx, `Winner plays No. ${next} ${nm(dir, by.get(next)!.team_id)}`, x + 20, y + 214, { size: 13.5, color: K.muted, max: gw - 40 })
-    })
-    text(ctx, `This exact seeding occurred in ${f.sims_with_identical_field} of ${doc.meta.sim_count?.toLocaleString()} simulated seasons; individual odds vary. Higher seed hosts the first round.`, LEFT, t + 590, { size: 13, color: K.muted, max: INNER })
-  })
-}
-
 export async function moversPng(meta: Meta, rows: TeamRow[], changes: ChangesDoc, dir: Dir) {
   const rated = rows.filter(r => r.rank_change != null && r.rating_change != null)
   const lists: [string, TeamRow[], 'rank' | 'rating'][] = [
@@ -134,56 +99,3 @@ export async function moversPng(meta: Meta, rows: TeamRow[], changes: ChangesDoc
   })
 }
 
-export async function comparePng(meta: Meta, doc: HistoryDoc, series: { id: string; name: string; slot: number }[], dir: Dir) {
-  const logos = await logosFor(series.map(s => s.id), dir)
-  const pts = doc.points
-  const h = 222 + 420 + 60 + series.length * 40 + 110
-  await render(file(meta, 'compare'), h, ctx => {
-    const t = frame(ctx, h, 'Rating history', series.map(s => s.name).join(' · '), meta)
-    const x0 = LEFT + 50, x1 = LEFT + INNER - 150, y0 = t + 10, y1 = t + 380
-    const vals = series.flatMap(s => doc.teams[s.id]?.power ?? []).filter((v): v is number => v != null)
-    const lo = Math.floor(Math.min(0, ...vals) / 5) * 5, hi = Math.ceil(Math.max(0, ...vals) / 5) * 5
-    // Same x axis as the page chart: preseason, then every week from Week 1; a week without a rating is a gap.
-    const weeks = pts.filter(p => p.week != null).map(p => p.week as number)
-    const firstW = weeks.length ? Math.min(1, ...weeks) : 0, lastW = weeks.length ? Math.max(...weeks) : 0
-    const slotLabels: string[] = [...(pts.some(p => p.source === 'preseason') ? ['Pre'] : []), ...Array.from({ length: weeks.length ? lastW - firstW + 1 : 0 }, (_, k) => `Week ${firstW + k}`)]
-    const slotOf = (i: number) => pts[i].week == null ? 0 : slotLabels.indexOf(`Week ${pts[i].week}`)
-    const X = (i: number) => x0 + (slotLabels.length <= 1 ? 0 : (slotOf(i) / (slotLabels.length - 1)) * (x1 - x0))
-    const Y = (v: number) => y1 - ((v - lo) / (hi - lo || 1)) * (y1 - y0)
-    const step = hi - lo > 30 ? 10 : 5
-    for (let v = lo; v <= hi; v += step) {
-      ctx.fillStyle = v === 0 ? '#c7c7cc' : K.line; ctx.fillRect(x0, Y(v), x1 - x0, 1)
-      text(ctx, v > 0 ? `+${v}` : v < 0 ? `−${-v}` : '0', x0 - 10, Y(v) + 4, { size: 12, color: K.muted, align: 'right' })
-    }
-    slotLabels.forEach((l, k) => text(ctx, l, x0 + (slotLabels.length <= 1 ? 0 : (k / (slotLabels.length - 1)) * (x1 - x0)), y1 + 26, { size: 12.5, color: K.muted, align: 'center' }))
-    const ends: { y: number; s: (typeof series)[number] }[] = []
-    for (const s of series) {
-      const v = doc.teams[s.id]?.power ?? []; const col = SERIES[s.slot - 1]
-      ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.beginPath()
-      let open = false
-      v.forEach((val, i) => { if (val == null || (i > 0 && slotOf(i) - slotOf(i - 1) > 1)) open = false; if (val == null) return; open ? ctx.lineTo(X(i), Y(val)) : ctx.moveTo(X(i), Y(val)); open = true })
-      ctx.stroke()
-      v.forEach((val, i) => {
-        if (val == null) return
-        ctx.beginPath(); ctx.arc(X(i), Y(val), 4.5, 0, Math.PI * 2)
-        const hollow = pts[i].source !== 'published'
-        ctx.fillStyle = hollow ? '#fff' : col; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = col; ctx.stroke()
-      })
-      const last = [...v].reverse().find(x => x != null)
-      if (last != null) ends.push({ y: Y(last), s })
-    }
-    ends.sort((a, b) => a.y - b.y).forEach((e, i, arr) => { if (i && e.y - arr[i - 1].y < 18) e.y = arr[i - 1].y + 18; text(ctx, e.s.name, x1 + 14, e.y + 5, { size: 13.5, weight: 600, color: K.ink, max: 136 }) })
-    // Legend table: current rating and rank, with the week-by-week values.
-    let y = y1 + 70
-    text(ctx, 'TEAM', LEFT, y, { size: 11.5, weight: 600, color: K.muted, track: '0.6px' })
-    pts.forEach((p, i) => text(ctx, p.label.replace('Preseason', 'Pre').toUpperCase(), LEFT + 400 + i * 150, y, { size: 11.5, weight: 600, color: K.muted, align: 'right', track: '0.6px' }))
-    for (const s of series) {
-      y += 40; const v = doc.teams[s.id]
-      ctx.beginPath(); ctx.arc(LEFT + 6, y - 5, 5, 0, Math.PI * 2); ctx.fillStyle = SERIES[s.slot - 1]; ctx.fill()
-      logo(ctx, logos, s.id, s.name, LEFT + 32, y - 5, 22)
-      text(ctx, s.name, LEFT + 50, y, { size: 15, weight: 600, max: 220 })
-      pts.forEach((_, i) => text(ctx, v?.power[i] == null ? '—' : `${signed(v.power[i])}  No. ${v.rank[i]}`, LEFT + 400 + i * 150, y, { size: 14, align: 'right' }))
-    }
-    if (pts.some(p => p.source === 'reconstructed')) text(ctx, 'Hollow points: reconstructed weeks (the unchanged model re-run at each past cutoff; CFPi+ was not yet the published model).', LEFT, y + 38, { size: 13, color: K.muted, max: INNER })
-  })
-}

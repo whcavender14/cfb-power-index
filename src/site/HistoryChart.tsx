@@ -131,3 +131,15 @@ export function HistoryTable({ points, series }: { points: HistoryPoint[]; serie
     </tr>)}</tbody>
   </table></div>
 }
+
+/** How to read the history points (preseason, published, reconstructed). */
+export function HistoryNote({ points }: { points: HistoryPoint[] }) {
+  const rec = points.filter(p => p.source === 'reconstructed').map(p => p.week)
+  const pub = points.filter(p => p.source === 'published').map(p => p.week)
+  return <p className="cf-note">
+    {points.some(p => p.source === 'preseason') && <>Preseason is the model’s rating before any games. </>}
+    {pub.length > 0 && <>Week {pub.join(', ')}: ratings as published. </>}
+    {rec.length > 0 && <>Week {rec.join(', ')} (hollow points): CFPi+ was not yet the published model, so these are reconstructions: the unchanged model re-run at each week’s cutoff on the data it used. Re-running the published week this way reproduces it exactly. </>}
+    Missing weeks are left blank, never filled in.
+  </p>
+}

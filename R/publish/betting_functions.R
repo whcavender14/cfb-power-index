@@ -16,7 +16,9 @@ upcoming_games <- function(g, now=Sys.time()) {
       g$week == g$week[first] & g$season_type == g$season_type[first],,drop=FALSE]
 }
 select_market <- function(lines, game) {
-  missing <- list(spread=NA_real_, provider=NA_character_)
+  missing <- list(spread=NA_real_, provider=NA_character_, total=NA_real_)
+  # Market total (over/under) from the same quote as the spread. Evaluation and display only, never a model input.
+  total_col <- intersect(c("over_under","overUnder"), names(lines))[1]
   required <- c("game_id","home_team","away_team","provider","spread","formatted_spread")
   if (is.null(lines) || !all(required %in% names(lines))) return(missing)
   # cfbfastR has a synthetic "home 0" fallback. Require real provider and
@@ -43,7 +45,10 @@ select_market <- function(lines, game) {
     } else if (raw == 0 && (is.na(label) || tolower(label) %in% c("pick'em","pick","pk"))) {
       home_line <- 0
     }
-    if (is.finite(home_line)) return(list(spread=home_line,provider=x$provider[i]))
+    if (is.finite(home_line)) {
+      total <- if (!is.na(total_col)) suppressWarnings(as.numeric(x[[total_col]][i])) else NA_real_
+      return(list(spread=home_line,provider=x$provider[i],total=if (length(total) && is.finite(total) && total > 0) total else NA_real_))
+    }
   }
   missing
 }

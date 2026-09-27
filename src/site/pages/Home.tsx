@@ -63,7 +63,7 @@ function WhatChanged({ meta, teams }: { meta: Meta; teams: TeamRow[] }) {
       const byRank = (up: boolean) => rated.filter(t => up ? t.rank_change! > 0 : t.rank_change! < 0).sort((a, b) => up ? b.rank_change! - a.rank_change! || a.rank! - b.rank! : a.rank_change! - b.rank_change! || a.rank! - b.rank!).slice(0, N)
       const byRating = (up: boolean) => rated.filter(t => up ? t.rating_change! > 0 : t.rating_change! < 0).sort((a, b) => up ? b.rating_change! - a.rating_change! : a.rating_change! - b.rating_change!).slice(0, N)
       return <>
-        <p className="cf-note">Compared with Week {ch.compared_to_week} ratings{ch.compared_to_source === 'reconstructed' ? <> (reconstructed; see <Link to="/compare/">Rating history</Link>)</> : null}. <Info text={`Rank movement (places) and rating change (CFPi+ points) are listed separately: a team can gain points and still drop in rank. Each note states the result against the projection from the Week ${ch.compared_to_week} ratings; it does not claim that game alone caused the change, because every rating is refit on all games each week.`} label="How to read these changes" /></p>
+        <p className="cf-note">Compared with Week {ch.compared_to_week} ratings{ch.compared_to_source === 'reconstructed' ? <> (reconstructed: CFPi+ was not yet the published model that week)</> : null}. <Info text={`Rank movement (places) and rating change (CFPi+ points) are listed separately: a team can gain points and still drop in rank. Each note states the result against the projection from the Week ${ch.compared_to_week} ratings; it does not claim that game alone caused the change, because every rating is refit on all games each week.`} label="How to read these changes" /></p>
         <div className="cf-movers-grid cf-movers-compact">
           <MoverList title="Biggest risers" rows={byRank(true)} kind="rank" changes={changes} />
           <MoverList title="Biggest fallers" rows={byRank(false)} kind="rank" changes={changes} />
@@ -78,7 +78,7 @@ function WhatChanged({ meta, teams }: { meta: Meta; teams: TeamRow[] }) {
 
 export default function Home() {
   const index = useData<IndexDoc>('index.json')
-  return <DataGate source={index} label="Ratings">{({ meta, teams, top_games }) => {
+  return <DataGate source={index} label="Ratings">{({ meta, teams, top_games, top_swing }) => {
     const ranked = teams.filter(t => t.rank != null).sort((a, b) => a.rank! - b.rank!)
     const contenders = teams.filter(t => t.p_playoff != null && t.p_playoff > 0).sort((a, b) => b.p_playoff! - a.p_playoff! || (a.rank ?? 999) - (b.rank ?? 999)).slice(0, 12)
     const sims = meta.sim_status === 'available'
@@ -114,7 +114,8 @@ export default function Home() {
         <Question id="q-games" q={`Which games matter${meta.current_week != null ? ` in Week ${meta.current_week}` : ' this week'}?`} more="All games" to={meta.current_week != null ? `/games/?week=${meta.current_week}` : '/games/'}
           info={<Info text={QUALITY_INFO} label="How games are chosen" />}>
           {top_games && top_games.length
-            ? <div className="cf-q-games">{top_games.slice(0, 4).map(g => <GameCard key={g.game_id} g={g} />)}</div>
+            ? <><div className="cf-q-games">{top_games.slice(0, 4).map(g => <GameCard key={g.game_id} g={g} swing={top_swing?.[g.game_id]} />)}</div>
+              {top_swing && <p className="cf-small cf-muted cf-swing-note"><b className="cf-swing-w">▲</b> / <b className="cf-swing-l">▼</b> = the team’s playoff chance if it wins / loses that game, from the simulated seasons (same filter as <Link to="/whatif/">What if?</Link>).</p>}</>
             : <p className="cf-muted">No upcoming games with projections.</p>}
         </Question>
       </div>

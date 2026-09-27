@@ -231,6 +231,10 @@ if (!is.null(sim) && !is.null(sim$schedule) && !is.null(sim$team_power)) {
     sim_home_win = ifelse(known | is.na(gsm), NA, r4(gs$home_percentage[gsm])),
     quality = ifelse(known, NA, quality),
     in_ratings = g$final %in% TRUE & g$available_at < snap$as_of, stringsAsFactors = FALSE)
+  # Venue name for the matchup page (display only), from the raw schedule the simulation used.
+  raw_sched <- NULL
+  for (f in file.path(site_state, c("simulation_live", "production_live"), sprintf("raw_schedule_%d.rds", site_season))) if (is.null(raw_sched) && file.exists(f)) raw_sched <- as.data.frame(readRDS(f))
+  games$venue <- if (!is.null(raw_sched) && all(c("game_id", "venue") %in% names(raw_sched))) raw_sched$venue[match(games$game_id, as.character(raw_sched$game_id))] else NA_character_
   # One row per team per game, for schedule strength, strength of record and weekly explanations.
   loc_h <- ifelse(neutral, 0, 1)
   sides <- data.frame(
@@ -269,6 +273,20 @@ if (!is.null(games) && !is.null(team_sim)) {
   gbytes <- unlist(lapply(seq_len(nrow(fut)), function(i) as.integer(packBits(c(bits[i, ], rep(FALSE, nb * 8 - n_sims)), "raw"))))
   sc_ids <- team_sim$team_id
   sst <- st[order(match(st$team_id, sc_ids), st$sim), ]
+  # Playoff swing for a game (Home page): each team's chance of making the field in the simulated seasons where it wins /
+  # loses that game. The same filter the What if? page applies to one pick; nothing is re-simulated.
+  infield_m <- matrix(!is.na(sst$seed), nrow = length(sc_ids), ncol = n_sims, byrow = TRUE)
+  game_swing <- function(game_id) {
+    i <- match(game_id, fut$game_id); if (is.na(i)) return(NULL)
+    hw <- bits[i, ]
+    one <- function(team_id, wins_mask, loses_mask) {
+      t <- match(team_id, sc_ids); if (is.na(t)) return(NULL)
+      list(win = r4(mean(infield_m[t, wins_mask])), lose = r4(mean(infield_m[t, loses_mask])), base = r4(mean(infield_m[t, ])),
+           n_win = sum(wins_mask), n_lose = sum(loses_mask))
+    }
+    out <- list(home = one(fut$home_id[i], hw, !hw), away = one(fut$away_id[i], !hw, hw))
+    Filter(Negate(is.null), out)
+  }
   stopifnot(nrow(sst) == length(sc_ids) * n_sims, all(sst$sim == rep(seq_len(n_sims), length(sc_ids))))
   seed <- ifelse(is.na(sst$seed), 0L, sst$seed)
   stopifnot(all(seed <= 15L), all(sst$exit >= 0L & sst$exit <= 5L))
@@ -284,6 +302,22 @@ if (!is.null(games) && !is.null(team_sim)) {
     if (game_away[i] >= 0) derived[game_away[i] + 1L, ] <- derived[game_away[i] + 1L, ] + !bits[i, ]
   }
   stopifnot("simulated wins must equal known wins + remaining games won" = identical(as.integer(t(derived)), as.integer(sst$wins)))
+  # Conference win distribution (Conferences page): the same known + remaining-games-won count, restricted to conference
+  # games. p_ge[k + 1] = share of simulated seasons in which the team wins at least k conference games (k = 0 .. total).
+  cfin <- fin$conference_game %in% TRUE; cfut <- fut$conference_game %in% TRUE
+  conf_known <- vapply(sc_ids, function(id) sum(cfin & fin$home_id == id & hw) + sum(cfin & fin$away_id == id & !hw), 0L)
+  conf_left <- vapply(sc_ids, function(id) sum(cfut & (fut$home_id == id | fut$away_id == id)), 0L)
+  conf_played <- vapply(sc_ids, function(id) sum(cfin & (fin$home_id == id | fin$away_id == id)), 0L)
+  cwm <- matrix(conf_known, length(sc_ids), n_sims)
+  for (i in which(cfut)) {
+    if (game_home[i] >= 0) cwm[game_home[i] + 1L, ] <- cwm[game_home[i] + 1L, ] + bits[i, ]
+    if (game_away[i] >= 0) cwm[game_away[i] + 1L, ] <- cwm[game_away[i] + 1L, ] + !bits[i, ]
+  }
+  conf_standings <- setNames(lapply(seq_along(sc_ids), function(t) {
+    total <- conf_played[t] + conf_left[t]
+    list(conf_wins = conf_known[t], conf_losses = conf_played[t] - conf_known[t], conf_games = total,
+         avg_wins = r4(mean(cwm[t, ])), p_ge = I(vapply(0:total, function(k) r4(mean(cwm[t, ] >= k)), 0)))
+  }), sc_ids)
   stopifnot(all(tbytes >= 0 & tbytes <= 255))
   team_games <- as.integer(tapply(sst$games, sst$team_id, function(v) { stopifnot(length(unique(v)) == 1L); v[1] })[sc_ids])
   scenario <- list(meta = NULL, format = 2L, n = n_sims, game_ids = I(fut$game_id), team_ids = I(sc_ids), team_games = I(team_games),
@@ -385,7 +419,8 @@ conferences <- lapply(sort(unique(meta$conference)), function(cn) {
        sos_avg = if (!is.null(resume)) r4(mean(pick(resume, ids, "sos_all"))) else NA,
        nonconf_wins = if (!is.null(nc)) sum(nc$margin > 0) else NA, nonconf_losses = if (!is.null(nc)) sum(nc$margin < 0) else NA,
        nonconf_fbs_wins = if (!is.null(nc)) sum(nc$margin > 0 & nc$opp_fbs) else NA,
-       nonconf_fbs_losses = if (!is.null(nc)) sum(nc$margin < 0 & nc$opp_fbs) else NA)
+       nonconf_fbs_losses = if (!is.null(nc)) sum(nc$margin < 0 & nc$opp_fbs) else NA,
+       standings = if (cn != "FBS Independents" && exists("conf_standings")) unname(Filter(Negate(is.null), lapply(ids, function(i) if (!is.null(conf_standings[[i]])) c(list(team_id = i), conf_standings[[i]])))) else NULL)
 })
 cavg <- vapply(conferences, function(x) x$avg_power, 0)
 crank <- rank(-cavg, ties.method = "min")
@@ -462,7 +497,9 @@ top_games <- if (!is.null(games) && !is.na(current_week)) {
   head(tg[order(-tg$quality, tg$kickoff), ], 6)
 } else NULL
 
-index <- list(meta = meta_block, teams = rows, top_games = top_games)
+# Playoff swing (win / lose) for each featured game, for the Home page cards. Display only.
+top_swing <- if (!is.null(top_games) && exists("game_swing")) Filter(length, setNames(lapply(top_games$game_id, game_swing), top_games$game_id)) else NULL
+index <- list(meta = meta_block, teams = rows, top_games = top_games, top_swing = if (length(top_swing)) top_swing else NULL)
 history_doc <- NULL
 if (!is.null(rat)) {
   pts <- c(list(pre = list(week = NA_integer_, as_of = NA_character_, source = "preseason",
@@ -546,9 +583,12 @@ for (k in seq_len(nrow(meta))) {
 source(file.path(PATHS$root, "R", "publish", "team_efficiency.R"), local = TRUE)
 eff_plays <- tryCatch(read_site_plays(site_state), error = function(e) { message("Efficiency: ", conditionMessage(e)); NULL })
 eff_ids <- if (is.null(games)) character() else games$game_id[games$in_ratings %in% TRUE]
+source(file.path(PATHS$root, "R", "publish", "team_basic_stats.R"), local = TRUE)
+gts <- if (!is.na(week) && week >= 1L) tryCatch(pull_game_team_stats(site_season, seq_len(week), site_state), error = function(e) { message("Game team stats: ", conditionMessage(e)); NULL }) else NULL
+basic <- if (!is.null(gts) && length(eff_ids)) team_basic_stats(gts, data.frame(team_id = meta$team_id, school = meta$school), eff_ids) else NULL
 if (!is.null(eff_plays) && length(eff_ids)) {
   write_site_json(efficiency_doc(team_efficiency(eff_plays, data.frame(team_id = meta$team_id, school = meta$school), eff_ids),
-                                 meta_block, length(eff_ids), week), file.path(site_out, "efficiency.json"))
+                                 meta_block, length(eff_ids), week, basic), file.path(site_out, "efficiency.json"))
 } else { message("Efficiency: no cached play-by-play; efficiency.json not written."); unlink(file.path(site_out, "efficiency.json")) }
 
 # Players by usage (display only). Defense uses the same player stats as the leaders, only when they cover the ratings week.
@@ -556,25 +596,34 @@ source(file.path(PATHS$root, "R", "publish", "player_usage.R"), local = TRUE)
 usage_raw <- pull_player_usage(site_season)
 rosters <- pull_rosters(site_season)
 source(file.path(PATHS$root, "R", "publish", "depth_charts.R"), local = TRUE)
-depth <- read_opt(file.path(site_state, sprintf("depth_charts_%d.rds", site_season)))   # scripts/pull_depth_charts.R
+depth <- read_opt(file.path(site_state, sprintf("depth_charts_%d.rds", site_season)))   # R/publish/pull_depth_charts.R
+if (is.null(depth)) depth <- read_opt(file.path(PATHS$reference, "depth_charts", sprintf("depth_charts_%d.rds", site_season)))
+if (!is.null(depth) && !is.data.frame(depth)) depth <- NULL                               # pre-Round-18 nested format
 usage_stats <- if (!is.null(ps) && identical(as.integer(attr(ps, "end_week")), week)) ps else NULL
-unlink(file.path(site_out, "usage"), recursive = TRUE)
+dir.create(file.path(site_out, "usage"), showWarnings = FALSE, recursive = TRUE)   # files are overwritten in place (deleting the folder makes iCloud keep conflict copies)
+usage_written <- character()
 n_usage <- 0L
 for (k in seq_len(nrow(meta))) {
   u <- team_player_usage(meta$school[k], usage_raw, usage_stats, rosters)
-  d <- if (!is.null(depth) && !is.null(depth[[meta$slug[k]]])) enrich_depth(depth[[meta$slug[k]]], if (!is.null(rosters)) rosters[rosters$team == meta$school[k], , drop = FALSE] else NULL) else NULL
+  dr <- if (!is.null(depth)) depth_rows(depth, meta$team_id[k]) else NULL
+  d <- if (!is.null(dr)) enrich_depth(dr, if (!is.null(rosters)) rosters[rosters$team == meta$school[k], , drop = FALSE] else NULL) else NULL
   if (is.null(u) && is.null(d)) next
   if (is.null(u)) u <- list(offense = NULL, defense = NULL)
   u$depth <- d
+  qb1 <- if (!is.null(d)) { q <- Filter(function(r) r$group == "QB", d); if (length(q)) q[[1]]$players[[1]]$name else NA_character_ } else NA_character_
+  u$key_players <- key_players(meta$school[k], usage_stats, rosters, qb1)
   u$depth_source <- if (!is.null(d)) list(name = "TWO\u00b7DEEP", url = paste0(TWODEEP_BASE, if (meta$slug[k] %in% names(TWODEEP_SLUG)) TWODEEP_SLUG[[meta$slug[k]]] else meta$slug[k]),
-                                          fetched_at = iso_utc(attr(depth, "fetched_at"))) else NULL
+                                          fetched_at = iso_utc(max(depth$fetched_at[depth$team_id == meta$team_id[k]])),
+                                          week = max(depth$week[depth$team_id == meta$team_id[k]])) else NULL
   write_site_json(c(list(meta = meta_block, team_id = meta$team_id[k],
                          offense_source = "CollegeFootballData player usage, season to date",
                          offense_pulled_at = if (!is.null(usage_raw)) iso_utc(attr(usage_raw, "pulled_at")) else NA,
                          defense_through_week = if (!is.null(usage_stats)) week else NA), u),
                   file.path(site_out, "usage", paste0(meta$slug[k], ".json")))
   n_usage <- n_usage + 1L
+  usage_written <- c(usage_written, paste0(meta$slug[k], ".json"))
 }
+file.remove(setdiff(list.files(file.path(site_out, "usage"), pattern = "^[a-z0-9-]+\\.json$", full.names = TRUE), file.path(site_out, "usage", usage_written)))   # stale teams only
 message("Players by usage: ", n_usage, " teams.")
 
 if (!is.na(week)) {

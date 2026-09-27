@@ -1,5 +1,6 @@
 import ShareButton from '../ShareButton'
-import { DataGate, Freshness, Info, Num, PageHead, Pct, pctText, SortTh, sortRows, TeamLink, useData, useTeams, type Sort } from '../components'
+import { DataGate, Freshness, Info, Num, PageHead, Pct, pctText, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, type Sort } from '../components'
+import { ROUND_LABELS, simBracket, type BracketGame, type BracketTeam, type SimBracket } from '../bracket'
 import type { PlayoffDoc, PlayoffTeam } from '../data'
 import { Link, useQueryParam } from '../router'
 
@@ -17,8 +18,53 @@ const INFO: Record<string, string> = {
 }
 const COLS: [keyof PlayoffTeam, string][] = [['p_playoff', 'Playoff'], ['p_auto', 'Auto bid'], ['p_at_large', 'At-large'], ['p_bye', 'Bye'], ['p_host', 'Host'], ['p_qf', 'QF'], ['p_sf', 'Semis'], ['p_final', 'Final'], ['p_champ', 'Title']]
 
-// First-round pairings and the quarterfinal each winner meets (the bracket cfbseedR builds for 12 teams).
-const PAIRS: [number, number, number][] = [[8, 9, 1], [5, 12, 4], [7, 10, 2], [6, 11, 3]]
+const BRACKET_INFO = 'The field is the single simulated season whose seeding is most consistent with all the simulations, so it follows the selection rules exactly. Each percentage is the share of all simulated seasons in which that team reached the next round (whatever its seed); in each game the team with the higher share advances. One plausible path, not a forecast that every result will hold.'
+
+function BTeam({ t, p, won, champ }: { t: BracketTeam; p: number; won: boolean; champ?: boolean }) {
+  return <div className={`cf-brk-row${won ? ' is-won' : ''}${champ ? ' is-champ' : ''}`}>
+    <span className={`cf-brk-seed${t.seed <= 4 ? ' is-bye' : ''}`} title={t.seed <= 4 ? 'First-round bye' : undefined}>{t.seed}</span>
+    <TeamLink id={t.team_id} size={20} />
+    <span className="cf-brk-p cf-num">{pctText(p, 0)}</span>
+  </div>
+}
+function BGame({ g, champion }: { g: BracketGame; champion: BracketTeam }) {
+  const final = g.round === 3
+  return <div className={`cf-brk-game${final ? ' is-final' : ''}`}>
+    <BTeam t={g.top} p={g.pTop} won={g.winner === g.top} champ={final && g.winner === g.top && g.top === champion} />
+    <BTeam t={g.bottom} p={g.pBottom} won={g.winner === g.bottom} champ={final && g.winner === g.bottom && g.bottom === champion} />
+  </div>
+}
+/** Desktop: the image's layout (first round, quarterfinals, semifinals | final | semifinals, quarterfinals, first round).
+ *  Below 1100 px: collapsed by round, so nothing scrolls the page sideways. */
+function Bracket({ b }: { b: SimBracket }) {
+  const [fr, qf, sf, [fin]] = b.rounds
+  const col = (label: string, games: BracketGame[], note?: string) => <div className="cf-brk-col">
+    <h3 className="cf-brk-head">{label}{note && <small>{note}</small>}</h3>
+    <div className="cf-brk-games">{games.map((g, i) => <BGame key={i} g={g} champion={b.champion} />)}</div>
+  </div>
+  return <>
+    <div className="cf-brk" role="group" aria-label="Projected bracket">
+      {col('First round', fr.slice(0, 2), 'Higher seed hosts')}{col('Quarterfinals', qf.slice(0, 2))}{col('Semifinals', sf.slice(0, 1))}
+      <div className="cf-brk-col is-center">
+        <div className="cf-brk-champ">
+          <span className="cf-brk-kicker">Projected champion</span>
+          <TeamLogo id={b.champion.team_id} name={b.champion.team_id} size={44} />
+          <strong><TeamLink id={b.champion.team_id} logo={false} /></strong>
+          <span className="cf-small">No. {b.champion.seed} seed · {pctText(b.champion.odds.p_champ)} title odds</span>
+        </div>
+        <h3 className="cf-brk-head">National championship</h3>
+        <BGame g={fin} champion={b.champion} />
+      </div>
+      {col('Semifinals', sf.slice(1))}{col('Quarterfinals', qf.slice(2))}{col('First round', fr.slice(2), 'Higher seed hosts')}
+    </div>
+    <div className="cf-brk-rounds">
+      {b.rounds.map((games, r) => <section key={r} className="cf-brk-round" aria-label={ROUND_LABELS[r]}>
+        <h3 className="cf-brk-head">{ROUND_LABELS[r]}{r === 0 && <small>Seeds 1–4 have byes · higher seed hosts</small>}</h3>
+        <div className="cf-brk-games">{games.map((g, i) => <BGame key={i} g={g} champion={b.champion} />)}</div>
+      </section>)}
+    </div>
+  </>
+}
 
 export default function Playoff() {
   const doc = useData<PlayoffDoc>('playoff.json')
@@ -38,29 +84,19 @@ export default function Playoff() {
       const shown = scope === 'all' ? rows : contenders
       const key = (sort.key in INFO ? sort.key : 'p_playoff') as keyof PlayoffTeam
       const sorted = sortRows(shown, r => r[key] as number | null, sort.desc)
-      const bySeed = new Map(field?.seeds.map(s => [s.seed, s]) ?? [])
+      const bracket = simBracket(doc.data!)
       const seedTeams = [...contenders].sort((a, b) => b.p_playoff - a.p_playoff).slice(0, 24)
-      const name = (id: string) => teams.get(id)?.team ?? id
-      const Seed = ({ n }: { n: number }) => { const s = bySeed.get(n); return s ? <div className="cf-seed">
-        <span className="cf-seed-n">{n}</span><TeamLink id={s.team_id} size={22} />
-        <span className={`cf-bid${s.bid === 'auto' ? ' is-auto' : ''}`}>{s.bid === 'auto' ? 'Auto' : 'At-large'}</span>
-      </div> : null }
       return <>
         <Freshness meta={meta} sims />
 
         <section className="cf-section" aria-labelledby="po-field">
           <div className="cf-panel-head">
-            <h2 id="po-field">Projected field <Info text="The single simulated season whose seeding is most consistent with all the simulations (the highest joint probability of each team landing on its seed). Because it is a real simulated outcome, it follows the selection rules exactly. It is one plausible field, not a forecast that every seed will hold." label="How the projected field is chosen" /></h2>
-            {field && <ShareButton label="Projected field PNG" run={async () => (await import('../graphics')).playoffFieldPng(doc.data!, teams)} />}
+            <h2 id="po-field">Projected bracket <Info text={BRACKET_INFO} label="How the bracket is built" /></h2>
+            {bracket && <ShareButton label="Bracket PNG" run={async () => { await (await import('../bracketPng')).bracketPng(doc.data!, bracket, teams) }} />}
           </div>
-          {field ? <>
-            <div className="cf-bracket">
-              <div className="cf-bracket-col"><h3 className="cf-h3">Byes</h3>{[1, 2, 3, 4].map(n => <Seed key={n} n={n} />)}</div>
-              <div className="cf-bracket-col"><h3 className="cf-h3">First round <span className="cf-muted cf-small">(higher seed hosts)</span></h3>
-                {PAIRS.map(([a, b, q]) => <div key={a} className="cf-pair"><Seed n={a} /><Seed n={b} /><p className="cf-small cf-muted">Winner plays No. {q} {bySeed.get(q) ? name(bySeed.get(q)!.team_id) : ''}</p></div>)}
-              </div>
-            </div>
-            <p className="cf-small cf-muted">This exact 12-team seeding occurred in {field.sims_with_identical_field} of {meta.sim_count?.toLocaleString()} simulated seasons; individual seed odds are in the table below.</p>
+          {bracket ? <>
+            <div className="cf-panel cf-brk-panel"><Bracket b={bracket} /></div>
+            <p className="cf-small cf-muted cf-brk-note"><span className="cf-brk-seed is-bye">1</span> Seeds 1–4 have first-round byes. Percentages: share of all {meta.sim_count?.toLocaleString()} simulated seasons in which the team reached the next round. This exact seeding occurred in {field!.sims_with_identical_field} of them.</p>
           </> : <p className="cf-muted">No projected field is available.</p>}
           <details className="cf-rules">
             <summary>Selection rules used by the simulation</summary>

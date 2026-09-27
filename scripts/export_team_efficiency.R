@@ -5,6 +5,7 @@
 suppressPackageStartupMessages(library(jsonlite))
 if (!exists("PATHS")) source(file.path(Sys.getenv("CFB_PROJECT_ROOT", "."), "config", "paths.R"))
 source(file.path(PATHS$root, "R", "publish", "team_efficiency.R"))
+source(file.path(PATHS$root, "R", "publish", "team_basic_stats.R"))
 v2 <- file.path(PATHS$public_data, "v2")
 index <- fromJSON(file.path(v2, "index.json"), simplifyVector = FALSE)
 teams <- fromJSON(file.path(v2, "teams.json"))$teams
@@ -15,6 +16,8 @@ if (is.null(plays)) stop("No cached play-by-play: set CFB_PLAYS_FILE.")
 missing <- setdiff(ids, as.character(plays$game_id))
 if (length(missing)) message(length(missing), " rated game(s) have no plays in the cache: ", paste(head(missing, 10), collapse = ", "))
 eff <- team_efficiency(plays, data.frame(team_id = teams$team_id, school = teams$team), ids)
-write_json(efficiency_doc(eff, index$meta, length(ids), index$meta$ratings_week), file.path(v2, "efficiency.json"),
+gts <- pull_game_team_stats(index$meta$season, seq_len(index$meta$ratings_week), PATHS$state)
+basic <- if (!is.null(gts)) team_basic_stats(gts, data.frame(team_id = teams$team_id, school = teams$team), ids) else NULL
+write_json(efficiency_doc(eff, index$meta, length(ids), index$meta$ratings_week, basic), file.path(v2, "efficiency.json"),
            auto_unbox = TRUE, na = "null", null = "null", digits = 6)
 cat(sprintf("efficiency.json: %d teams (%d with plays), %d games\n", nrow(eff), sum(!is.na(eff$plays)), length(ids)))

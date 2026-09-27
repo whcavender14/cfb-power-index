@@ -6,6 +6,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 const dist = new URL('../dist/', import.meta.url)
 const shell = readFileSync(new URL('index.html', dist), 'utf8')
 const teams = JSON.parse(readFileSync(new URL('../public/data/v2/teams.json', import.meta.url), 'utf8')).teams
+const games = JSON.parse(readFileSync(new URL('../public/data/v2/games.json', import.meta.url), 'utf8')).games
 const conferences = JSON.parse(readFileSync(new URL('../public/data/v2/conferences.json', import.meta.url), 'utf8')).conferences
 
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
@@ -20,7 +21,9 @@ const routes = [
   ['playoff', 'Playoff | CFPi+', 'College Football Playoff odds, seed probabilities and a projected 12-team field from CFPi+ simulations.'],
   ['teams', 'Teams | CFPi+', 'Every FBS team, searchable and sortable by CFPi+ power rating, offense, defense, schedule strength and strength of record.'],
   ['conferences', 'Conferences | CFPi+', 'How each FBS conference compares as a group in CFPi+: average and median rating, top-25 depth and expected playoff teams.'],
-  ['compare', 'Rating history | CFPi+', 'CFPi+ rating history by week. Compare up to five teams.'],
+  // Retired (Round 18): History moved off the site; the shells stay so old links load and redirect to Home.
+  ['compare', 'CFPi+ | College Football Power Ratings', 'CFPi+ college football power ratings.'],
+  ['history', 'CFPi+ | College Football Power Ratings', 'CFPi+ college football power ratings.'],
   ['rankings/resume', 'Résumé ranking | CFPi+', 'CFPi+ résumé ranking: FBS teams ordered by strength of record, shown next to the predictive CFPi+ rank.'],
   ['whatif', 'What if? | CFPi+', 'Pick winners of upcoming games and see CFPi+ playoff, bye, conference-title and seed odds from the matching simulated seasons.'],
   // Retired: What changed moved to Home. The shells stay so old links load and redirect instead of 404ing.
@@ -30,6 +33,7 @@ const routes = [
   ['model', 'Model | CFPi+', 'How the Cavender Football Power Index (CFPi+) rates teams and simulates the season.'],
   ['simulations', 'Season simulations | CFPi+', 'CFPi+ season simulation table and shareable graphics.'],
   ['betting', 'Betting lines | CFPi+', 'CFPi+ model lines compared with sportsbook lines, for reference.'],
+  ...games.map(g => [`games/${g.game_id}`, `${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team} | CFPi+`, `${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team}, Week ${g.week}: CFPi+ forecast, sportsbook line and a side-by-side team comparison.`]),
   ...teams.map(t => [`teams/${t.slug}`, `${t.team} | CFPi+`, `${t.team} ${t.mascot ?? ''}: CFPi+ rating, schedule, projections and playoff odds.`.replace(/\s+/g, ' ')]),
 ]
 for (const [path, title, description] of routes) {

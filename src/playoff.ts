@@ -22,7 +22,9 @@ export type PlayoffTeam = {
   power: number; playoff: number; confTitle: number; title: number
 }
 export type Seeded = PlayoffTeam & { seed: number; autoBid: 'champion' | 'g6' | 'notre-dame' | null }
-export type Game = { round: number; top: Seeded; bottom: Seeded; home: Seeded | null; winner: Seeded; loser: Seeded; winProbability: number }
+export type Game = { round: number; top: Seeded; bottom: Seeded; home: Seeded | null; winner: Seeded; loser: Seeded; winProbability: number
+  /** Optional per-row figures [top, bottom] shown instead of the game's win probability (the CFPi+ site's simulation shares). */
+  shown?: [number, number] }
 export type Bracket = { field: Seeded[]; byes: Seeded[]; rounds: Game[][]; champion: Seeded }
 export type MarginModel = { hfa: number; sigma: number }
 

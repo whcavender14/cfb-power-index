@@ -38,8 +38,14 @@ team_efficiency <- function(plays, teams, game_ids) {
   x[order(team_id)]
 }
 
-efficiency_doc <- function(eff, meta_block, n_games, through_week) {
-  list(meta = meta_block,
+efficiency_doc <- function(eff, meta_block, n_games, through_week, basic = NULL) {
+  if (!is.null(basic)) eff <- merge(as.data.table(eff), as.data.table(basic), by = "team_id", all = TRUE)
+  list(meta = meta_block, basic_method = if (is.null(basic)) NULL else list(
+         source = "CollegeFootballData game team stats",
+         scope = sprintf("Per-game averages over regular-season games through Week %d that entered the ratings, all opponents", through_week),
+         turnover_margin = "Opponent turnovers minus own turnovers, season total",
+         pass_share = "Pass attempts / (pass attempts + rush attempts); ranked from most passing, not better or worse",
+         lower_is_better = I(c("papg", "ya_pg", "pass_ya_pg", "rush_ya_pg", "pen_ypg"))),
        method = list(adjusted = FALSE, source = "CollegeFootballData play-by-play (ppa = expected points added)",
                      scope = sprintf("Regular-season games through Week %d that entered the ratings (%d games), all opponents, all quarters", through_week, n_games),
                      plays = "Rush and pass plays (sacks and interceptions count as passes), downs 1-4; kneels, spikes, penalties and no-plays excluded",

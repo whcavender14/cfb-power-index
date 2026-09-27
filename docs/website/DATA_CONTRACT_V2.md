@@ -98,6 +98,8 @@ Validation: the R exporter stops on inconsistent data (for example, if its aggre
 
 `conferences[]`: `{slug, name, kind ('Power 4' | 'Group of 6' | 'Independents'), is_conference, team_ids[], n, avg_power, median_power, top25, best_rank, avg_rank (among real conferences), exp_playoff, sos_avg, nonconf_wins, nonconf_losses, nonconf_fbs_wins, nonconf_fbs_losses}`. Membership is `teams_<season>.rds` `conference`, never a hard-coded list. `exp_playoff` = sum of the members' `p_playoff` (checked by the exporter and the validator; all groups sum to 12). FBS independents form one group, flagged `is_conference: false`.
 
+Each real conference also carries `standings[]` (conference win odds, one entry per member): `{team_id, conf_wins, conf_losses, conf_games, avg_wins, p_ge[]}`. `conf_games` is the team's total regular-season conference games (played + remaining, from the schedule's `conference_game` flag, so it can differ within a conference); `p_ge[k]` is the share of simulated seasons with at least `k` conference wins (`k = 0..conf_games`), counted from the same stored game results as `scenario.json` (known conference wins + remaining conference games won). The validator requires `p_ge[0] = 1`, non-increasing values, 1 up to the wins already secured, 0 above the wins still reachable, and `sum(p_ge[1..]) = avg_wins`.
+
 ## `<season>/week-NN/index.json`
 
 A weekly copy of `index.json` plus `nonfbs[]` (`{team_id, team, power}`, the model's non-FBS ratings that week). It is the published source for `history.json`. As with the v1 archives, a week already published by a different model is kept.
@@ -113,7 +115,7 @@ A weekly copy of `index.json` plus `nonfbs[]` (`{team_id, team, power}`, the mod
 | `history.json` | 20 KB / 8 KB (grows ~5 KB a week) |
 | `changes.json` | 50 KB / 8 KB |
 | `resume.json` | 52 KB / 8 KB |
-| `conferences.json` | 5 KB / 1 KB |
+| `conferences.json` | 25 KB / 6 KB (Conferences) |
 | `scenario.json` | 684 KB / 182 KB (What if only, lazy) |
 | `team/*.json` | ~9 KB / ~2 KB each |
 
@@ -129,3 +131,30 @@ games with `in_ratings = true`, all opponents, all quarters, **not opponent-adju
 rate, 0–1), `net_epa` (= `off_epa − def_epa`), `off_epa`, `off_rush_epa`, `off_pass_epa`, `def_epa`, `def_rush_epa`,
 `def_pass_epa` (EPA per play allowed; lower is better), and `<metric>_rank` for each (FBS, 1 = best; defense ranks
 ascending). `method` holds the plain-language definitions shown on the page.
+
+## Depth charts (weekly input; display only)
+
+`R/publish/pull_depth_charts.R`, run from `scripts/03_export_public_data.R` after the player-stats pull (skip with
+`CFB_PULL_DEPTH=false`). Source: TWO·DEEP (thetwodeep.com), used with the owner's permission; CollegeFootballData has no
+depth charts. Writes `output/state/depth_charts_<season>.rds`: a data frame with one row per team, spot and depth
+(`season, week, team_id, slug, order, unit, group, slot, depth, player, jersey, snaps_pct, fetched_at`), keyed by season,
+week (the ratings week) and team_id; earlier weeks are kept. The committed copy `data/reference/depth_charts/` is the last
+good file (the CI state is clean each run; the workflow commits the copy). A failed or thin pull (< 100 teams, or the
+first 10 teams all failing) logs a warning and keeps the last good file; the run continues. The team pages read the latest
+week per team from `usage/<slug>.json` (`depth`, `depth_source.week`).
+
+### efficiency.json: standard team stats (Round 18)
+
+`R/publish/team_basic_stats.R` adds, per team: `games` (regular-season games in the ratings), `ppg`, `papg`, `ypg`,
+`pass_ypg` (net), `rush_ypg`, `ya_pg`, `pass_ya_pg`, `rush_ya_pg` (per game), `pass_share` (pass attempts / (pass + rush
+attempts)), `third_pct`, `to_margin` (opponent turnovers minus own, season total), `pen_ypg`, each with `<key>_rank`
+(FBS, 1 = best; lower-is-better stats ranked ascending: `basic_method.lower_is_better`; `pass_share` ranked from most
+passing, descriptive). Source: CFBD game team stats, one call per regular-season week, cached in
+`output/state/game_team_stats_<season>.rds`. Display only.
+
+### Round 18 additions for the matchup page
+- `games.json` games carry `venue` (name only, from the raw CFBD schedule; display only).
+- `public/data/betting.json` games carry `market_total` (the over/under from the same sportsbook quote as
+  `market_spread`), null when not quoted. Evaluation and display only: never a model input. Quotes exist only for games
+  not yet kicked off at export time; the matchup page omits the market section otherwise. CFPi+ has no total or
+  implied score of its own (it predicts margins).

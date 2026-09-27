@@ -23,7 +23,7 @@ export type Game = {
   home_conference: string | null; away_conference: string | null; status: 'final' | 'scheduled'
   home_points: number | null; away_points: number | null
   spread_home: number | null; win_prob_home: number | null; sim_home_win: number | null; quality: number | null
-  in_ratings: boolean
+  in_ratings: boolean; venue?: string | null
 }
 export type TeamMeta = {
   team_id: string; slug: string; team: string; mascot: string | null; abbreviation: string | null; conference: string | null
@@ -34,7 +34,10 @@ export type PlayoffTeam = {
   p_bye: number; p_host: number; p_qf: number; p_sf: number; p_final: number; p_champ: number
   mean_seed: number | null; seed_dist?: number[]
 }
-export type IndexDoc = { meta: Meta; teams: TeamRow[]; top_games: Game[] | null }
+/** A team's playoff chance in the simulated seasons where it wins / loses one game (the What if? filter for a single pick). */
+export type Swing = { win: number; lose: number; base: number; n_win: number; n_lose: number }
+export type GameSwing = { home?: Swing; away?: Swing }
+export type IndexDoc = { meta: Meta; teams: TeamRow[]; top_games: Game[] | null; top_swing?: Record<string, GameSwing> | null }
 export type TeamsDoc = { meta: Meta; teams: TeamMeta[] }
 export type GamesDoc = { meta: Meta; games: Game[] }
 export type PlayoffDoc = {
@@ -69,7 +72,10 @@ export type Conference = {
   avg_power: number | null; median_power: number | null; top25: number; best_rank: number | null; avg_rank: number | null
   exp_playoff: number | null; sos_avg: number | null
   nonconf_wins: number | null; nonconf_losses: number | null; nonconf_fbs_wins: number | null; nonconf_fbs_losses: number | null
+  standings?: ConfStanding[]
 }
+/** Simulated conference wins for one team: p_ge[k] = share of simulated seasons with at least k conference wins (k = 0..conf_games). */
+export type ConfStanding = { team_id: string; conf_wins: number; conf_losses: number; conf_games: number; avg_wins: number; p_ge: number[] }
 export type ScenarioDoc = { meta: Meta; format?: number; known_wins?: number[]; game_home?: number[]; game_away?: number[]; n: number; game_ids: string[]; team_ids: string[]; team_games: number[]; layout: string; data: string }
 export type ResumeRow = { team_id: string; resume_rank: number | null; sor: number | null; sos_played: number | null; sos_played_rank: number | null; wins: number | null; losses: number | null; games: number; predictive_rank: number | null; best_win: NotableGame | null; worst_loss: NotableGame | null }
 export type ResumeDoc = { meta: Meta; method: { metric: string; benchmark: string; tiebreaks: string; proposal: string }; teams: ResumeRow[] }
@@ -79,16 +85,22 @@ export type Efficiency = {
   def_epa: number | null; def_rush_epa: number | null; def_pass_epa: number | null
   sr_rank: number | null; net_epa_rank: number | null; off_epa_rank: number | null; off_rush_epa_rank: number | null; off_pass_epa_rank: number | null
   def_epa_rank: number | null; def_rush_epa_rank: number | null; def_pass_epa_rank: number | null
-}
-export type EfficiencyDoc = { meta: Meta; method: { adjusted: boolean; source: string; scope: string; plays: string; success: string; ranks: string }; teams: Efficiency[] }
+} & Partial<Record<BasicKey | `${BasicKey}_rank`, number | null>> & { games?: number | null }
+export type BasicKey = 'ppg' | 'papg' | 'ypg' | 'pass_ypg' | 'rush_ypg' | 'ya_pg' | 'pass_ya_pg' | 'rush_ya_pg' | 'pass_share' | 'third_pct' | 'to_margin' | 'pen_ypg'
+export type EfficiencyDoc = { meta: Meta; method: { adjusted: boolean; source: string; scope: string; plays: string; success: string; ranks: string }
+  basic_method?: { source: string; scope: string; turnover_margin: string; pass_share: string; lower_is_better: string[] } | null; teams: Efficiency[] }
 export type RosterBits = { jersey?: number | null; height?: number | null; roster_pos?: string | null; headshot?: string | null }
 export type UsageOff = { athlete_id: string; name: string; position: string | null; usg_overall: number; usg_pass: number; usg_rush: number } & RosterBits
 export type UsageDef = { athlete_id: string; name: string; position: string | null; tackles: number; tfl: number; sacks: number; int: number; pd: number } & RosterBits
+export type KeyPlayer = { athlete_id: string; name: string; position: string | null; role: 'passing' | 'rushing' | 'receiving' | 'defense'; jersey: number | null; headshot: string | null
+  pass_cmp: number; pass_att: number; pass_yds: number; pass_td: number; pass_int: number; rush_car: number; rush_yds: number; rush_td: number
+  rec: number; rec_yds: number; rec_td: number; tackles: number; tfl: number; sacks: number; int: number }
 export type DepthPlayer = { name: string; jersey: number | null; snaps: number | null; height?: number | null; headshot?: string | null }
 export type DepthRow = { group: string; slot: string; unit: 'offense' | 'defense'; players: DepthPlayer[] }
 export type UsageDoc = {
   meta: Meta; team_id: string; offense_source: string; offense_pulled_at: string | null; defense_through_week: number | null
   offense: Record<'QB' | 'RB' | 'WR' | 'TE', UsageOff[]> | null; defense: Record<'DL' | 'LB' | 'DB', UsageDef[]> | null; ol_on_roster?: number | null
+  key_players?: KeyPlayer[] | null
   depth?: DepthRow[] | null; depth_source?: { name: string; url: string; fetched_at: string | null } | null
 }
 export type ConferencesDoc = { meta: Meta; conferences: Conference[] }

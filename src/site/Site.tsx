@@ -9,9 +9,9 @@ const Games = lazy(() => import('./pages/Games'))
 const Playoff = lazy(() => import('./pages/Playoff'))
 const Teams = lazy(() => import('./pages/Teams'))
 const Team = lazy(() => import('./pages/Team'))
+const Matchup = lazy(() => import('./pages/Matchup'))
 const ConferenceList = lazy(() => import('./pages/Conferences').then(m => ({ default: m.ConferenceList })))
 const ConferenceDetail = lazy(() => import('./pages/Conferences').then(m => ({ default: m.ConferenceDetail })))
-const Compare = lazy(() => import('./pages/Compare'))
 const Resume = lazy(() => import('./pages/Resume'))
 const WhatIf = lazy(() => import('./pages/WhatIf'))
 const Model = lazy(() => import('./pages/Model'))
@@ -22,7 +22,6 @@ import NotFound from './pages/NotFound'
 const NAV = [
   { to: '/', label: 'Home' },
   { to: '/rankings/', label: 'Rankings' },
-  { to: '/compare/', label: 'History' },
   { to: '/games/', label: 'Games' },
   { to: '/playoff/', label: 'Playoff' },
   { to: '/whatif/', label: 'What if?' },
@@ -34,6 +33,8 @@ const NAV = [
 function route(path: string) {
   const team = path.match(/^\/teams\/([a-z0-9-]+)\/$/)
   if (team) return { page: <Team slug={team[1]} />, section: '/teams/', title: null }
+  const game = path.match(/^\/games\/(\d+)\/$/)
+  if (game) return { page: <Matchup id={game[1]} />, section: '/games/', title: 'Matchup' }
   const conf = path.match(/^\/conferences\/([a-z0-9-]+)\/$/)
   if (conf) return { page: <ConferenceDetail slug={conf[1]} />, section: '/conferences/', title: null }
   const pages: Record<string, [ReactElement, string]> = {
@@ -43,7 +44,9 @@ function route(path: string) {
     '/playoff/': [<Playoff />, 'Playoff'],
     '/teams/': [<Teams />, 'Teams'],
     '/conferences/': [<ConferenceList />, 'Conferences'],
-    '/compare/': [<Compare />, 'Rating history'],
+    // History (rating comparison) was retired in Round 18; old links land on Home. Team pages keep their own chart.
+    '/compare/': [<Redirect to="/" />, 'College Football Power Ratings'],
+    '/history/': [<Redirect to="/" />, 'College Football Power Ratings'],
     // What changed now lives on Home; old links land on that section.
     '/changes/': [<Redirect to="/#changed" />, 'College Football Power Ratings'],
     '/changed/': [<Redirect to="/#changed" />, 'College Football Power Ratings'],
