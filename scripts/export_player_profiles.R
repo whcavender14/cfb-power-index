@@ -99,3 +99,11 @@ for (f in names(depth_ids)) {
   write_json(u, f, auto_unbox = TRUE, na = "null", null = "null", digits = 6)
 }
 cat(sprintf("depth-chart starters with stats: %d\n", m))
+
+# Search index for the header search box: one compact row per player profile, [athlete_id, name, team_id, position, jersey].
+files <- list.files(out_dir, pattern = "\\.json$", full.names = TRUE)
+rows <- lapply(files, function(f) { p <- fromJSON(f, simplifyVector = FALSE)$player
+  list(p$athlete_id, p$name, if (is.null(p$team_id)) NA else p$team_id, if (is.null(p$position)) NA else p$position, if (is.null(p$jersey)) NA else p$jersey) })
+write_json(list(meta = index$meta, columns = c("athlete_id", "name", "team_id", "position", "jersey"), players = rows),
+           file.path(v2, "players.json"), auto_unbox = TRUE, na = "null", null = "null")
+cat(sprintf("player search index: %d\n", length(rows)))

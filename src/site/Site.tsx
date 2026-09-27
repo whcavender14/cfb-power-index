@@ -19,6 +19,7 @@ const LegacySimulations = lazy(() => import('./pages/Legacy').then(m => ({ defau
 const LegacyBetting = lazy(() => import('./pages/Legacy').then(m => ({ default: m.LegacyBetting })))
 import NotFound from './pages/NotFound'
 import { PlayerProvider } from './player'
+import Search from './Search'
 
 const NAV = [
   { to: '/', label: 'Home' },
@@ -101,6 +102,7 @@ export default function Site() {
         <Link to="/" className="cf-brand" aria-label="CFPi+ home">CFPi<span className="cf-brand-plus">+</span></Link>
         <nav className="cf-nav" aria-label="Primary">{links('cf-nav-link')}</nav>
         <div className="cf-header-actions">
+          <Search />
           <button type="button" className="cf-icon-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Switch to light appearance' : 'Switch to dark appearance'}>
             {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
           </button>
