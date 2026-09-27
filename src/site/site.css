@@ -573,7 +573,7 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 /* Team page: schedule with the what-if panel beside it */
 .cf-sched-layout { display: grid; gap: var(--s4); grid-template-columns: 1fr; }
 .cf-sched-layout > * { min-width: 0; }
-@media (min-width: 1100px) { .cf-sched-layout { grid-template-columns: minmax(0, 1fr) 20rem; grid-template-areas: "rem wi" "res wi"; row-gap: 0; } .cf-sched-rem { grid-area: rem; } .cf-sched-res { grid-area: res; } .cf-wi { grid-area: wi; position: sticky; top: 64px; align-self: start; } }
+@media (min-width: 1100px) { .cf-sched-layout { grid-template-columns: minmax(0, 1fr) 20rem; grid-template-areas: "rem wi"; } .cf-sched-rem { grid-area: rem; } .cf-wi { grid-area: wi; position: sticky; top: 64px; align-self: start; } }
 .cf-sched-row.has-pick { grid-template-columns: 2.6rem 9rem 1.5rem minmax(9rem, 1fr) auto 4.5rem auto; }
 .cf-sched-pick { display: inline-flex; gap: 4px; min-width: calc(60px + 4px); }
 @media (pointer: coarse) { .cf-sched-pick { min-width: 84px; } }
@@ -1056,3 +1056,10 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-dc-backfield > span { display: flex; gap: var(--s2); }
 .cf-dc-backfield > span:first-child { justify-content: flex-end; }
 @media (max-width: 719px) { .cf-dc-group, .cf-dc-backfield, .cf-dc-backfield > span, .cf-dc-oline { gap: 4px; } }
+
+/* Bye week: a quiet row with a rule through it, in place of a game. */
+.cf-sched-bye { display: grid; grid-template-columns: 2.6rem 1fr; gap: var(--s3); align-items: center; min-height: 32px; font-size: .75rem; }
+.cf-sched-byeline { display: flex; align-items: center; gap: var(--s3); color: var(--cf-muted); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.cf-sched-byeline::before, .cf-sched-byeline::after { content: ""; flex: 1; height: 1px; background: var(--cf-line-strong); }
+.cf-sched-bye + .cf-sched-row, .cf-sched-row + .cf-sched-bye { border-top: 0; }
+@media (max-width: 720px) { .cf-sched-bye { grid-template-columns: 1fr; } .cf-sched-bye .cf-sched-wk { display: none; } }
