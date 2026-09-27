@@ -17,7 +17,7 @@ const MARKET_INFO = 'One sportsbook quote (spread and over/under) retrieved from
 const spreadText = (home: string, away: string, v: number) => Math.abs(v) < 0.05 ? 'Pick’em' : v < 0 ? `${home} −${fmt(-v)}` : `${away} −${fmt(v)}`
 
 function Side({ label, away, home, better }: { label: ReactNode; away: ReactNode; home: ReactNode; better?: 'away' | 'home' | null }) {
-  return <div className="cf-mu-row">
+  return <div className={`cf-mu-row${better ? ` is-better-${better}` : ''}`}>
     <span className={`cf-mu-a${better === 'away' ? ' is-better' : ''}`}>{away}</span>
     <span className="cf-mu-label">{label}</span>
     <span className={`cf-mu-h${better === 'home' ? ' is-better' : ''}`}>{home}</span>
@@ -163,7 +163,7 @@ export default function Matchup({ id }: { id: string }) {
           <h3 className="cf-h3">{gr.title}{gr.note && <span className="cf-eff-note"> · {gr.note}</span>}{gr.raw && <span className="cf-tag">Raw, not opponent-adjusted</span>}</h3>
           {gr.defs.map(d => <StatSides key={d.key} d={d} a={ea} h={eh} />)}
         </div>)}
-        <p className="cf-small cf-muted">Ranks among {total || 'FBS'} FBS teams, No. 1 = best; the better rank in each row is highlighted. Stats are per game over each team’s regular-season games in the ratings; none are opponent-adjusted except the CFPi+ ratings.{(!ra || !rh) ? ' Non-FBS teams have no CFPi+ stats.' : ''}</p>
+        <p className="cf-small cf-muted">Ranks among {total || 'FBS'} FBS teams, No. 1 = best; the better side of each row is shaded green. Stats are per game over each team’s regular-season games in the ratings; none are opponent-adjusted except the CFPi+ ratings.{(!ra || !rh) ? ' Non-FBS teams have no CFPi+ stats.' : ''}</p>
       </section>}
 
       {(sa.length > 0 || sh.length > 0) && <section className="cf-panel" aria-labelledby="mu-stars">

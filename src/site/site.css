@@ -923,3 +923,9 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-row-link .cf-matchup .cf-at { text-align: center; }
 @media (min-width: 760px) { .cf-games-table .cf-c-line { width: 8rem; } }
 .cf-row-link .cf-matchup, .cf-match-head { grid-template-columns: minmax(0, 1fr) 1.75rem minmax(0, 1fr); }
+/* Head to head: the better side of a row is shaded green, fading toward the middle */
+.cf-mu-row { padding-inline: var(--s2); margin-inline: calc(-1 * var(--s2)); }
+.cf-mu-row.is-better-away { background: linear-gradient(to right, color-mix(in srgb, var(--cf-up) 24%, transparent), transparent 58%); }
+.cf-mu-row.is-better-home { background: linear-gradient(to left, color-mix(in srgb, var(--cf-up) 24%, transparent), transparent 58%); }
+.cf-mu-a.is-better::before, .cf-mu-h.is-better::before { display: none; }
+@media (max-width: 759px) { .cf-mu-row.is-better-away { background: linear-gradient(to right, color-mix(in srgb, var(--cf-up) 26%, transparent), transparent 62%); } .cf-mu-row.is-better-home { background: linear-gradient(to left, color-mix(in srgb, var(--cf-up) 26%, transparent), transparent 62%); } }
