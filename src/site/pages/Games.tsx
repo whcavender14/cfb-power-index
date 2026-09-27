@@ -65,7 +65,7 @@ export default function Games() {
               <colgroup><col className="cf-c-kick" /><col /><col className="cf-c-proj" /><col className="cf-c-prob" /><col className="cf-c-qual" />{showLines && <col className="cf-c-line" />}<col className="cf-c-go" /></colgroup>
               <thead><tr>
                 <SortTh label="Kickoff" sortKey="kickoff" sort={sort} onSort={onSort} align="start" />
-                <th scope="col" className="cf-th-start">Matchup</th>
+                <th scope="col" className="cf-th-start cf-th-match"><span className="cf-match-head"><span>Away</span><span aria-hidden="true" /><span>Home</span></span></th>
                 <th scope="col" className="cf-th-start">Projection / result</th>
                 <SortTh label="Win prob." sortKey="prob" sort={sort} onSort={onSort} info={WINPROB_INFO} />
                 <SortTh label="Quality" sortKey="quality" sort={sort} onSort={onSort} info={QUALITY_INFO} />

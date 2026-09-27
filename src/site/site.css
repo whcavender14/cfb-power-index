@@ -907,3 +907,7 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 /* Games: centre the Win prob. column (header and values) */
 .cf-games-table th:nth-child(4), .cf-games-table td:nth-child(4) { text-align: center; }
 .cf-games-table th:nth-child(4) .cf-th { justify-content: center; }
+/* Games: Away / Home headers on the same tracks as the matchup cells (logo offset included) */
+.cf-games-table th.cf-th-match { padding-left: 8px; padding-right: 8px; }
+.cf-match-head { display: grid; grid-template-columns: minmax(0, 1fr) 1.25rem minmax(0, 1fr); gap: 0 4px; }
+.cf-match-head > span:first-child, .cf-match-head > span:last-child { padding-left: 32px; }   /* logo (22px) + gap (10px), so labels start where team names do */
