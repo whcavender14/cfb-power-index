@@ -939,8 +939,8 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-swing-note b { font-weight: 600; }
 .cf-swing-note a { text-decoration: underline; }
 
-/* Line calculator (Games page): a collapsed panel; opens to two team pickers and a site toggle. */
-.cf-calc { margin-bottom: var(--s3); padding: 0; }
+/* Line calculator (bottom of the Games page): a collapsed panel; opens to two team pickers and a site toggle. */
+.cf-calc { margin-top: var(--s5); padding: 0; }
 .cf-calc > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2) var(--s3); padding: var(--s3) var(--s4); cursor: pointer; list-style: none; }
 .cf-calc > summary::-webkit-details-marker { display: none; }
 .cf-calc > summary::before { content: '▸'; color: var(--cf-muted); transition: transform 120ms var(--cf-ease); }

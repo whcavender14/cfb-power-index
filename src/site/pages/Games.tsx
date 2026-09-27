@@ -38,7 +38,6 @@ export default function Games() {
       const sorted = sortRows(rows, value[sort.key] ?? value.kickoff, sort.desc)
       const showLines = sorted.some(g => lines.has(g.game_id))
       return <>
-        <LineCalculator />
         <div className="cf-toolbar">
           <Select label="Week" value={week || (slug ? 'all' : String(meta.current_week ?? 'all'))} onChange={v => setWeek(v === String(meta.current_week) && !slug ? '' : v)}>
             <option value="all">All weeks</option>
@@ -90,6 +89,7 @@ export default function Games() {
             {lines.get(g.game_id) && <p className="cf-small cf-line-note">Line: {lineText(lines.get(g.game_id)!)}</p>}
           </div>)}</div>
         </>}
+        <LineCalculator />
       </>
     }}</DataGate>
   </>
