@@ -938,3 +938,22 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-swing-note { margin: var(--s2) 0 0; }
 .cf-swing-note b { font-weight: 600; }
 .cf-swing-note a { text-decoration: underline; }
+
+/* Line calculator (Games page): a collapsed panel; opens to two team pickers and a site toggle. */
+.cf-calc { margin-bottom: var(--s3); padding: 0; }
+.cf-calc > summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2) var(--s3); padding: var(--s3) var(--s4); cursor: pointer; list-style: none; }
+.cf-calc > summary::-webkit-details-marker { display: none; }
+.cf-calc > summary::before { content: '▸'; color: var(--cf-muted); transition: transform 120ms var(--cf-ease); }
+.cf-calc[open] > summary::before { transform: rotate(90deg); }
+.cf-calc-title { font-weight: 600; letter-spacing: -.012em; }
+.cf-calc-body { display: grid; gap: var(--s3); padding: 0 var(--s4) var(--s4); }
+.cf-calc-inputs { display: flex; flex-wrap: wrap; gap: var(--s3); }
+.cf-calc-inputs .cf-field { flex: 1 1 200px; min-width: 0; }
+.cf-calc-inputs .cf-select select { width: 100%; }
+.cf-calc-out { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: var(--s3); align-items: center; padding: var(--s3); border-radius: var(--cf-radius-sm); background: var(--cf-fill-2); box-shadow: inset 3px 0 0 var(--cf-accent), inset 0 0 0 1px var(--cf-line); }
+.cf-calc-out > div { display: grid; gap: 4px; min-width: 0; }
+.cf-calc-logos { display: flex; gap: 6px; }
+@media (max-width: 720px) {
+  .cf-calc-out { grid-template-columns: 1fr 1fr; }
+  .cf-calc-logos { grid-column: 1 / -1; }
+}

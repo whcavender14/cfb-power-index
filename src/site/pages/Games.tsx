@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react'
 import { DataGate, Freshness, Info, Missing, PageHead, pctText, Select, SortTh, sortRows, useData, useTeams, type Sort } from '../components'
 import type { GamesDoc, Game } from '../data'
 import { GameCard, kickoffText, lineText, Matchup, projection, ProjectionText, Quality, QUALITY_INFO, useLines, WINPROB_INFO } from '../games'
+import LineCalculator from '../LineCalculator'
 import { Link, useQueryParam } from '../router'
 
 export default function Games() {
@@ -37,6 +38,7 @@ export default function Games() {
       const sorted = sortRows(rows, value[sort.key] ?? value.kickoff, sort.desc)
       const showLines = sorted.some(g => lines.has(g.game_id))
       return <>
+        <LineCalculator />
         <div className="cf-toolbar">
           <Select label="Week" value={week || (slug ? 'all' : String(meta.current_week ?? 'all'))} onChange={v => setWeek(v === String(meta.current_week) && !slug ? '' : v)}>
             <option value="all">All weeks</option>
