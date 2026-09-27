@@ -4,6 +4,7 @@ import { DataGate, Freshness, Info, Movement, Num, Pct, TeamLink, useData, useTe
 import type { ChangesDoc, IndexDoc, Meta, TeamChange, TeamRow } from '../data'
 import { GameCard, QUALITY_INFO } from '../games'
 import { Link } from '../router'
+import Ticker from '../Ticker'
 
 // The homepage answers three questions, each a short preview that links to its full page, then shows this week's
 // changes (the former What changed page). The previews use index.json only; changes.json loads with its own section.
@@ -83,12 +84,9 @@ export default function Home() {
     const contenders = teams.filter(t => t.p_playoff != null && t.p_playoff > 0).sort((a, b) => b.p_playoff! - a.p_playoff! || (a.rank ?? 999) - (b.rank ?? 999)).slice(0, 12)
     const sims = meta.sim_status === 'available'
     return <>
-      <header className="cf-hero">
-        <p className="cf-eyebrow">{meta.season} college football</p>
-        <h1>Every FBS team, rated.</h1>
-        <p className="cf-lede">{sims && meta.sim_count ? `Opponent-adjusted power ratings and ${meta.sim_count.toLocaleString()} simulated seasons from CFPi+.` : 'Opponent-adjusted power ratings from CFPi+.'}</p>
-        <Freshness meta={meta} />
-      </header>
+      <h1 className="cf-sr">CFPi+ college football power ratings</h1>
+      <Freshness meta={meta} />
+      <Ticker games={top_games ?? []} week={meta.current_week} />
 
       <div className="cf-questions">
         <Question id="q-best" q="Who are the best teams?" more="Full rankings" to="/rankings/">
