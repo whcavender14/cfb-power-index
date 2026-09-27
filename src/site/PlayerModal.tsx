@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
+import './player.css'
 import { DataGate, Info, Segmented, SortTh, sortRows, TeamLogo, useData, useTeams, type Sort } from './components'
 import type { Meta } from './data'
 
