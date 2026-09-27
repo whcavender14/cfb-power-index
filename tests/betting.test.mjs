@@ -66,6 +66,7 @@ test('Real betting snapshot shares ratings/HFA provenance and valid quotes', () 
       assert.ok(Number.isFinite(g.market_spread))
       assert.ok(g.market_provider)
       assert.ok(Number.isFinite(Date.parse(g.market_retrieved_at)))
-    } else assert.equal(g.market_retrieved_at,null)
+      assert.ok(g.market_total === undefined || g.market_total === null || (Number.isFinite(g.market_total) && g.market_total > 0))
+    } else { assert.equal(g.market_retrieved_at,null); assert.ok(g.market_total == null) }
   }
 })

@@ -63,3 +63,11 @@ test('rejects a history whose current point disagrees with the rankings', () => 
 test('rejects movement that does not come from the history previous week', () => {
   assert.ok(broken('index.json', d => { const r = d.teams.find(t => t.rank_prev); r.rank_prev += 1; r.rank_change += 1 }).some(e => e.includes('movement')))
 })
+
+test('rejects conference win odds that do not sum to the expected wins', () => {
+  assert.ok(broken('conferences.json', d => { const t = d.conferences.find(c => c.standings?.length).standings[0]; t.avg_wins += 0.5 }).some(e => e.includes('p_ge sums')))
+})
+
+test('rejects a playoff swing that does not average back to the published odds', () => {
+  assert.ok(broken('index.json', d => { const g = Object.values(d.top_swing)[0]; const side = g.home ?? g.away; side.win = Math.min(1, side.win + 0.3) }).some(e => e.includes('top_swing')))
+})

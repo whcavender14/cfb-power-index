@@ -45,7 +45,7 @@ rows <- lapply(seq_len(if (is.null(games)) 0L else nrow(games)),function(i) {
        away_team_id=as.character(game$away_id),away_team=game$away_team,
        home_team_id=as.character(game$home_id),home_team=game$home_team,
        neutral_site=if (is.na(game$neutral_site)) NA else as.logical(game$neutral_site),
-       market_spread=quote$spread,market_provider=quote$provider,
+       market_spread=quote$spread,market_total=quote$total,market_provider=quote$provider,
        market_retrieved_at=if (is.finite(quote$spread)) fetched else NA_character_,
        market_updated_at=NA_character_)
 })

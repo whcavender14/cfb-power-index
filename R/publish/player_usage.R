@@ -75,3 +75,37 @@ team_player_usage <- function(school, usage, stats, roster = NULL) {
   list(offense = add_roster(off), defense = add_roster(def),
        ol_on_roster = if (is.null(r)) NA_integer_ else sum(r$position %in% "OL"))
 }
+
+# Key players for the matchup page, by season production (CFBD season player stats through the ratings week): the
+# depth-chart QB1 (else the passing-yards leader), the leading rusher, the top two receivers, the top two tacklers and
+# the sack leader. Raw season totals; the page formats them. qb_name: TWO·DEEP QB1, when known.
+key_players <- function(school, stats, roster = NULL, qb_name = NA_character_) {
+  if (is.null(stats)) return(NULL)
+  s <- stats[stats$team == school, , drop = FALSE]
+  if (!nrow(s)) return(NULL)
+  num <- function(v) { v <- suppressWarnings(as.numeric(v)); ifelse(is.na(v), 0, v) }
+  s$athlete_id <- as.character(s$athlete_id)
+  r <- if (!is.null(roster)) roster[roster$team == school, , drop = FALSE] else NULL
+  pick <- function(i, role) {
+    if (!length(i) || is.na(i)) return(NULL)
+    x <- s[i, ]; k <- if (!is.null(r)) match(x$athlete_id, r$athlete_id) else NA
+    list(athlete_id = x$athlete_id, name = x$player, position = x$position, role = role,
+         jersey = if (!is.na(k)) suppressWarnings(as.integer(r$jersey[k])) else NA_integer_,
+         headshot = if (!is.na(k) && "headshot_url" %in% names(r)) r$headshot_url[k] else NA_character_,
+         pass_cmp = num(x$passing_completions), pass_att = num(x$passing_att), pass_yds = num(x$passing_yds), pass_td = num(x$passing_td), pass_int = num(x$passing_int),
+         rush_car = num(x$rushing_car), rush_yds = num(x$rushing_yds), rush_td = num(x$rushing_td),
+         rec = num(x$receiving_rec), rec_yds = num(x$receiving_yds), rec_td = num(x$receiving_td),
+         tackles = num(x$defensive_tot), tfl = num(x$defensive_tfl), sacks = num(x$defensive_sacks), int = num(x$interceptions_int))
+  }
+  top <- function(v, n = 1L, min = 0) { o <- order(-num(v)); o <- o[num(v)[o] > min]; head(o, n) }
+  qb <- if (!is.na(qb_name)) which(tolower(s$player) == tolower(qb_name))[1] else NA
+  if (is.na(qb) || num(s$passing_att[qb]) == 0) qb <- top(s$passing_yds)[1]
+  out <- list(pick(qb, "passing"))
+  used <- if (length(qb) && !is.na(qb)) s$athlete_id[qb] else character()
+  add <- function(idx, role) for (i in idx) if (!s$athlete_id[i] %in% used) { out[[length(out) + 1L]] <<- pick(i, role); used <<- c(used, s$athlete_id[i]) }
+  add(top(s$rushing_yds), "rushing")
+  add(head(setdiff(top(s$receiving_yds, 3L), match(used, s$athlete_id)), 2L), "receiving")
+  add(top(s$defensive_tot, 2L), "defense")
+  add(setdiff(top(s$defensive_sacks, 1L), match(used, s$athlete_id)), "defense")
+  Filter(Negate(is.null), out)
+}

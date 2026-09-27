@@ -1,5 +1,5 @@
 import { DataGate, Freshness, Info, Num, PageHead, Pct, SortTh, sortRows, TeamLink, useData, useTeams, type Sort } from '../components'
-import type { Conference, ConferencesDoc, IndexDoc, TeamRow } from '../data'
+import type { Conference, ConferencesDoc, ConfStanding, IndexDoc, TeamRow } from '../data'
 import { Link, useQueryParam } from '../router'
 import NotFound from './NotFound'
 
@@ -66,6 +66,38 @@ function StrengthChart({ rows, fbsMin, fbsMax, median }: { rows: TeamRow[]; fbsM
   </figure>
 }
 
+const STANDINGS_INFO = 'Each cell is the share of the simulated seasons in which the team wins at least that many conference games (regular season). ✓ marks the win total the team has already secured; ✗ a total it can no longer reach. A blank cell is under 1% or already certain. Avg. is the expected final conference wins.'
+
+/** Projected conference standings: chance to win at least N conference games, from the simulated seasons. */
+function ConfWinOdds({ rows, sims }: { rows: ConfStanding[]; sims: number | null }) {
+  const top = Math.max(...rows.map(r => r.conf_games))
+  const cols = Array.from({ length: top + 1 }, (_, i) => top - i)
+  const sorted = [...rows].sort((a, b) => b.avg_wins - a.avg_wins || b.conf_wins - a.conf_wins)
+  return <div className="cf-table-wrap"><table className="cf-table cf-table-compact cf-confodds">
+    <caption className="cf-sr">Chance to win at least N conference games</caption>
+    <thead><tr>
+      <th scope="col" className="cf-th-start cf-hide-sm">Rk</th>
+      <th scope="col" className="cf-th-start">Team</th>
+      <th scope="col">Conf.</th>
+      <th scope="col">Avg.</th>
+      {cols.map(n => <th scope="col" key={n} className="cf-co-n">{n}</th>)}
+    </tr></thead>
+    <tbody>{sorted.map((r, i) => <tr key={r.team_id}>
+      <td className="cf-td-end cf-num cf-muted cf-hide-sm">{i + 1}</td>
+      <td><TeamLink id={r.team_id} size={20} /></td>
+      <td className="cf-td-end cf-num">{r.conf_wins}–{r.conf_losses}</td>
+      <td className="cf-td-end cf-num">{r.avg_wins.toFixed(1)}</td>
+      {cols.map(n => {
+        if (n > r.conf_games - r.conf_losses) return <td key={n} className="cf-co-cell cf-co-out" aria-label={`${n}: no longer possible`}>✗</td>
+        if (n === r.conf_wins) return <td key={n} className="cf-co-cell cf-co-done" aria-label={`${n}: secured`}>✓</td>
+        const p = n < r.conf_wins ? 1 : r.p_ge[n]
+        if (p < 0.005 || p >= 0.995) return <td key={n} className="cf-co-cell" />
+        return <td key={n} className="cf-co-cell cf-num" style={{ backgroundColor: `rgb(var(--cf-heat) / ${(0.06 + p * 0.5).toFixed(2)})` }}>{Math.round(p * 100)}%</td>
+      })}
+    </tr>)}</tbody>
+  </table>{sims ? <p className="cf-small cf-muted cf-co-note">Share of {sims.toLocaleString()} simulated seasons with at least this many conference wins. <Info text={STANDINGS_INFO} label="How to read this table" /></p> : null}</div>
+}
+
 export function ConferenceDetail({ slug }: { slug: string }) {
   const doc = useData<ConferencesDoc>('conferences.json')
   const index = useData<IndexDoc>('index.json')
@@ -95,6 +127,10 @@ export function ConferenceDetail({ slug }: { slug: string }) {
           <div><dt>Schedule strength <Info text={SOS_INFO} label="About schedule strength" /></dt><dd className="cf-big"><Num value={c.sos_avg} signed /></dd></div>
           <div><dt>Non-conference record</dt><dd className="cf-big cf-num">{record(c.nonconf_wins, c.nonconf_losses)}</dd><dd className="cf-small cf-muted">{record(c.nonconf_fbs_wins, c.nonconf_fbs_losses)} vs FBS</dd></div>
         </dl>
+        {c.is_conference && c.standings && c.standings.length > 0 && <section className="cf-section" aria-labelledby="cf-odds">
+          <div className="cf-section-head"><h2 id="cf-odds">Projected conference standings</h2></div>
+          <ConfWinOdds rows={c.standings} sims={meta.sim_count} />
+        </section>}
         <div className="cf-conf-grid">
           <section className="cf-panel" aria-labelledby="cf-str"><h2 id="cf-str" className="cf-h2">Team strength</h2>
             <StrengthChart rows={byPower} fbsMin={powers[0] ?? 0} fbsMax={powers[powers.length - 1] ?? 0} median={median} />

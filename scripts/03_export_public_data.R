@@ -15,6 +15,9 @@ ensure_output_dirs()
 source(PATHS$export_public, local = new.env(parent = globalenv()))
 # Season player stats for "Statistical leaders" (one CFBD call; display only, never a model input).
 if (!identical(Sys.getenv("CFB_PULL_PLAYERS"), "false")) source(PATHS$pull_players, local = new.env(parent = globalenv()))
+# Depth charts (TWO·DEEP, with permission; display only). A failed pull keeps the last good file and only warns.
+if (!identical(Sys.getenv("CFB_PULL_DEPTH"), "false")) tryCatch(source(PATHS$pull_depth, local = new.env(parent = globalenv())),
+  error = function(e) warning("Depth charts: ", conditionMessage(e), "; continuing without a new pull.", call. = FALSE))
 # CFPi+ page datasets (public/data/v2); reads the same outputs, never the model.
 source(PATHS$export_site, local = new.env(parent = globalenv()))
 if (identical(Sys.getenv("CFB_EXPORT_BETTING"), "true")) {

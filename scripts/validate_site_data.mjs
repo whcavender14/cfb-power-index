@@ -48,6 +48,19 @@ export function validateSiteData(dir = root) {
 
   // Rankings
   const rows = index.teams ?? []
+  // Home-page playoff swing: base equals the published playoff probability; win/lose average back to it.
+  for (const [gid, sw] of Object.entries(index.top_swing ?? {})) {
+    const g = (index.top_games ?? []).find(x => x.game_id === gid)
+    if (!g) { fail(`index.json top_swing: ${gid} is not a featured game`); continue }
+    for (const [side, id] of [['home', g.home_id], ['away', g.away_id]]) {
+      const x = sw[side]; if (!x) continue
+      const p = rows.find(r => r.team_id === id)?.p_playoff
+      const n = x.n_win + x.n_lose
+      if (n !== meta.sim_count) fail(`index.json top_swing ${gid} ${side}: ${n} seasons != sim_count`)
+      if (p != null && Math.abs(x.base - p) > 1e-3) fail(`index.json top_swing ${gid} ${side}: base ${x.base} != p_playoff ${p}`)
+      if (Math.abs((x.win * x.n_win + x.lose * x.n_lose) / n - x.base) > 2e-3) fail(`index.json top_swing ${gid} ${side}: win/lose do not average to base`)
+    }
+  }
   if (rows.length !== dirIds.size) fail(`index.json has ${rows.length} teams, teams.json has ${dirIds.size}`)
   const ranks = []
   for (const r of rows) {
@@ -173,6 +186,17 @@ export function validateSiteData(dir = root) {
     if (meta.sim_status === 'available') {
       const s = (c.team_ids ?? []).reduce((a, id) => a + (rows.find(r => r.team_id === id)?.p_playoff ?? 0), 0)
       if (Math.abs(s - c.exp_playoff) > 1e-3) fail(`conferences.json ${c.name}: exp_playoff ${c.exp_playoff} != member sum ${s}`)
+    }
+    // Conference win odds: p_ge[k] = P(at least k conference wins) must start at 1, never rise, and sum to the expected wins.
+    for (const t of c.standings ?? []) {
+      const p = t.p_ge
+      if (!c.team_ids.includes(t.team_id)) fail(`conferences.json ${c.name}: standings team ${t.team_id} is not a member`)
+      if (!Array.isArray(p) || p.length !== t.conf_games + 1 || p[0] !== 1) { fail(`conferences.json ${c.name} ${t.team_id}: p_ge must have conf_games + 1 entries starting at 1`); continue }
+      if (p.some((v, k) => v < 0 || v > 1 || (k > 0 && v > p[k - 1]))) fail(`conferences.json ${c.name} ${t.team_id}: p_ge must be non-increasing probabilities`)
+      if (p.slice(0, t.conf_wins + 1).some(v => v !== 1)) fail(`conferences.json ${c.name} ${t.team_id}: wins already secured must have probability 1`)
+      if (p.slice(t.conf_games - t.conf_losses + 1).some(v => v !== 0)) fail(`conferences.json ${c.name} ${t.team_id}: unreachable win totals must have probability 0`)
+      const ev = p.slice(1).reduce((a, v) => a + v, 0)
+      if (Math.abs(ev - t.avg_wins) > 1e-3) fail(`conferences.json ${c.name} ${t.team_id}: p_ge sums to ${ev.toFixed(4)}, not avg_wins ${t.avg_wins}`)
     }
   }
   if (seen.size !== dirIds.size) fail(`conferences.json covers ${seen.size} of ${dirIds.size} teams`)
