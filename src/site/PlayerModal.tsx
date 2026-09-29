@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import './player.css'
 import { DataGate, Info, InfoLabel, Segmented, SortTh, sortRows, TeamLogo, useData, useTeams, type Sort } from './components'
 import type { Meta } from './data'
+import { teamTheme } from './teamTheme'
 
 // Player detail modal (docs/website/PLAYER_DATA.md). Every number is a CFBD box-score value or a sum of them;
 // rates (Y/A, Y/C, ...) are simple divisions done here for display.
@@ -119,8 +120,8 @@ function PlayerBody({ doc }: { doc: PlayerDoc }) {
   const team = teams.get(p.team_id ?? '')
   const [broken, setBroken] = useState(false)
   const initials = p.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('')
-  return <>
-    <header className="cf-pm-head" style={team?.color ? { ['--pm-team' as string]: team.color } : undefined}>
+  return <div className="cf-themed cf-pm-themed" style={teamTheme(team?.color ?? null, team?.alt_color ?? null)}>
+    <header className="cf-pm-head">
       <span className="cf-pm-face">{p.headshot && !broken ? <img src={p.headshot} alt="" onError={() => setBroken(true)} /> : <span aria-hidden="true">{initials}</span>}</span>
       <div className="cf-pm-id">
         <h2 id="cf-pm-name" className="cf-pm-name">{p.name}</h2>
@@ -142,7 +143,7 @@ function PlayerBody({ doc }: { doc: PlayerDoc }) {
       {tab === 'games' && <GameLog games={games} season={doc.meta.season} />}
     </div>
     <p className="cf-small cf-muted cf-pm-foot">Box scores through Week {doc.through_week ?? '—'} of {doc.meta.season}, from 2021. Source: CollegeFootballData (box scores, roster, recruiting, transfer portal).</p>
-  </>
+  </div>
 }
 
 function Bio({ p, season }: { p: Player; season: number }) {

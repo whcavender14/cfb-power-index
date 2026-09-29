@@ -1,8 +1,11 @@
+import '../conferences.css'
+import { teamTheme, CONF_COLORS } from '../teamTheme'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import type { ChartPoint } from '../confChart'
 import ShareButton from '../ShareButton'
-import { DataGate, Freshness, Info, InfoLabel, Num, PageHead, Pct, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, type Sort } from '../components'
-import type { Conference, ConferencesDoc, ConfStanding, GamesDoc, IndexDoc, TeamRow } from '../data'
+import { DataGate, fmt, Freshness, InfoLabel, Num, PageHead, Pct, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, type Sort } from '../components'
+import { kickoffText, projection } from '../games'
+import type { Conference, ConferencesDoc, Game, ConfStanding, GamesDoc, IndexDoc, TeamRow } from '../data'
 import { Link, useQueryParam } from '../router'
 import NotFound from './NotFound'
 
@@ -36,7 +39,7 @@ export function ConferenceList() {
           {list.map(c => {
             const best = top.get(c.slug), to = `/conferences/${c.slug}/`
             return <div key={c.slug} className="cf-cl-row" role="row">
-              <span className="cf-cl-n" role="cell"><img src={`${import.meta.env.BASE_URL}logos/conf/${c.is_conference ? c.slug : 'ncaa'}.png`} alt="" width={28} height={28} loading="lazy" style={{ display: "block" }} /></span>
+              <span className="cf-cl-n" role="cell"><img src={`${import.meta.env.BASE_URL}logos/conf/${c.slug}.png`} alt="" width={72} height={72} loading="lazy" style={{ display: "block", objectFit: "contain", width: 72, height: 72 }} /></span>
               <span role="cell"><Link to={to} className="cf-cl-name">{title(c)}</Link><span className="cf-cl-sub">{c.is_conference ? c.kind : 'Not a conference'}</span></span>
               <span role="cell" className="cf-cl-avg"><b className="cf-num"><Num value={c.avg_power} signed /></b>
                 <i aria-hidden="true"><u style={{ width: `${8 + ((c.avg_power ?? lo) - lo) / span * 92}%` }} /></i></span>
@@ -191,7 +194,88 @@ function ConfWinOdds({ rows, sims }: { rows: ConfStanding[]; sims: number | null
         return <td key={n} className="cf-co-cell cf-num" style={{ backgroundColor: `rgb(var(--cf-heat) / ${(0.06 + p * 0.5).toFixed(2)})` }}>{Math.round(p * 100)}%</td>
       })}
     </tr>)}</tbody>
-  </table>{sims ? <p className="cf-small cf-muted cf-co-note">Share of {sims.toLocaleString()} simulated seasons with at least this many conference wins. <Info text={STANDINGS_INFO} label="How to read this table" /></p> : null}</div>
+  </table>{sims ? <p className="cf-small cf-muted cf-co-note"><InfoLabel focusable text={STANDINGS_INFO}>Share of {sims.toLocaleString()} simulated seasons with at least this many conference wins.</InfoLabel></p> : null}</div>
+}
+
+/** Head-to-head record against every other conference, from final games in games.json (both teams FBS, different groups). */
+function VsConferences({ c, conferences }: { c: Conference; conferences: Conference[] }) {
+  const games = useData<GamesDoc>('games.json')
+  if (!games.data) return null
+  const rows = new Map<string, { w: number; l: number; t: number; diff: number }>()
+  for (const g of games.data.games) {
+    if (g.status !== 'final' || g.home_points == null || g.away_points == null || !g.home_fbs || !g.away_fbs) continue
+    const homeIs = g.home_conference === c.name, awayIs = g.away_conference === c.name
+    if (homeIs === awayIs) continue
+    const opp = homeIs ? g.away_conference : g.home_conference
+    if (!opp) continue
+    const mine = homeIs ? g.home_points : g.away_points, theirs = homeIs ? g.away_points : g.home_points
+    const r = rows.get(opp) ?? { w: 0, l: 0, t: 0, diff: 0 }
+    if (mine > theirs) r.w++; else if (mine < theirs) r.l++; else r.t++
+    r.diff += mine - theirs
+    rows.set(opp, r)
+  }
+  const list = conferences.filter(x => x.name !== c.name && rows.has(x.name)).map(x => ({ x, ...rows.get(x.name)! }))
+    .sort((a, b) => (b.w - b.l) - (a.w - a.l) || b.w - a.w)
+  const total = list.reduce((a, r) => ({ w: a.w + r.w, l: a.l + r.l }), { w: 0, l: 0 })
+  return <section className="cf-panel cf-vs" aria-labelledby="cf-vs">
+    <div className="cf-panel-head"><h2 id="cf-vs" className="cf-h2">Record vs. Other Conferences</h2><span className="cf-small cf-muted">{total.w}–{total.l} against FBS conferences</span></div>
+    {list.length === 0 ? <p className="cf-muted">No games against other conferences yet.</p> : <ul className="cf-vs-list" style={{ ['--rows' as string]: Math.ceil(list.length / 2) }}>{list.map(({ x, w, l, t, diff }) => {
+      const n = w + l + t
+      return <li key={x.slug}><Link to={`/conferences/${c.slug}/vs/${x.slug}/`} className="cf-vs-row" aria-label={`${title(c)} vs. ${title(x)}: ${w}–${l}. See the games`}>
+        <span className="cf-vs-id"><img src={`${import.meta.env.BASE_URL}logos/conf/${x.slug}.png`} alt="" width={40} height={40} loading="lazy" /><span>{title(x)}</span></span>
+        <b className="cf-num cf-vs-rec">{w}–{l}{t ? `–${t}` : ''}</b>
+        <span className="cf-vs-bar" role="img" aria-label={`${w} wins, ${l} losses`}><i className="is-w" style={{ width: `${(w / n) * 100}%` }} /><i className="is-l" style={{ width: `${(l / n) * 100}%` }} /></span>
+        <span className="cf-small cf-muted cf-num cf-vs-diff">{diff > 0 ? '+' : diff < 0 ? '−' : ''}{Math.abs(diff)} pts</span>
+      </Link></li> })}</ul>}
+  </section>
+}
+
+/** Vegas-style model line: favorite and negative margin (Northwestern −35.5), or Pick’em / no line. */
+function LineText({ g }: { g: Game }) {
+  const p = projection(g)
+  if (!p) return <span className="cf-muted">No line</span>
+  return p.margin < 0.05 ? <span className="cf-muted">Pick’em</span> : <><span>{p.favorite}</span> <b className="cf-num">−{fmt(p.margin)}</b></>
+}
+
+/** Every game between two conferences (final and upcoming), from the first conference's point of view. */
+export function ConferenceVs({ slug, other }: { slug: string; other: string }) {
+  const doc = useData<ConferencesDoc>('conferences.json')
+  const gamesDoc = useData<GamesDoc>('games.json')
+  return <DataGate source={doc} label="Conference">{({ conferences }) => <DataGate source={gamesDoc} label="Games">{({ games, meta }) => {
+    const a = conferences.find(x => x.slug === slug), b = conferences.find(x => x.slug === other)
+    if (!a || !b || a.slug === b.slug) return <NotFound />
+    const list = games.filter(g => g.home_fbs && g.away_fbs && ((g.home_conference === a.name && g.away_conference === b.name) || (g.home_conference === b.name && g.away_conference === a.name)))
+      .sort((x, y) => x.kickoff.localeCompare(y.kickoff))
+    const mine = (g: Game) => g.home_conference === a.name ? { pts: g.home_points, opp: g.away_points } : { pts: g.away_points, opp: g.home_points }
+    const done = list.filter(g => g.status === 'final' && g.home_points != null && g.away_points != null)
+    let w = 0, l = 0, diff = 0
+    for (const g of done) { const m = mine(g); if (m.pts! > m.opp!) w++; else if (m.pts! < m.opp!) l++; diff += m.pts! - m.opp! }
+    const [pc, ac] = CONF_COLORS[a.slug] ?? CONF_COLORS['fbs-independents']
+    const logo = (x: Conference) => <span className="cf-confhero-logo"><img src={`${import.meta.env.BASE_URL}logos/conf/${x.slug}.png`} alt="" width={160} height={160} /></span>
+    return <div className="cf-themed" style={teamTheme(pc, ac)}>
+      <nav className="cf-crumbs" aria-label="Breadcrumb"><Link to="/conferences/">Conferences</Link><span aria-hidden="true"> / </span><Link to={`/conferences/${a.slug}/`}>{title(a)}</Link><span aria-hidden="true"> / </span><span aria-current="page">vs. {title(b)}</span></nav>
+      <header className="cf-teamhead cf-confhead cf-vshead">
+        <span className="cf-vshead-logos">{logo(a)}<em>vs.</em>{logo(b)}</span>
+        <div className="cf-teamhead-id"><h1>{title(a)} vs. {title(b)}</h1>
+          <p className="cf-lede">{done.length === 0 ? 'No games played yet' : <>{w}–{l} · {diff > 0 ? '+' : diff < 0 ? '−' : ''}{Math.abs(diff)} points</>}</p></div>
+      </header>
+      <Freshness meta={meta} />
+      <section className="cf-panel cf-vsgames" aria-labelledby="cf-vsg">
+        <div className="cf-panel-head"><h2 id="cf-vsg" className="cf-h2">Games</h2><span className="cf-small cf-muted">{list.length} {list.length === 1 ? 'game' : 'games'} · {done.length} played</span></div>
+        {list.length === 0 ? <p className="cf-muted">These conferences do not play each other this season.</p> : <ol className="cf-vsg-list">{list.map(g => {
+          const fin = done.includes(g), m = mine(g), won = fin && m.pts! > m.opp!
+          return <li key={g.game_id} className={fin ? (won ? 'is-w' : 'is-l') : ''}>
+            <span className="cf-vsg-when"><b>Wk {g.week}</b><span className="cf-muted cf-small">{kickoffText(g)}</span></span>
+            <span className="cf-vsg-team"><TeamLink id={g.away_id} name={g.away_team} size={28} /></span>
+            <span className="cf-vsg-at cf-muted">{g.neutral ? 'vs' : 'at'}</span>
+            <span className="cf-vsg-team"><TeamLink id={g.home_id} name={g.home_team} size={28} /></span>
+            {fin ? <><b className="cf-vsg-badge">{won ? 'W' : 'L'}</b><span className="cf-num cf-vsg-score">{m.pts}–{m.opp}</span></>
+              : <span className="cf-vsg-upcoming" title="Model line: favorite and projected margin"><LineText g={g} /></span>}
+            <Link to={`/games/${g.game_id}/`} className="cf-vsg-more" aria-label={`${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team}: matchup breakdown`}>Details</Link>
+          </li> })}</ol>}
+      </section>
+    </div>
+  }}</DataGate>}</DataGate>
 }
 
 export function ConferenceDetail({ slug }: { slug: string }) {
@@ -211,24 +295,42 @@ export function ConferenceDetail({ slug }: { slug: string }) {
       const val = (r: TeamRow) => ({ power: r.power, rank: r.rank == null ? null : -r.rank, conf: r.conf_wins == null ? null : r.conf_wins - (r.conf_losses ?? 0), wins: r.wins == null ? null : r.wins - (r.losses ?? 0), p_conf: r.p_conf, p_playoff: r.p_playoff } as Record<string, number | null>)[sort.key] ?? r.power
       const rows = sortRows(members, val, sort.desc)
       const byPower = [...members].sort((a, b) => (b.power ?? -99) - (a.power ?? -99))
-      return <>
+      return <div className="cf-themed" style={teamTheme(...(CONF_COLORS[c.slug] ?? CONF_COLORS['fbs-independents']))}>
         <nav className="cf-crumbs" aria-label="Breadcrumb"><Link to="/conferences/">Conferences</Link><span aria-hidden="true"> / </span><span aria-current="page">{title(c)}</span></nav>
-        <PageHead title={title(c)} lede={c.is_conference ? `${c.kind} conference · ${c.n} FBS teams in ${meta.season}. Membership comes from the season’s team metadata.` : `${c.n} FBS independents in ${meta.season}. They play no conference schedule and cannot win a conference title; they are grouped here for comparison only.`} />
-        <Freshness meta={meta} sims />
-        <dl className="cf-statgrid">
-          <div><dt>Average CFPi+</dt><dd className="cf-big"><Num value={c.avg_power} signed /></dd><dd className="cf-small cf-muted">{c.is_conference ? `No. ${c.avg_rank} of ${conferences.filter(x => x.is_conference).length} conferences` : ''}</dd></div>
-          <div><dt>Median CFPi+</dt><dd className="cf-big"><Num value={c.median_power} signed /></dd></div>
-          <div><dt>Top-25 teams</dt><dd className="cf-big cf-num">{c.top25}</dd><dd className="cf-small cf-muted">Best: No. {c.best_rank ?? '—'}</dd></div>
-          <div><dt>Exp. playoff teams <Info text={EXP_INFO} label="About expected playoff teams" /></dt><dd className="cf-big"><Num value={c.exp_playoff} digits={2} /></dd></div>
-          <div><dt>Schedule strength <Info text={SOS_INFO} label="About schedule strength" /></dt><dd className="cf-big"><Num value={c.sos_avg} signed /></dd></div>
-          <div><dt>Non-conference record</dt><dd className="cf-big cf-num">{record(c.nonconf_wins, c.nonconf_losses)}</dd><dd className="cf-small cf-muted">{record(c.nonconf_fbs_wins, c.nonconf_fbs_losses)} vs FBS</dd></div>
+        <header className="cf-teamhead cf-confhead">
+          <span className="cf-confhero-logo"><img src={`${import.meta.env.BASE_URL}logos/conf/${c.slug}.png`} alt="" width={160} height={160} /></span>
+          <div className="cf-teamhead-id"><h1>{title(c)}</h1><p className="cf-lede">{c.n} {c.n === 1 ? 'Team' : 'Teams'}</p></div>
+        <dl className="cf-teamhead-stats">{(() => {
+          type Conf = (typeof conferences)[number]
+          const peers = conferences.filter(x => x.is_conference)
+          const rk = (f: (x: Conf) => number | null | undefined) => {
+            const v = f(c); if (!c.is_conference || v == null) return null
+            return 1 + peers.filter(x => (f(x) ?? -Infinity) > v).length
+          }
+          const rank = (f: (x: Conf) => number | null | undefined, extra?: string) => {
+            const r = rk(f); const bits = [r ? `No. ${r} of ${peers.length}` : null, extra].filter(Boolean)
+            return <dd className="cf-small cf-muted">{bits.join(' · ') || '\u00a0'}</dd>
+          }
+          const ncPct = (x: Conf) => x.nonconf_wins != null && x.nonconf_losses != null && x.nonconf_wins + x.nonconf_losses > 0 ? x.nonconf_wins / (x.nonconf_wins + x.nonconf_losses) : null
+          return <>
+            <div><dt>Average CFPi+</dt><dd className="cf-big"><Num value={c.avg_power} signed /></dd>{rank(x => x.avg_power)}</div>
+            <div><dt>Median CFPi+</dt><dd className="cf-big"><Num value={c.median_power} signed /></dd>{rank(x => x.median_power)}</div>
+            <div><dt>Top-25 teams</dt><dd className="cf-big cf-num">{c.top25}</dd>{rank(x => x.top25, `Best: No. ${c.best_rank ?? '—'}`)}</div>
+            <div><dt><InfoLabel focusable text={EXP_INFO}>Exp. playoff teams</InfoLabel></dt><dd className="cf-big"><Num value={c.exp_playoff} digits={2} /></dd>{rank(x => x.exp_playoff)}</div>
+            <div><dt><InfoLabel focusable text={SOS_INFO}>Schedule strength</InfoLabel></dt><dd className="cf-big"><Num value={c.sos_avg} signed /></dd>{rank(x => x.sos_avg)}</div>
+            <div><dt>Non-conference record</dt><dd className="cf-big cf-num">{record(c.nonconf_wins, c.nonconf_losses)}</dd>{rank(ncPct, `${record(c.nonconf_fbs_wins, c.nonconf_fbs_losses)} vs FBS`)}</div>
+          </>
+        })()}
         </dl>
+        </header>
+        <Freshness meta={meta} sims />
         {c.is_conference && c.standings && c.standings.length > 0 && <section className="cf-section" aria-labelledby="cf-odds">
-          <div className="cf-section-head"><h2 id="cf-odds">Projected conference standings</h2></div>
+          <div className="cf-section-head"><h2 id="cf-odds">Projected Conference Standings</h2></div>
           <ConfWinOdds rows={c.standings} sims={meta.sim_count} />
         </section>}
+        <VsConferences c={c} conferences={conferences} />
         <div className="cf-conf-grid">
-          <section className="cf-panel" aria-labelledby="cf-str"><h2 id="cf-str" className="cf-h2">Team strength</h2>
+          <section className="cf-panel" aria-labelledby="cf-str"><h2 id="cf-str" className="cf-h2">Team Strength</h2>
             <StrengthChart rows={byPower} fbsMin={powers[0] ?? 0} fbsMax={powers[powers.length - 1] ?? 0} median={median} />
           </section>
           <section className="cf-panel" aria-labelledby="cf-tm"><h2 id="cf-tm" className="cf-h2">Teams</h2>
@@ -254,7 +356,7 @@ export function ConferenceDetail({ slug }: { slug: string }) {
             </table></div>
           </section>
         </div>
-      </>
+      </div>
     }}</DataGate>
   }}</DataGate>
 }

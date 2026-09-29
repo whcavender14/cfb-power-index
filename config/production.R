@@ -27,7 +27,7 @@ PRODUCTION <- list(
   hfa_points           = 3.06853968902663,       # prediction home-field advantage
 
   # ---- Season simulation assumptions (NOT estimated by the model) -----------
-  sim_count            = 25000L,                  # 10,000 from 2026 Week 4 to Week 5; 1,000 before (Round 17: more seasons for What if?)
+  sim_count            = 10000L,                  # 1,000 until 2026 Week 4 (Round 17: more seasons for What if?)
   sim_seed             = 1434L,
   sim_resid_sd         = 15.7874822415908,       # v5_calibration() RMSE, EB_features, 2023-25 (n = 2398)
   sim_hfa              = 3.0685,

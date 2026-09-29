@@ -1,0 +1,3 @@
+/* Teams page only. */
+.cf-team-sublink { display: block; color: var(--cf-muted); text-decoration: none; width: fit-content; }
+.cf-team-sublink:hover { color: var(--cf-accent); text-decoration: underline; }

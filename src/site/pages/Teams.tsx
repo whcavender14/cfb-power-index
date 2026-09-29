@@ -1,3 +1,4 @@
+import '../teams.css'
 import { ChevronDown, Search, X } from 'lucide-react'
 import { DataGate, Freshness, Num, PageHead, SortTh, sortRows, TeamLink, useData, useTeams, type Sort } from '../components'
 import type { IndexDoc, TeamRow } from '../data'
@@ -12,6 +13,8 @@ function PowerBar({ v, lo, hi }: { v: number | null; lo: number; hi: number }) {
   const pos = (x: number) => ((x - lo) / (hi - lo)) * 100
   return <span className="cf-pbar" aria-hidden="true"><i className={v >= 0 ? 'is-pos' : 'is-neg'} style={{ left: `${pos(Math.min(0, v))}%`, width: `${Math.abs(pos(v) - pos(0))}%` }} /><b style={{ left: `${pos(0)}%` }} /></span>
 }
+
+const confPath = (c?: string | null) => c ? `/conferences/${c.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}/` : undefined
 
 export default function Teams() {
   const index = useData<IndexDoc>('index.json')
@@ -64,7 +67,7 @@ export default function Teams() {
           </tr></thead>
           <tbody>{rows.map(r => <tr key={r.team_id}>
             <td className="cf-num" style={{ textAlign: 'center' }}>{r.rank ?? '—'}</td>
-            <td><TeamLink id={r.team_id} size={22} sub={directory.get(r.team_id)?.conference ?? undefined} /></td>
+            <td><TeamLink id={r.team_id} size={22} sub={directory.get(r.team_id)?.conference ?? undefined} subTo={confPath(directory.get(r.team_id)?.conference)} /></td>
             <td className="cf-strong" style={{ textAlign: 'center' }}><Num value={r.power} signed /></td>
             <td className="cf-pbar-col"><PowerBar v={r.power} lo={lo} hi={hi} /></td>
             <td className="cf-hide-sm" style={{ textAlign: 'center' }}><Num value={r.off} signed />{r.off_rank != null && <span className="cf-muted" style={{ fontSize: '.75rem', marginLeft: 5 }}>({r.off_rank})</span>}</td>

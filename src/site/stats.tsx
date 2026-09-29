@@ -11,7 +11,7 @@ const n1 = (v: number) => fmt(v, 1)!
 const pct = (v: number) => `${(v * 100).toFixed(1)}%`
 const epa = (v: number) => fmtSigned(v, 2)!
 export const STAT_GROUPS: StatGroup[] = [
-  { id: 'scoring', title: 'Scoring and ball security', defs: [
+  { id: 'scoring', title: 'Scoring and Ball Security', defs: [
     { key: 'ppg', label: 'Points per game', show: n1 },
     { key: 'papg', label: 'Points allowed per game', show: n1, lower: true },
     { key: 'third_pct', label: 'Third-down conversions', show: pct },
@@ -24,7 +24,7 @@ export const STAT_GROUPS: StatGroup[] = [
     { key: 'rush_ypg', label: 'Rushing yards', show: n1 },
     { key: 'ypp', label: 'Yards per play', show: v => fmt(v, 2)!, info: 'Total yards divided by pass attempts plus rush attempts. Sacks count as rushes in the box score, so they are included.' },
     { key: 'fd_pg', label: 'First downs', show: n1 },
-    { key: 'pass_share', label: 'Pass / rush split', show: v => `${Math.round(v * 100)}% / ${100 - Math.round(v * 100)}%`, neutral: true, info: 'Share of plays that were passes (pass attempts / (pass + rush attempts)). Rank 1 = most pass-heavy; neither end is better.' },
+    { key: 'pass_share', label: 'Pass / Rush Split', show: v => `${Math.round(v * 100)}% / ${100 - Math.round(v * 100)}%`, neutral: true, info: 'Share of plays that were passes (pass attempts / (pass + rush attempts)). Rank 1 = most pass-heavy; neither end is better.' },
   ] },
   { id: 'defense', title: 'Defense', note: 'yards allowed per game · lower is better', defs: [
     { key: 'ya_pg', label: 'Total yards allowed', show: n1, lower: true },
@@ -56,7 +56,7 @@ export function StatRow({ d, e, total }: { d: StatDef; e: Efficiency | undefined
     <dd className="cf-eff-val cf-num">{v == null ? <Missing /> : d.show(v)}</dd>
     <dd className="cf-eff-rank cf-num">{r ? `No. ${r}` : '—'}</dd>
     <dd className="cf-eff-bar" aria-hidden="true">{d.neutral
-      ? v == null ? null : <><i className="is-split" style={{ width: `${v * 100}%` }} /></>
+      ? v == null ? null : <span className="cf-split" role="img" aria-label={`${Math.round(v * 100)}% pass, ${100 - Math.round(v * 100)}% rush`} title="Blue = pass, gray = rush" style={{ ['--pass' as string]: `${v * 100}%` }} />
       : <i className={tone(g)} style={{ width: `${Math.max(3, (g ?? 0) * 100)}%` }} />}</dd>
   </div>
 }

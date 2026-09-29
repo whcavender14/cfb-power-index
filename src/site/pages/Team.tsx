@@ -1,5 +1,7 @@
+import '../team.css'
 import { STAT_GROUPS, StatRow, statValue } from '../stats'
-import { lazy, Suspense, useMemo, type ReactNode } from 'react'
+import { teamTheme } from '../teamTheme'
+import { lazy, Suspense, useEffect, useMemo, type ReactNode } from 'react'
 const DepthChartSection = lazy(() => import('../DepthChart'))
 import { RESUME_INFO } from './Resume'
 import { DataGate, Freshness, Info, Missing, Movement, Num, Pct, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
@@ -16,6 +18,20 @@ const LOC = { home: ['H', 'Home'], away: ['A', 'Away'], neutral: ['N', 'Neutral 
 
 /** One schedule row: opponent logo and name (linked for FBS teams; a monogram placeholder for teams without a logo),
  *  site (home / away / neutral), then the result or the forecast with this team's win probability. */
+/** Tints the mobile browser chrome with the team color while a team page is open. */
+function ThemeColorMeta({ color }: { color: string | null }) {
+  useEffect(() => {
+    if (!color) return
+    const metas = [...document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')]
+    const made = metas.length ? null : Object.assign(document.createElement('meta'), { name: 'theme-color' })
+    if (made) document.head.appendChild(made)
+    const list = made ? [made] : metas, prev = list.map(m => m.content)
+    list.forEach(m => { m.content = color })
+    return () => { list.forEach((m, i) => { m.content = prev[i] }); made?.remove() }
+  }, [color])
+  return null
+}
+
 function ScheduleRow({ g, id, pick }: { g: Game; id: string; pick?: ReactNode }) {
   const home = g.home_id === id
   const oppId = home ? g.away_id : g.home_id
@@ -179,7 +195,7 @@ const LEADER_GROUPS: { key: keyof Omit<Leaders, 'through_week' | 'source'>; titl
 
 function StatLeaders({ leaders }: { leaders: Leaders }) {
   return <section className="cf-panel cf-span-all" aria-labelledby="t-leaders">
-    <h2 id="t-leaders" className="cf-h2">Statistical leaders <Info text="Season totals from CollegeFootballData through the same week as the ratings. Leaders are picked by fixed rules: passing yards, rushing yards (top 2), receiving yards (top 3), sacks (top 3) and interceptions. They are statistical leaders only; the data does not say who starts." label="About statistical leaders" /></h2>
+    <h2 id="t-leaders" className="cf-h2">Statistical Leaders <Info text="Season totals from CollegeFootballData through the same week as the ratings. Leaders are picked by fixed rules: passing yards, rushing yards (top 2), receiving yards (top 3), sacks (top 3) and interceptions. They are statistical leaders only; the data does not say who starts." label="About statistical leaders" /></h2>
     <div className="cf-leaders">
       {LEADER_GROUPS.map(g => <div key={g.key} className="cf-leader-group">
         <h3 className="cf-h3">{g.title}</h3>
@@ -204,7 +220,7 @@ function TeamStats({ id }: { id: string }) {
   const m = doc.data.method, b = doc.data.basic_method
   const groups = STAT_GROUPS.filter(g => g.defs.some(d => statValue(e, d.key) != null))
   if (!groups.length) return null
-  return <section className="cf-panel cf-span-all" aria-labelledby="t-stats">
+  return <section className="cf-panel cf-span-all cf-unthemed" aria-labelledby="t-stats">
     <div className="cf-panel-head"><h2 id="t-stats" className="cf-h2">Stats</h2></div>
     <div className="cf-stats">{[['scoring', 'offense'], ['defense', 'efficiency']].map(ids => <div key={ids[0]} className="cf-stats-col">
       {groups.filter(g => ids.includes(g.id)).map(g => <div key={g.id} className="cf-eff-group">
@@ -225,7 +241,7 @@ function TeamHistory({ id, name }: { id: string; name: string }) {
   const h = doc.data.teams[id]
   if (!h) return null
   return <section className="cf-panel cf-span-all" aria-labelledby="t-hist">
-    <div className="cf-panel-head"><h2 id="t-hist" className="cf-h2">Rating history</h2></div>
+    <div className="cf-panel-head"><h2 id="t-hist" className="cf-h2">Rating History</h2></div>
     <HistoryChart points={doc.data.points} series={[{ id, name, slot: 1, power: h.power, rank: h.rank }]} height={220} label={`${name} CFPi+ rating by week`} />
     <HistoryNote points={doc.data.points} />
     <details className="cf-details"><summary>Show as a table</summary><HistoryTable points={doc.data.points} series={[{ id, name, slot: 1, power: h.power, rank: h.rank }]} /></details>
@@ -244,16 +260,18 @@ export default function Team({ slug }: { slug: string }) {
     const picks = parsePicks(param).filter(p => upcomingIds.has(p.gameId))   // this team's remaining games only
     const setPick = (g: Game, side: 'home' | 'away' | null) => setParam(formatPicks([...picks.filter(p => p.gameId !== g.game_id), ...(side ? [{ gameId: g.game_id, side }] : [])]))
     const whatIf = sims && playoff && upcoming.length > 0
-    return <>
+    const theme = teamTheme(team.color, team.alt_color)
+    return <div className="cf-themed" style={theme}>
+      <ThemeColorMeta color={team.color} />
       <nav className="cf-crumbs" aria-label="Breadcrumb"><Link to="/teams/">Teams</Link><span aria-hidden="true"> / </span><span aria-current="page">{team.team}</span></nav>
-      <header className="cf-teamhead" style={{ ['--team' as string]: team.color ?? 'transparent' }}>
+      <header className="cf-teamhead">
         <TeamLogo id={team.team_id} name={team.team} size={72} />
         <div className="cf-teamhead-id">
           <h1>{team.team}</h1>
           <p className="cf-muted">{[team.mascot, team.conference].filter(Boolean).join(' · ')}</p>
         </div>
         <dl className="cf-teamhead-stats">
-          <div><dt>CFPi+ rank <span className="cf-dt-note">(predictive)</span></dt><dd className="cf-big">{s.rank ?? '—'}</dd><dd className="cf-small"><Movement change={s.rank_change} compared={meta.movement_compared_to_week} /></dd></div>
+          <div><dt>CFPi+ rank</dt><dd className="cf-big">{s.rank ?? '—'}</dd><dd className="cf-small"><Movement change={s.rank_change} compared={meta.movement_compared_to_week} /></dd></div>
           <div><dt>Record</dt><dd className="cf-big cf-num">{s.wins != null ? `${s.wins}–${s.losses}` : '—'}</dd><dd className="cf-small cf-muted">{s.conf_wins == null ? '' : (s.conf_wins + (s.conf_losses ?? 0)) > 0 ? `${s.conf_wins}–${s.conf_losses} conf.` : 'No conf. games yet'}</dd></div>
           <div><dt>Power <Info text="Opponent-adjusted strength in points relative to an average FBS team." label="About power" /></dt><dd className="cf-big"><Num value={s.power} signed /></dd><dd className="cf-small cf-muted">Δ week <Num value={s.rating_change} signed why="No comparable previous week" /></dd></div>
           <div><dt>Offense</dt><dd className="cf-big"><Num value={s.off} signed /></dd><dd className="cf-small cf-muted">{s.off_rank ? `No. ${s.off_rank}` : '—'} of FBS</dd></div>
@@ -264,18 +282,18 @@ export default function Team({ slug }: { slug: string }) {
 
       <div className="cf-team-grid">
         <section className="cf-panel" aria-labelledby="t-outlook">
-          <h2 id="t-outlook" className="cf-h2">Season outlook</h2>
+          <h2 id="t-outlook" className="cf-h2">Season Outlook</h2>
           {sims && playoff ? <>
-            <dl className="cf-kv">
-              <div><dt>Projected wins <Info text="Mean regular-season wins across the simulated seasons (conference title games are not simulated; bowls and playoff games are excluded)." label="About projected wins" /></dt><dd><Num value={playoff.proj_wins} /></dd></div>
-              <div><dt>Conference title</dt><dd>{team.conference === 'FBS Independents' ? <Missing why="Independent: no conference title" /> : <Pct value={playoff.p_conf} />}</dd></div>
-              <div><dt>Make playoff</dt><dd><Pct value={playoff.p_playoff} /></dd></div>
-              <div><dt>First-round bye</dt><dd><Pct value={playoff.p_bye} /></dd></div>
-              <div><dt>Reach semifinal</dt><dd><Pct value={playoff.p_sf} /></dd></div>
-              <div><dt>Win title</dt><dd><Pct value={playoff.p_champ} /></dd></div>
-            </dl>
+            <div className="cf-ol">
+              <div className="cf-ol-lead">
+                <div><b className="cf-num"><Num value={playoff.proj_wins} /></b><span>Projected wins <Info text="Mean regular-season wins across the simulated seasons (conference title games are not simulated; bowls and playoff games are excluded)." label="About projected wins" /></span></div>
+                <div><b className="cf-num">{team.conference === 'FBS Independents' ? <Missing why="Independent: no conference title" /> : <Pct value={playoff.p_conf} />}</b><span>Conference title</span></div>
+              </div>
+              <ol className="cf-ol-ladder" aria-label="Playoff path odds">{([['Make playoff', playoff.p_playoff], ['First-round bye', playoff.p_bye], ['Reach semifinal', playoff.p_sf], ['Win title', playoff.p_champ]] as const).map(([label, v]) =>
+                <li key={label}><span>{label}</span><span className="cf-ol-track" aria-hidden="true"><i style={{ width: `${Math.max(0, Math.min(1, v ?? 0)) * 100}%` }} /></span><b className="cf-num"><Pct value={v} /></b></li>)}</ol>
+            </div>
             {record_dist && meta.sim_count && <figure className="cf-dist">
-              <figcaption className="cf-h3">Final record <span className="cf-muted cf-small">(share of {meta.sim_count.toLocaleString()} simulations)</span></figcaption>
+              <figcaption className="cf-h3">Final Record <span className="cf-muted cf-small">(share of {meta.sim_count.toLocaleString()} simulations)</span></figcaption>
               <RecordDist rows={record_dist} n={meta.sim_count} current={{ w: s.wins, l: s.losses }} />
             </figure>}
             {seed_dist && playoff.p_playoff > 0 && <p className="cf-small cf-muted">Most likely seed: No. {seed_dist.indexOf(Math.max(...seed_dist)) + 1} ({pctText(Math.max(...seed_dist), 0)}). <Link to="/playoff/">Playoff dashboard</Link></p>}
@@ -285,16 +303,30 @@ export default function Team({ slug }: { slug: string }) {
 
         <section className="cf-panel" aria-labelledby="t-resume">
           <h2 id="t-resume" className="cf-h2">Résumé</h2>
-          {resume ? <dl className="cf-kv cf-kv-2">
-            <div><dt>Résumé rank <Info text={RESUME_INFO} label="About the résumé rank" /></dt><dd className="cf-num">{s.resume_rank ?? '—'} <span className="cf-small cf-muted"><Link to="/rankings/resume/">all</Link></span></dd></div>
-            <div><dt>Record</dt><dd className="cf-num">{s.wins != null ? `${s.wins}–${s.losses}` : '—'}</dd></div>
-            <div><dt>Strength of record <Info text={SOR_INFO} label="About strength of record" /></dt><dd><Num value={resume.sor} signed digits={2} /> <span className="cf-small cf-muted">{resume.sor_rank ? `No. ${resume.sor_rank}` : ''}</span></dd></div>
-            <div><dt>Schedule strength, played <Info text={SOS_INFO} label="About schedule strength" /></dt><dd><Num value={resume.sos_played} signed /> <span className="cf-small cf-muted">{resume.sos_played_rank ? `No. ${resume.sos_played_rank}` : ''}</span></dd></div>
-            <div><dt>Schedule strength, full season</dt><dd><Num value={resume.sos_all} signed /> <span className="cf-small cf-muted">{resume.sos_all_rank ? `No. ${resume.sos_all_rank}` : ''}</span></dd></div>
-            <div><dt>Schedule strength, remaining</dt><dd><Num value={resume.sos_remaining} signed why="No games remaining" /> <span className="cf-small cf-muted">{resume.sos_remaining_rank ? `No. ${resume.sos_remaining_rank}` : ''}</span></dd></div>
-            <div className="cf-kv-wide"><dt>Best win</dt><dd><Notable g={resume.best_win} /></dd></div>
-            <div className="cf-kv-wide"><dt>Worst loss</dt><dd><Notable g={resume.worst_loss} /></dd></div>
-          </dl> : <p className="cf-muted">Résumé unavailable for this update.</p>}
+          {resume ? <div className="cf-res">
+            <div className="cf-res-tiles">
+              <div><b className="cf-num">{s.resume_rank ?? '—'}</b><span>Résumé rank <Info text={RESUME_INFO} label="About the résumé rank" /></span><small><Link to="/rankings/resume/">See all</Link></small></div>
+              <div><b className="cf-num">{s.wins != null ? `${s.wins}–${s.losses}` : '—'}</b><span>Record</span><small>{s.conf_wins != null && s.conf_losses != null && s.conf_wins + s.conf_losses > 0 ? `${s.conf_wins}–${s.conf_losses} in conference` : 'No conf. games yet'}</small></div>
+              <div><b><Num value={resume.sor} signed digits={2} /></b><span>Strength of record <Info text={SOR_INFO} label="About strength of record" /></span><small>{resume.sor_rank ? `No. ${resume.sor_rank} of FBS` : ' '}</small></div>
+            </div>
+            <div className="cf-res-sec"><h3 className="cf-h3">Schedule strength <Info text={SOS_INFO} label="About schedule strength" /></h3>
+              <dl className="cf-res-sos">{([['Played', resume.sos_played, resume.sos_played_rank], ['Full season', resume.sos_all, resume.sos_all_rank], ['Remaining', resume.sos_remaining, resume.sos_remaining_rank]] as const).map(([label, v, r]) =>
+                <div key={label}><dt>{label}</dt><dd className="cf-num"><Num value={v} signed why="No games remaining" /></dd>
+                  <span className="cf-bar" aria-hidden="true"><i style={{ width: `${r ? Math.max(4, 100 - (r - 1) / 1.36) : 0}%` }} /></span>
+                  <span className="cf-small cf-muted cf-res-rk">{r ? `No. ${r}` : '—'}</span></div>)}</dl>
+            </div>
+            <div className="cf-res-sec"><h3 className="cf-h3">Results so far</h3>
+              {(() => { const done = schedule.filter(g => g.status === 'final' && g.home_points != null && g.away_points != null)
+                return done.length === 0 ? <p className="cf-small cf-muted">No games played yet.</p> : <ul className="cf-res-games">{done.map(g => {
+                  const home = g.home_id === team.team_id, my = (home ? g.home_points : g.away_points)!, th = (home ? g.away_points : g.home_points)!
+                  const oid = home ? g.away_id : g.home_id, oname = home ? g.away_team : g.home_team
+                  return <li key={g.game_id} className={my > th ? 'is-w' : 'is-l'}><b>{my > th ? 'W' : 'L'}</b><TeamLogo id={oid} name={oname} size={22} /><span className="cf-res-opp">{oname}</span><span className="cf-num cf-small">{my}–{th}</span></li> })}</ul> })()}
+            </div>
+            <div className="cf-res-best">
+              <div><span className="cf-res-k">Best win</span><Notable g={resume.best_win} /></div>
+              <div><span className="cf-res-k">Worst loss</span><Notable g={resume.worst_loss} /></div>
+            </div>
+          </div> : <p className="cf-muted">Résumé unavailable for this update.</p>}
           <p className="cf-small cf-muted">Best win and worst loss are judged by the opponent’s current CFPi+ rating.</p>
         </section>
 
@@ -312,7 +344,7 @@ export default function Team({ slug }: { slug: string }) {
           <div className="cf-sched-rem">
           {schedule.length === 0 ? <p className="cf-muted">Schedule unavailable.</p>
             : <ol className="cf-sched">{scheduleItems(schedule).map(it => it.bye
-              ? <li key={`bye-${it.week}`} className="cf-sched-bye"><span className="cf-sched-wk cf-muted">Wk {it.week}</span><span className="cf-sched-byeline">Bye week</span></li>
+              ? <li key={`bye-${it.week}`} className="cf-sched-row cf-sched-bye"><span className="cf-sched-wk cf-muted">Wk {it.week}</span><span className="cf-sched-byeline">Bye week</span></li>
               : <ScheduleRow key={it.g.game_id} g={it.g} id={team.team_id}
                   pick={whatIf ? (it.g.status === 'scheduled'
                     ? <PickToggle g={it.g} id={team.team_id} team={team.team} pick={picks.find(p => p.gameId === it.g.game_id)} onPick={side => setPick(it.g, side)} />
@@ -323,7 +355,7 @@ export default function Team({ slug }: { slug: string }) {
           </div>
         </section>
       </div>
-    </>
+    </div>
   }}</DataGate>
 }
 
