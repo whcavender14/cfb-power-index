@@ -112,6 +112,18 @@ export function Movement({ change, compared }: { change: number | null | undefin
   </span>
 }
 
+/** The current appearance ('light' | 'dark'), following the header toggle (data-theme on <html>). */
+export function useThemeName(): 'light' | 'dark' {
+  const read = () => document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
+  const [theme, setTheme] = useState<'light' | 'dark'>(read)
+  useEffect(() => {
+    const obs = new MutationObserver(() => setTheme(read()))
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => obs.disconnect()
+  }, [])
+  return theme
+}
+
 // ---------------------------------------------------------------------------------------------
 // Tooltip: a focusable button that reveals a short definition (hover, focus or tap)
 // ---------------------------------------------------------------------------------------------
@@ -133,21 +145,34 @@ export function Info({ text, label = 'What is this?' }: { text: string; label?: 
   </span>
 }
 
+/** A label that shows its definition in the same pop-up box as Info, on hover or keyboard focus (no ? icon). */
+export function InfoLabel({ text, children, focusable = false }: { text: string; children: ReactNode; focusable?: boolean }) {
+  const id = useId()
+  const [open, setOpen] = useState(false)
+  return <span className="cf-info" tabIndex={focusable ? 0 : undefined} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} onFocusCapture={() => setOpen(true)} onBlurCapture={() => setOpen(false)}
+    onKeyDown={e => { if (e.key === 'Escape') setOpen(false) }} aria-describedby={open ? id : undefined}>
+    {children}
+    <span role="tooltip" id={id} className={`cf-info-body${open ? ' is-open' : ''}`}>{text}</span>
+  </span>
+}
+
 // ---------------------------------------------------------------------------------------------
 // Sortable table header
 // ---------------------------------------------------------------------------------------------
 export type Sort = { key: string; desc: boolean }
-export function SortTh({ label, sortKey, sort, onSort, info, align = 'end', className = '' }: {
-  label: string; sortKey: string; sort: Sort; onSort: (s: Sort) => void; info?: string; align?: 'start' | 'end'; className?: string
+export function SortTh({ label, sortKey, sort, onSort, info, align = 'end', className = '', style }: {
+  label: string; sortKey: string; sort: Sort; onSort: (s: Sort) => void; info?: string; align?: 'start' | 'end'; className?: string; style?: React.CSSProperties
 }) {
   const active = sort.key === sortKey
-  return <th scope="col" className={`cf-th-${align} ${className}`} aria-sort={active ? (sort.desc ? 'descending' : 'ascending') : 'none'}>
+  return <th scope="col" className={`cf-th-${align} ${className}`} style={style} aria-sort={active ? (sort.desc ? 'descending' : 'ascending') : 'none'}>
     <span className="cf-th">
-      <button type="button" className={`cf-sort${active ? ' is-active' : ''}`} onClick={() => onSort({ key: sortKey, desc: active ? !sort.desc : true })}>
-        {label}
-        <span className="cf-sort-icon" aria-hidden="true">{active ? (sort.desc ? <ChevronDown size={12} /> : <ChevronUp size={12} />) : null}</span>
-      </button>
-      {info && <Info text={info} label={`About ${label}`} />}
+      {(() => {
+        const button = <button type="button" className={`cf-sort${active ? ' is-active' : ''}`} onClick={() => onSort({ key: sortKey, desc: active ? !sort.desc : true })}>
+          {label}
+          <span className="cf-sort-icon" aria-hidden="true">{active ? (sort.desc ? <ChevronDown size={12} /> : <ChevronUp size={12} />) : null}</span>
+        </button>
+        return info ? <InfoLabel text={info}>{button}</InfoLabel> : button
+      })()}
     </span>
   </th>
 }
@@ -170,11 +195,11 @@ export function sortRows<T>(rows: T[], value: (row: T) => number | string | null
 const dateFmt = (iso: string | null | undefined) => iso ? new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }) : null
 
 export function Freshness({ meta, sims = false }: { meta: Meta; sims?: boolean }) {
-  const through = meta.ratings_week == null ? null : meta.ratings_week === 0 ? 'Preseason ratings' : `Ratings through Week ${meta.ratings_week}`
+  const through = meta.ratings_week == null ? null : meta.ratings_week === 0 ? 'Preseason Ratings' : `Ratings Through Week ${meta.ratings_week}`
   const updated = dateFmt(sims ? meta.sim_updated_at : meta.ratings_updated_at)
   return <p className="cf-fresh">
     {through && <span>{through}</span>}
-    {updated && <span>Last updated {updated}</span>}
+    {updated && <span>Last Updated {updated}</span>}
     {sims && meta.sim_count != null && <span>{meta.sim_count.toLocaleString()} simulated seasons</span>}
   </p>
 }

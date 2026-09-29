@@ -1,5 +1,8 @@
-import { DataGate, Freshness, Info, Num, PageHead, Pct, SortTh, sortRows, TeamLink, useData, useTeams, type Sort } from '../components'
-import type { Conference, ConferencesDoc, ConfStanding, IndexDoc, TeamRow } from '../data'
+import { Fragment, useEffect, useMemo, useState } from 'react'
+import type { ChartPoint } from '../confChart'
+import ShareButton from '../ShareButton'
+import { DataGate, Freshness, Info, InfoLabel, Num, PageHead, Pct, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, type Sort } from '../components'
+import type { Conference, ConferencesDoc, ConfStanding, GamesDoc, IndexDoc, TeamRow } from '../data'
 import { Link, useQueryParam } from '../router'
 import NotFound from './NotFound'
 
@@ -20,25 +23,118 @@ export function ConferenceList() {
     <PageHead title="Conferences" lede={<>How each conference stacks up as a group: average and median strength, depth, and expected playoff teams. For individual team ratings, use <Link to="/teams/">Teams</Link>.</>} />
     <DataGate source={doc} label="Conferences">{({ meta, conferences }) => {
       const list = [...conferences].sort((a, b) => Number(b.is_conference) - Number(a.is_conference) || (b.avg_power ?? -99) - (a.avg_power ?? -99))
+      const avgs = list.map(c => c.avg_power ?? 0), lo = Math.min(...avgs), span = Math.max(1, Math.max(...avgs) - lo)
       return <>
         <Freshness meta={meta} sims />
-        <ol className="cf-conf-cards" aria-label="Conferences by average CFPi+ rating">{list.map(c => <li key={c.slug} className="cf-panel cf-conf-card">
-          <div className="cf-conf-card-head">
-            <h2 className="cf-h3"><Link to={`/conferences/${c.slug}/`}>{title(c)}</Link></h2>
-            <span className="cf-badge">{c.is_conference ? `${c.kind} · No. ${c.avg_rank} of ${conferences.filter(x => x.is_conference).length}` : 'Not a conference'}</span>
+        <div className="cf-panel cf-cl" style={{ marginTop: 12 }} role="table" aria-label="Conferences by average CFPi+ rating">
+          <div className="cf-cl-row cf-cl-head" role="row">
+            <span role="columnheader" /><span role="columnheader">Conference</span><span role="columnheader">Avg CFPi+</span>
+            <span role="columnheader" className="cf-cl-hide cf-cl-r">Median</span><span role="columnheader" className="cf-cl-hide cf-cl-r">Top 25</span>
+            <span role="columnheader" style={{ textAlign: 'center' }}><InfoLabel focusable text={EXP_INFO}>Exp. playoff</InfoLabel></span>
+            <span role="columnheader" className="cf-cl-hide">Highest rated</span>
           </div>
-          <dl className="cf-conf-stats">
-            <div><dt>Avg CFPi+</dt><dd><Num value={c.avg_power} signed /></dd></div>
-            <div><dt>Median</dt><dd><Num value={c.median_power} signed /></dd></div>
-            <div><dt>Top 25</dt><dd className="cf-num">{c.top25} <span className="cf-muted cf-small">of {c.n}</span></dd></div>
-            <div><dt>Exp. playoff teams <Info text={EXP_INFO} label="About expected playoff teams" /></dt><dd><Num value={c.exp_playoff} digits={2} /></dd></div>
-          </dl>
-          {top.get(c.slug) && <p className="cf-conf-top"><span className="cf-muted cf-small">Highest rated</span> <TeamLink id={top.get(c.slug)!.team_id} size={20} sub={`No. ${top.get(c.slug)!.rank}`} /></p>}
-          <Link to={`/conferences/${c.slug}/`} className="cf-more">View details</Link>
-        </li>)}</ol>
+          {list.map(c => {
+            const best = top.get(c.slug), to = `/conferences/${c.slug}/`
+            return <div key={c.slug} className="cf-cl-row" role="row">
+              <span className="cf-cl-n" role="cell"><img src={`${import.meta.env.BASE_URL}logos/conf/${c.is_conference ? c.slug : 'ncaa'}.png`} alt="" width={28} height={28} loading="lazy" style={{ display: "block" }} /></span>
+              <span role="cell"><Link to={to} className="cf-cl-name">{title(c)}</Link><span className="cf-cl-sub">{c.is_conference ? c.kind : 'Not a conference'}</span></span>
+              <span role="cell" className="cf-cl-avg"><b className="cf-num"><Num value={c.avg_power} signed /></b>
+                <i aria-hidden="true"><u style={{ width: `${8 + ((c.avg_power ?? lo) - lo) / span * 92}%` }} /></i></span>
+              <span role="cell" className="cf-cl-hide cf-cl-r cf-num"><Num value={c.median_power} signed /></span>
+              <span role="cell" className="cf-cl-hide cf-cl-r cf-num">{c.top25}<span className="cf-muted cf-small"> / {c.n}</span></span>
+              <span role="cell" className="cf-num" style={{ textAlign: 'center' }}><Num value={c.exp_playoff} digits={2} /></span>
+              <span role="cell" className="cf-cl-hide">{best && <TeamLink id={best.team_id} size={20} sub={`No. ${best.rank}`} />}</span>
+            </div>
+          })}
+        </div>
+        {index.data && <ConferenceComparison meta={meta} conferences={list} rows={index.data.teams} />}
       </>
     }}</DataGate>
   </>
+}
+
+/** Conference comparison graphic: a preview of the downloadable PNG (src/site/confChart.ts), with the conferences to draw
+ *  selectable. Every logo on the chart is an invisible link laid over the image: hover (or focus) shows the team's key numbers,
+ *  and clicking opens its team page. */
+function ConferenceComparison({ meta, conferences, rows }: { meta: ConferencesDoc['meta']; conferences: Conference[]; rows: TeamRow[] }) {
+  const dir = useTeams()
+  const [picked, setPicked] = useState<string[]>(() => conferences.map(c => c.slug))
+  const chosen = useMemo(() => conferences.filter(c => picked.includes(c.slug)), [conferences, picked])
+  const [chart, setChart] = useState<{ src: string; W: number; H: number; points: ChartPoint[] } | null>(null)
+  const [hot, setHot] = useState<string | null>(null)
+  const byId = useMemo(() => new Map(rows.map(r => [r.team_id, r])), [rows])
+  // Current place in each conference's standings (by conference record, then overall record; equal records share a place, shown "T-")
+  const place = useMemo(() => {
+    const out = new Map<string, string>()
+    for (const c of conferences) {
+      if (!c.is_conference || !c.standings) continue
+      const key = (id: string) => { const st = c.standings!.find(x => x.team_id === id), r = byId.get(id), cg = (st?.conf_wins ?? 0) + (st?.conf_losses ?? 0), og = (r?.wins ?? 0) + (r?.losses ?? 0)
+        return [cg ? (st!.conf_wins) / cg : 0, og ? (r!.wins ?? 0) / og : 0] }
+      const ids = c.standings.map(x => x.team_id).sort((x, y) => { const a = key(x), b = key(y); return b[0] - a[0] || b[1] - a[1] })
+      ids.forEach(id => {
+        const k = key(id), same = ids.filter(o => key(o)[0] === k[0] && key(o)[1] === k[1]), first = ids.indexOf(same[0]) + 1
+        const ord = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10 > 3 ? 0 : n % 10]}`
+        out.set(id, `${same.length > 1 ? 'T-' : ''}${ord(first)}`)
+      })
+    }
+    return out
+  }, [conferences, byId])
+  useEffect(() => {
+    if (!chosen.length || !dir.size) { setChart(null); return }
+    let live = true, url = ''
+    ;(async () => {
+      const { conferenceChart } = await import('../confChart')
+      const c = await conferenceChart(meta, rows, chosen, dir)
+      const blob = await new Promise<Blob | null>(r => c.canvas.toBlob(r, 'image/png'))
+      if (live && blob) { url = URL.createObjectURL(blob); setChart({ src: url, W: c.W, H: c.H, points: c.points }) }
+    })().catch(() => { if (live) setChart(null) })
+    return () => { live = false; if (url) URL.revokeObjectURL(url) }
+  }, [chosen, dir, meta, rows])
+  const toggle = (slug: string) => setPicked(p => p.includes(slug) ? p.filter(x => x !== slug) : [...p, slug])
+  const games = useData<GamesDoc>('games.json')
+  const totalGames = useMemo(() => { const n = new Map<string, number>(); for (const g of games.data?.games ?? []) for (const id of [g.home_id, g.away_id]) n.set(id, (n.get(id) ?? 0) + 1); return n }, [games.data])
+  const confProj = useMemo(() => new Map(conferences.flatMap(c => (c.standings ?? []).map(x => [x.team_id, x] as [string, ConfStanding]))), [conferences])
+  const wl = (w: number | null | undefined, g: number | undefined) => w == null || !g ? '—' : `${w.toFixed(1)}–${(g - w).toFixed(1)}`
+  const hover = chart?.points.find(p => p.id === hot), hr = hot ? byId.get(hot) : undefined, ht = hot ? dir.get(hot) : undefined
+  const rk = (v: number | null | undefined, r: number | null | undefined, signed = true, d = 1) => v == null ? '—' : <><Num value={v} signed={signed} digits={d} />{r != null && <span className="cf-muted" style={{ fontSize: '.75rem', marginLeft: 5 }}>({r})</span>}</>
+  return <section className="cf-section" aria-labelledby="cc-h">
+    <div className="cf-panel-head"><h2 id="cc-h">Conference Comparison</h2>
+      <ShareButton label="Download PNG" disabled={!chosen.length} run={async () => {
+        const [{ conferenceChartCanvas }, { savePng }] = await Promise.all([import('../confChart'), import('../../exportImage')])
+        await savePng(await conferenceChartCanvas(meta, rows, chosen, dir), `cfpi-conference-comparison-${meta.season}-wk${String(meta.ratings_week ?? 0).padStart(2, '0')}.png`)
+      }} /></div>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, margin: '0 0 12px' }} role="group" aria-label="Conferences to compare">
+      {conferences.map(c => <button key={c.slug} type="button" className="cf-btn" aria-pressed={picked.includes(c.slug)} onClick={() => toggle(c.slug)}
+        style={picked.includes(c.slug) ? { background: 'var(--cf-ink)', color: 'var(--cf-bg)' } : undefined}>{c.is_conference ? c.name : 'Independents'}</button>)}
+    </div>
+    <div className="cf-panel" style={{ padding: 8 }}>
+      {chosen.length === 0 ? <p className="cf-muted" style={{ margin: 12 }}>Select at least one conference.</p>
+        : chart ? <div style={{ position: 'relative' }}>
+          <img src={chart.src} alt="Line chart of CFPi+ power rating by rank within each selected conference, with every team's logo on its point" style={{ display: 'block', width: '100%', height: 'auto', borderRadius: 8 }} />
+          {chart.points.map(p => { const t = dir.get(p.id); return t ? <Link key={p.id} to={`/teams/${t.slug}/`} aria-label={`${t.team}: open team page`}
+            onMouseEnter={() => setHot(p.id)} onMouseLeave={() => setHot(h => h === p.id ? null : h)} onFocus={() => setHot(p.id)} onBlur={() => setHot(h => h === p.id ? null : h)}
+            style={{ position: 'absolute', left: `${100 * p.x / chart.W}%`, top: `${100 * p.y / chart.H}%`, width: `${100 * p.size / chart.W}%`, aspectRatio: '1', transform: 'translate(-50%, -50%)', outline: 'none' }} /> : null })}
+          {hover && hr && ht && <div role="tooltip" style={{ position: 'absolute', zIndex: 5, pointerEvents: 'none', width: 250, padding: '12px 14px', borderRadius: 12, background: 'var(--cf-surface)', boxShadow: '0 0 0 1px var(--cf-line), 0 12px 32px rgb(0 0 0 / .18)',
+            left: `${100 * hover.x / chart.W}%`, top: `${Math.min(70, Math.max(6, 100 * hover.y / chart.H - 8))}%`, transform: hover.x / chart.W > 0.6 ? `translateX(calc(-100% - ${hover.size}px))` : `translateX(${hover.size}px)` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+              <TeamLogo id={hot!} name={ht.team} size={52} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: '1.125rem', lineHeight: 1.2 }}>{ht.team}</div>
+                <div className="cf-muted" style={{ fontSize: '.75rem', marginTop: 2 }}>{ht.conference ?? ''}{place.get(hot!) ? ` · ${place.get(hot!)}` : ''}</div>
+              </div>
+            </div>
+            <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '3px 14px', margin: 0, fontSize: '.875rem' }}>
+              {([['Record', hr.wins == null ? '—' : `${hr.wins}–${hr.losses}`], ['Conf. Record', hr.conf_wins == null ? '—' : `${hr.conf_wins}–${hr.conf_losses}`],
+                ['Rating', rk(hr.power, hr.rank)], ['Offense', rk(hr.off, hr.off_rank)], ['Defense', rk(hr.def, hr.def_rank)], ['SOR', rk(hr.sor, hr.sor_rank, true, 2)], ['SOS', rk(hr.sos, hr.sos_rank)],
+                ['Proj. Record', wl(hr.proj_wins, totalGames.get(hot!))], ['Proj. Conf. Record', wl(confProj.get(hot!)?.avg_wins, confProj.get(hot!)?.conf_games)], ['Playoff', hr.p_playoff == null ? '—' : `${(hr.p_playoff * 100).toFixed(1)}%`]] as [string, React.ReactNode][])
+                .map(([k, v]) => <Fragment key={k}><dt className="cf-muted">{k}</dt><dd className="cf-num" style={{ margin: 0, textAlign: 'right', fontWeight: 500 }}>{v}</dd></Fragment>)}
+            </dl>
+            <div className="cf-muted" style={{ fontSize: '.75rem', marginTop: 8 }}>Click for the team page</div>
+          </div>}
+        </div>
+        : <p className="cf-muted" style={{ margin: 12 }} role="status">Drawing the chart…</p>}
+    </div>
+  </section>
 }
 
 /** Member strength: one bar per team from 0 (average FBS team) to its rating, on the full FBS range. */

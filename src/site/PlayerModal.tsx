@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import './player.css'
-import { DataGate, Info, Segmented, SortTh, sortRows, TeamLogo, useData, useTeams, type Sort } from './components'
+import { DataGate, Info, InfoLabel, Segmented, SortTh, sortRows, TeamLogo, useData, useTeams, type Sort } from './components'
 import type { Meta } from './data'
 
 // Player detail modal (docs/website/PLAYER_DATA.md). Every number is a CFBD box-score value or a sum of them;
@@ -58,8 +58,8 @@ const GROUPS: Group[] = [
     { key: 'ctd', label: 'TD', value: s => s.rec_td, text: s => String(s.rec_td), best: true },
     { key: 'yr', label: 'Y/R', info: 'Receiving yards per catch.', value: s => s.rec ? s.rec_yds / s.rec : null, text: s => rate(s.rec_yds, s.rec), best: true },
   ] },
-  { key: 'adv', label: 'Per play', has: s => s.pass_att + s.rush_car + s.rec > 0, cols: [
-    { key: 'ypp', label: 'Yds/play', info: 'Passing + rushing + receiving yards per pass attempt, carry and catch. Air yards (for ADOT) and targets are not in the box scores, so those are not shown.', value: s => { const n = s.pass_att + s.rush_car + s.rec; return n ? (s.pass_yds + s.rush_yds + s.rec_yds) / n : null }, text: s => rate(s.pass_yds + s.rush_yds + s.rec_yds, s.pass_att + s.rush_car + s.rec), best: true },
+  { key: 'adv', label: 'Per Play', has: s => s.pass_att + s.rush_car + s.rec > 0, cols: [
+    { key: 'ypp', label: 'Yds/Play', info: 'Passing + rushing + receiving yards per pass attempt, carry and catch. Air yards (for ADOT) and targets are not in the box scores, so those are not shown.', value: s => { const n = s.pass_att + s.rush_car + s.rec; return n ? (s.pass_yds + s.rush_yds + s.rec_yds) / n : null }, text: s => rate(s.pass_yds + s.rush_yds + s.rec_yds, s.pass_att + s.rush_car + s.rec), best: true },
     { key: 'tds', label: 'Total TD', value: s => s.pass_td + s.rush_td + s.rec_td, text: s => String(s.pass_td + s.rush_td + s.rec_td), best: true },
   ] },
   { key: 'def', label: 'Defense', has: s => s.tkl + s.tfl + s.sacks + s.int + s.pd > 0, cols: [
@@ -192,7 +192,7 @@ function Production({ p, games }: { p: Player; games: GameRow[] }) {
       <thead>
         <tr className="cf-pm-grouprow"><th colSpan={view === 'season' ? 2 : 1} />{groups.map(g => <th key={g.key} colSpan={g.cols.length} className="cf-pm-gh">{g.label}</th>)}</tr>
         <tr><th scope="col" className="cf-th-start">{view === 'season' ? 'Season' : 'Game'}</th>{view === 'season' && <th scope="col" className="cf-th-end">GP</th>}
-          {groups.map(g => g.cols.map((c, i) => <th key={c.key} scope="col" className={`cf-th-end${i === 0 ? ' cf-pm-gs' : ''}`}>{c.label}{c.info && <Info text={c.info} label={`About ${c.label}`} />}</th>))}</tr>
+          {groups.map(g => g.cols.map((c, i) => <th key={c.key} scope="col" className={`cf-th-end${i === 0 ? ' cf-pm-gs' : ''}`}>{c.info ? <InfoLabel focusable text={c.info}>{c.label}</InfoLabel> : c.label}</th>))}</tr>
       </thead>
       <tbody>{rows.map(r => <tr key={r.key}>
         <td>{r.label}</td>{view === 'season' && <td className="cf-num cf-td-end">{r.gp}</td>}

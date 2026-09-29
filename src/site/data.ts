@@ -34,7 +34,7 @@ export type PlayoffTeam = {
   p_bye: number; p_host: number; p_qf: number; p_sf: number; p_final: number; p_champ: number
   mean_seed: number | null; seed_dist?: number[]
 }
-/** A team's playoff chance in the simulated seasons where it wins / loses one game (the What if? filter for a single pick). */
+/** A team's playoff chance in the simulated seasons where it wins / loses one game (the What If? filter for a single pick). */
 export type Swing = { win: number; lose: number; base: number; n_win: number; n_lose: number }
 export type GameSwing = { home?: Swing; away?: Swing }
 export type IndexDoc = { meta: Meta; teams: TeamRow[]; top_games: Game[] | null; top_swing?: Record<string, GameSwing> | null }
@@ -44,7 +44,7 @@ export type PlayoffDoc = {
   meta: Meta
   format: { teams: number; byes: number; autobids: string; ranking: string; seeding: string; source: string }
   teams: PlayoffTeam[]
-  representative_field: { sim: number; sims_with_identical_field: number; seeds: { seed: number; team_id: string; bid: 'auto' | 'at-large'; conf_champ: boolean }[] } | null
+  representative_field: { sim: number; sims_with_identical_field: number; seeds: { seed: number; team_id: string; bid: 'auto' | 'at-large'; conf_champ: boolean; wins?: number; losses?: number }[] } | null
 }
 export type NotableGame = { game_id: string; opp_id: string; opp: string; opp_fbs: boolean; opp_rank: number | null; loc: number; pts: number; opp_pts: number }
 export type Resume = {

@@ -12,7 +12,7 @@ export async function bracketPng(doc: PlayoffDoc, b: SimBracket, dir: Map<string
       playoff: p.p_playoff, confTitle: p.p_conf, title: p.p_champ }
   }
   const seeded = new Map<string, Seeded>(b.field.map(f => {
-    const base = team(f.team_id, f.odds)
+    const base = { ...team(f.team_id, f.odds), record: f.wins != null ? `${f.wins}–${f.losses}` : undefined }
     const autoBid: Seeded['autoBid'] = f.bid !== 'auto' ? null : f.conf_champ ? (G6.includes(base.conference ?? '') ? 'g6' : 'champion') : base.team === 'Notre Dame' ? 'notre-dame' : 'g6'
     return [f.team_id, { ...base, seed: f.seed, autoBid }]
   }))
@@ -26,7 +26,7 @@ export async function bracketPng(doc: PlayoffDoc, b: SimBracket, dir: Map<string
   return renderBracketPng({
     field: [...seeded.values()], rounds, champion: s(b.champion), teams: doc.teams.map(p => team(p.team_id, p)),
     season: m.season, week: m.ratings_week, updatedAt: m.sim_updated_at, chip: 'CFPi+ SIMULATIONS',
-    lede: `The most likely 12-team field across ${m.sim_count?.toLocaleString('en-US') ?? 'the'} simulated seasons. Percentages: share of all seasons in which the team reached the next round.`,
+    lede: `The most likely 12-team field across ${m.sim_count?.toLocaleString('en-US') ?? 'the'} simulated seasons.`,
     notes: [
       `Field: the single simulated season whose seeding best matches all the simulations (this exact seeding occurred in ${b.identical} of ${m.sim_count?.toLocaleString('en-US')}).`,
       'In each game the team that reached the next round in more simulations advances; shares count every simulated season, whatever the seed. Higher seed hosts the first round.',

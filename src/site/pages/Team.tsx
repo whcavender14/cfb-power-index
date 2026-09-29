@@ -80,7 +80,7 @@ function Delta({ now, base }: { now: number; base: number | null | undefined }) 
   return <span className={`cf-delta ${d > 0 ? 'is-up' : 'is-down'}`}> {d > 0 ? '▲' : '▼'}{Math.abs(d).toFixed(1)}</span>
 }
 
-/** This team's odds in the simulated seasons where every pick happened (same filter as the What if? page; nothing is
+/** This team's odds in the simulated seasons where every pick happened (same filter as the What If? page; nothing is
  *  re-simulated). Scenario data loads only once a pick exists. */
 function TeamWhatIf({ team, picks, games, base, nGames, onClear }: { team: TeamMeta; picks: Pick[]; games: Game[]; base: PlayoffTeam; nGames: number; onClear: () => void }) {
   const scen = useData<ScenarioDoc>(picks.length ? 'scenario.json' : null)
@@ -96,7 +96,7 @@ function TeamWhatIf({ team, picks, games, base, nGames, onClear }: { team: TeamM
   </dl>
   const link = `/whatif/?pick=${formatPicks(picks)}`
   return <aside className="cf-wi" aria-labelledby="t-whatif">
-    <div className="cf-panel-head"><h3 id="t-whatif" className="cf-h3">What if?</h3>{picks.length > 0 && <button type="button" className="cf-btn cf-btn-sm" onClick={onClear}>Clear picks</button>}</div>
+    <div className="cf-panel-head"><h3 id="t-whatif" className="cf-h3">What If?</h3>{picks.length > 0 && <button type="button" className="cf-btn cf-btn-sm" onClick={onClear}>Clear picks</button>}</div>
     {picks.length === 0 ? <>
       <p className="cf-small cf-muted">Pick <b>W</b> or <b>L</b> on any remaining game to see how {team.team}’s odds change. These are the published odds.</p>
       {published}
@@ -121,7 +121,7 @@ function TeamWhatIf({ team, picks, games, base, nGames, onClear }: { team: TeamM
           <div><dt>Conference title</dt><dd>{indep ? <Missing why="Independent: no conference title" /> : <Share k={r.conf} n={n} base={base.p_conf} />}</dd></div>
           <div><dt>Expected record</dt><dd className="cf-num">{(r.wins / n).toFixed(1)}–{(games - r.wins / n).toFixed(1)}<Delta now={r.wins / n} base={base.proj_wins} /></dd></div>
         </dl>}
-        <p className="cf-small cf-muted">▲▼ = change from the published odds (percentage points; wins for the record). <Link to={link}>Open these picks on the What if? page</Link> to add other games and see every team.</p>
+        <p className="cf-small cf-muted">▲▼ = change from the published odds (percentage points; wins for the record). <Link to={link}>Open these picks on the What If? page</Link> to add other games and see every team.</p>
       </>
     }}</DataGate>}
   </aside>
@@ -157,7 +157,7 @@ function RecordDist({ rows, n, current }: { rows: RecordCount[]; n: number; curr
     </div>
     <details className="cf-details"><summary>All {sorted.length} final records ({n.toLocaleString()} simulations)</summary>
       <div className="cf-table-wrap"><table className="cf-table cf-table-compact">
-        <thead><tr><th scope="col" className="cf-th-start">Final record</th><th scope="col" className="cf-th-end">Simulations</th><th scope="col" className="cf-th-end">Share</th><th scope="col" className="cf-th-end">This or better</th></tr></thead>
+        <thead><tr><th scope="col" className="cf-th-start">Final Record</th><th scope="col" className="cf-th-end">Simulations</th><th scope="col" className="cf-th-end">Share</th><th scope="col" className="cf-th-end">This or Better</th></tr></thead>
         <tbody>{sorted.map(r => { cum += r.count; return <tr key={`${r.wins}-${r.losses}`}>
           <td className="cf-num">{r.wins}–{r.losses}</td><td className="cf-td-end cf-num">{r.count.toLocaleString()}</td>
           <td className="cf-td-end cf-num">{pctText(r.count / n, 1)}</td><td className="cf-td-end cf-num">{pctText(cum / n, 1)}</td>
@@ -307,7 +307,7 @@ export default function Team({ slug }: { slug: string }) {
         <Suspense fallback={null}><DepthChartSection slug={team.slug} team={team} /></Suspense>
 
         <section className="cf-panel cf-sched-panel" aria-labelledby="t-sched">
-          <h2 id="t-sched" className="cf-h2">Schedule <Info text={`Results for played games; for the rest, projected margin (negative = favored) and ${WINPROB_INFO.charAt(0).toLowerCase()}${WINPROB_INFO.slice(1)} ${QUALITY_INFO}${whatIf ? ' W / L: pick a result for the What if? panel.' : ''}`} label="About projections" /></h2>
+          <h2 id="t-sched" className="cf-h2">Schedule <Info text={`Results for played games; for the rest, projected margin (negative = favored) and ${WINPROB_INFO.charAt(0).toLowerCase()}${WINPROB_INFO.slice(1)} ${QUALITY_INFO}${whatIf ? ' W / L: pick a result for the What If? panel.' : ''}`} label="About projections" /></h2>
           <div className={whatIf ? 'cf-sched-layout' : undefined}>
           <div className="cf-sched-rem">
           {schedule.length === 0 ? <p className="cf-muted">Schedule unavailable.</p>

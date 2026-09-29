@@ -1,5 +1,5 @@
-import { Search, X } from 'lucide-react'
-import { DataGate, Freshness, Num, PageHead, Select, SortTh, sortRows, TeamLink, useData, useTeams, type Sort } from '../components'
+import { ChevronDown, Search, X } from 'lucide-react'
+import { DataGate, Freshness, Num, PageHead, SortTh, sortRows, TeamLink, useData, useTeams, type Sort } from '../components'
 import type { IndexDoc, TeamRow } from '../data'
 import { Link, useQueryParam } from '../router'
 
@@ -38,38 +38,39 @@ export default function Teams() {
       const lo = Math.floor(Math.min(0, ...powers) / 5) * 5, hi = Math.ceil(Math.max(...powers) / 5) * 5
       return <>
         <Freshness meta={meta} />
-        <div className="cf-toolbar">
+        <div className="cf-toolbar" style={{ marginTop: 12, alignItems: 'center' }}>
           <label className="cf-search"><Search size={15} aria-hidden="true" />
             <input type="search" placeholder="Search teams" aria-label="Search teams" value={q} onChange={e => setQ(e.target.value)} />
             {q && <button type="button" aria-label="Clear search" onClick={() => setQ('')}><X size={14} /></button>}
           </label>
-          <Select label="Conference" value={conf} onChange={setConf}>
+          <span className="cf-select"><select aria-label="Conference" value={conf} onChange={e => setConf(e.target.value)}>
             <option value="">All conferences</option>
             {confs.map(c => <option key={c} value={c}>{c}</option>)}
-          </Select>
-          <p className="cf-muted cf-small" role="status">{rows.length} of {teams.length} teams</p>
+          </select><ChevronDown size={14} aria-hidden="true" /></span>
+          <p className="cf-muted cf-small cf-toolbar-end" style={{ margin: 0 }} role="status">{rows.length} of {teams.length} teams</p>
         </div>
         {rows.length === 0 ? <div className="cf-state"><p className="cf-state-title">No teams match</p></div> :
-        <div className="cf-table-wrap"><table className="cf-table cf-teams-table">
+        <div className="cf-table-wrap"><table className="cf-table cf-teams-table" style={{ tableLayout: 'fixed' }}>
+          <colgroup><col style={{ width: 'min(64px, 12vw)' }} /><col style={{ width: 'min(190px, 38vw)' }} /><col style={{ width: 'min(72px, 20vw)' }} /><col />{[0, 1, 2, 3].map(i => <col key={i} style={{ width: 96 }} className="cf-hide-sm" />)}</colgroup>
           <thead><tr>
-            <SortTh label="CFPi+ rank" sortKey="rank" sort={sort} onSort={onSort} align="start" info="Predictive rank by CFPi+ power rating. The résumé rank (strength of record) is on the Résumé ranking page." />
+            <SortTh label="Rank" sortKey="rank" sort={sort} onSort={onSort} align="start" style={{ textAlign: 'center' }} />
             <SortTh label="Team" sortKey="name" sort={sort} onSort={onSort} align="start" />
-            <SortTh label="CFPi+" sortKey="power" sort={sort} onSort={onSort} info="Power rating: points better than an average FBS team on a neutral field (offense − defense)." />
+            <SortTh label="CFPi+" sortKey="power" sort={sort} onSort={onSort} align="start" style={{ textAlign: 'center' }} info="Power rating: points better than an average FBS team on a neutral field (offense − defense)." />
             <th scope="col" className="cf-th-start cf-pbar-col"><span className="cf-sr">Rating bar</span></th>
-            <SortTh label="Off." sortKey="off" sort={sort} onSort={onSort} className="cf-hide-sm" />
-            <SortTh label="Def." sortKey="def" sort={sort} onSort={onSort} className="cf-hide-sm" info="Lower is better; sorting puts the best defense first." />
-            <SortTh label="SOS" sortKey="sos" sort={sort} onSort={onSort} className="cf-hide-sm" info={SOS_INFO} />
-            <SortTh label="SOR" sortKey="sor" sort={sort} onSort={onSort} className="cf-hide-sm" info={SOR_INFO} />
+            <SortTh label="Offense" sortKey="off" sort={sort} onSort={onSort} className="cf-hide-sm" align="start" style={{ textAlign: 'center' }} />
+            <SortTh label="Defense" sortKey="def" sort={sort} onSort={onSort} className="cf-hide-sm" align="start" style={{ textAlign: 'center' }} info="Lower is better; sorting puts the best defense first." />
+            <SortTh label="SOS" sortKey="sos" sort={sort} onSort={onSort} className="cf-hide-sm" align="start" style={{ textAlign: 'center' }} info={SOS_INFO} />
+            <SortTh label="SOR" sortKey="sor" sort={sort} onSort={onSort} className="cf-hide-sm" align="start" style={{ textAlign: 'center' }} info={SOR_INFO} />
           </tr></thead>
           <tbody>{rows.map(r => <tr key={r.team_id}>
-            <td className="cf-num">{r.rank ?? '—'}</td>
+            <td className="cf-num" style={{ textAlign: 'center' }}>{r.rank ?? '—'}</td>
             <td><TeamLink id={r.team_id} size={22} sub={directory.get(r.team_id)?.conference ?? undefined} /></td>
-            <td className="cf-td-end cf-strong"><Num value={r.power} signed /></td>
+            <td className="cf-strong" style={{ textAlign: 'center' }}><Num value={r.power} signed /></td>
             <td className="cf-pbar-col"><PowerBar v={r.power} lo={lo} hi={hi} /></td>
-            <td className="cf-td-end cf-hide-sm"><Num value={r.off} signed /></td>
-            <td className="cf-td-end cf-hide-sm"><Num value={r.def} signed /></td>
-            <td className="cf-td-end cf-hide-sm"><Num value={r.sos} signed /></td>
-            <td className="cf-td-end cf-hide-sm"><Num value={r.sor} signed digits={2} /></td>
+            <td className="cf-hide-sm" style={{ textAlign: 'center' }}><Num value={r.off} signed />{r.off_rank != null && <span className="cf-muted" style={{ fontSize: '.75rem', marginLeft: 5 }}>({r.off_rank})</span>}</td>
+            <td className="cf-hide-sm" style={{ textAlign: 'center' }}><Num value={r.def} signed />{r.def_rank != null && <span className="cf-muted" style={{ fontSize: '.75rem', marginLeft: 5 }}>({r.def_rank})</span>}</td>
+            <td className="cf-hide-sm" style={{ textAlign: 'center' }}><Num value={r.sos} signed />{r.sos_rank != null && <span className="cf-muted" style={{ fontSize: '.75rem', marginLeft: 5 }}>({r.sos_rank})</span>}</td>
+            <td className="cf-hide-sm" style={{ textAlign: 'center' }}><Num value={r.sor} signed digits={2} />{r.sor_rank != null && <span className="cf-muted" style={{ fontSize: '.75rem', marginLeft: 5 }}>({r.sor_rank})</span>}</td>
           </tr>)}</tbody>
         </table></div>}
         <p className="cf-small cf-muted">Rank, record, movement and playoff odds are on <Link to="/rankings/">Rankings</Link>.</p>

@@ -16,22 +16,21 @@ const INFO: Record<string, string> = {
   p_champ: 'Share of seasons winning the national title.',
   mean_seed: 'Average seed in the seasons where the team makes the field.',
 }
-const COLS: [keyof PlayoffTeam, string][] = [['p_playoff', 'Playoff'], ['p_auto', 'Auto bid'], ['p_at_large', 'At-large'], ['p_bye', 'Bye'], ['p_host', 'Host'], ['p_qf', 'QF'], ['p_sf', 'Semis'], ['p_final', 'Final'], ['p_champ', 'Title']]
+const COLS: [keyof PlayoffTeam, string][] = [['p_playoff', 'Playoff'], ['p_auto', 'Auto Bid'], ['p_at_large', 'At-Large'], ['p_bye', 'Bye'], ['p_host', 'Host'], ['p_qf', 'QF'], ['p_sf', 'Semis'], ['p_final', 'Final'], ['p_champ', 'Title']]
 
-const BRACKET_INFO = 'The field is the single simulated season whose seeding is most consistent with all the simulations, so it follows the selection rules exactly. Each percentage is the share of all simulated seasons in which that team reached the next round (whatever its seed); in each game the team with the higher share advances. One plausible path, not a forecast that every result will hold.'
+const BRACKET_INFO = 'The field is the single simulated season whose seeding is most consistent with all the simulations, so it follows the selection rules exactly. Each team’s record is its result in that simulated season. In each game, the team that reached the next round in more of the simulated seasons (whatever its seed) advances. One plausible path, not a forecast that every result will hold.'
 
-function BTeam({ t, p, won, champ }: { t: BracketTeam; p: number; won: boolean; champ?: boolean }) {
+function BTeam({ t, won, champ }: { t: BracketTeam; won: boolean; champ?: boolean }) {
   return <div className={`cf-brk-row${won ? ' is-won' : ''}${champ ? ' is-champ' : ''}`}>
     <span className={`cf-brk-seed${t.seed <= 4 ? ' is-bye' : ''}`} title={t.seed <= 4 ? 'First-round bye' : undefined}>{t.seed}</span>
-    <TeamLink id={t.team_id} size={20} />
-    <span className="cf-brk-p cf-num">{pctText(p, 0)}</span>
+    <TeamLink id={t.team_id} size={20} sub={t.wins != null ? `${t.wins}–${t.losses}` : undefined} />
   </div>
 }
 function BGame({ g, champion }: { g: BracketGame; champion: BracketTeam }) {
   const final = g.round === 3
   return <div className={`cf-brk-game${final ? ' is-final' : ''}`}>
-    <BTeam t={g.top} p={g.pTop} won={g.winner === g.top} champ={final && g.winner === g.top && g.top === champion} />
-    <BTeam t={g.bottom} p={g.pBottom} won={g.winner === g.bottom} champ={final && g.winner === g.bottom && g.bottom === champion} />
+    <BTeam t={g.top} won={g.winner === g.top} champ={final && g.winner === g.top && g.top === champion} />
+    <BTeam t={g.bottom} won={g.winner === g.bottom} champ={final && g.winner === g.bottom && g.bottom === champion} />
   </div>
 }
 /** Desktop: the image's layout (first round, quarterfinals, semifinals | final | semifinals, quarterfinals, first round).
@@ -77,7 +76,7 @@ export default function Playoff() {
   const onSort = (s: Sort) => { setSortKey(s.key); setDir(s.desc === natural(s.key) ? '' : s.desc ? 'desc' : 'asc') }
 
   return <>
-    <PageHead title="Playoff" lede={<>Odds for the 12-team College Football Playoff, from the simulated seasons. Each season is played out, ranked, seeded and bracketed with the rules below. Try <Link to="/whatif/">What if?</Link> to see how picks change them.</>} />
+    <PageHead title="Playoff" lede={<>Odds for the 12-team College Football Playoff, from the simulated seasons. Each season is played out, ranked, seeded and bracketed with the rules below. Try <Link to="/whatif/">What If?</Link> to see how picks change them.</>} />
     <DataGate source={doc} label="Playoff odds">{({ meta, format, teams: rows, representative_field: field }) => {
       if (meta.sim_status !== 'available' || !rows.length) return <div className="cf-state" role="status"><p className="cf-state-title">Simulation results are unavailable for this update</p><p className="cf-muted">Ratings are still current. Playoff odds return with the next successful simulation.</p></div>
       const contenders = rows.filter(r => r.p_playoff > 0)
@@ -89,14 +88,14 @@ export default function Playoff() {
       return <>
         <Freshness meta={meta} sims />
 
-        <section className="cf-section" aria-labelledby="po-field">
+        <section className="cf-section" style={{ marginTop: "var(--s3)" }} aria-labelledby="po-field">
           <div className="cf-panel-head">
             <h2 id="po-field">Projected bracket <Info text={BRACKET_INFO} label="How the bracket is built" /></h2>
-            {bracket && <ShareButton label="Bracket PNG" run={async () => { await (await import('../bracketPng')).bracketPng(doc.data!, bracket, teams) }} />}
+            {bracket && <ShareButton label="Predicted Bracket" run={async () => { await (await import('../bracketPng')).bracketPng(doc.data!, bracket, teams) }} />}
           </div>
           {bracket ? <>
             <div className="cf-panel cf-brk-panel"><Bracket b={bracket} /></div>
-            <p className="cf-small cf-muted cf-brk-note"><span className="cf-brk-seed is-bye">1</span> Seeds 1–4 have first-round byes. Percentages: share of all {meta.sim_count?.toLocaleString()} simulated seasons in which the team reached the next round. This exact seeding occurred in {field!.sims_with_identical_field} of them.</p>
+            <p className="cf-small cf-muted cf-brk-note"><span className="cf-brk-seed is-bye">1</span> Seeds 1–4 have first-round byes. In each game, the team that reached the next round in more of the {meta.sim_count?.toLocaleString()} simulated seasons advances. This exact seeding occurred in {field!.sims_with_identical_field} of them.</p>
           </> : <p className="cf-muted">No projected field is available.</p>}
           <details className="cf-rules">
             <summary>Selection rules used by the simulation</summary>
@@ -108,20 +107,20 @@ export default function Playoff() {
           <div className="cf-panel-head">
             <h2 id="po-odds">Playoff odds</h2>
             <span className="cf-share-row"><label className="cf-check"><input type="checkbox" checked={scope === 'all'} onChange={e => setScope(e.target.checked ? 'all' : '')} /> Show all {rows.length} teams</label>
-              <ShareButton label="CFP odds PNG" run={async () => { await (await import('../huntPng')).huntPng(doc.data!, teams) }} /></span>
+              <ShareButton label="Playoff Hunt" run={async () => { await (await import('../huntPng')).huntPng(doc.data!, teams) }} /></span>
           </div>
           <div className="cf-table-wrap cf-desktop">
             <table className="cf-table">
               <caption className="cf-sr">Playoff probabilities, sortable</caption>
               <thead><tr>
                 <th scope="col" className="cf-th-start">Team</th>
-                {COLS.map(([k, label]) => <SortTh key={k} label={label} sortKey={k} sort={sort} onSort={onSort} info={INFO[k]} />)}
-                <SortTh label="Avg seed" sortKey="mean_seed" sort={sort} onSort={onSort} info={INFO.mean_seed} />
+                {COLS.map(([k, label]) => <SortTh key={k} label={label} sortKey={k} sort={sort} onSort={onSort} info={INFO[k]} align="start" style={{ textAlign: 'center' }} />)}
+                <SortTh label="Avg Seed" sortKey="mean_seed" sort={sort} onSort={onSort} info={INFO.mean_seed} align="start" style={{ textAlign: 'center' }} />
               </tr></thead>
               <tbody>{sorted.map(r => <tr key={r.team_id}>
                 <td><TeamLink id={r.team_id} sub={teams.get(r.team_id)?.conference} /></td>
-                {COLS.map(([k]) => <td key={k} className={`cf-td-end${k === 'p_playoff' ? ' cf-strong' : ''}`}><Pct value={r[k] as number} /></td>)}
-                <td className="cf-td-end"><Num value={r.mean_seed} why="Never selected" /></td>
+                {COLS.map(([k]) => <td key={k} className={k === 'p_playoff' ? 'cf-strong' : undefined} style={{ textAlign: 'center' }}><Pct value={r[k] as number} /></td>)}
+                <td style={{ textAlign: 'center' }}><Num value={r.mean_seed} why="Never selected" /></td>
               </tr>)}</tbody>
             </table>
           </div>
@@ -132,7 +131,7 @@ export default function Playoff() {
               <div><dt>Bye</dt><dd><Pct value={r.p_bye} /></dd></div>
               <div><dt>Semis</dt><dd><Pct value={r.p_sf} /></dd></div>
               <div><dt>Title</dt><dd><Pct value={r.p_champ} /></dd></div>
-              <div><dt>Avg seed</dt><dd><Num value={r.mean_seed} /></dd></div>
+              <div><dt>Avg Seed</dt><dd><Num value={r.mean_seed} /></dd></div>
             </dl>
           </li>)}</ol>
         </section>

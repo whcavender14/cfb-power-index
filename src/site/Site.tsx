@@ -6,6 +6,7 @@ import { Link, Redirect, useLegacyHashRedirect, useLocation } from './router'
 import Home from './pages/Home'
 const Rankings = lazy(() => import('./pages/Rankings'))
 const Games = lazy(() => import('./pages/Games'))
+const GameQuality = lazy(() => import('./pages/GameQuality'))
 const Playoff = lazy(() => import('./pages/Playoff'))
 const Teams = lazy(() => import('./pages/Teams'))
 const Team = lazy(() => import('./pages/Team'))
@@ -26,7 +27,7 @@ const NAV = [
   { to: '/rankings/', label: 'Rankings' },
   { to: '/games/', label: 'Games' },
   { to: '/playoff/', label: 'Playoff' },
-  { to: '/whatif/', label: 'What if?' },
+  { to: '/whatif/', label: 'What If?' },
   { to: '/teams/', label: 'Teams' },
   { to: '/conferences/', label: 'Conferences' },
   { to: '/model/', label: 'Model' },
@@ -43,6 +44,7 @@ function route(path: string) {
     '/': [<Home />, 'College Football Power Ratings'],
     '/rankings/': [<Rankings />, 'Rankings'],
     '/games/': [<Games />, 'Games'],
+    '/games/quality/': [<GameQuality />, 'Game Quality'],
     '/playoff/': [<Playoff />, 'Playoff'],
     '/teams/': [<Teams />, 'Teams'],
     '/conferences/': [<ConferenceList />, 'Conferences'],
@@ -53,7 +55,7 @@ function route(path: string) {
     '/changes/': [<Redirect to="/#changed" />, 'College Football Power Ratings'],
     '/changed/': [<Redirect to="/#changed" />, 'College Football Power Ratings'],
     '/rankings/resume/': [<Resume />, 'Résumé ranking'],
-    '/whatif/': [<WhatIf />, 'What if?'],
+    '/whatif/': [<WhatIf />, 'What If?'],
     '/model/': [<Model />, 'Model'],
     '/simulations/': [<LegacySimulations />, 'Season simulations'],
     '/betting/': [<LegacyBetting />, 'Betting lines'],
@@ -67,7 +69,7 @@ function useTheme(): [Theme, () => void] {
   const [theme, setTheme] = useState<Theme>(() => document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light')
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff')
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#050b17' : '#ffffff')
     try { localStorage.setItem('cfb-theme', theme) } catch { /* storage unavailable */ }
   }, [theme])
   return [theme, () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))]
@@ -99,7 +101,7 @@ export default function Site() {
     <a href="#cf-main" className="cf-skip">Skip to content</a>
     <header className="cf-header">
       <div className="cf-wrap cf-header-row">
-        <Link to="/" className="cf-brand" aria-label="CFPi+ home">CFPi<span className="cf-brand-plus">+</span></Link>
+        <Link to="/" className="cf-brand" aria-label="CFPi+ home"><img src={`${import.meta.env.BASE_URL}brand/logo-on-${theme}.png`} alt="CFPi+ Cavender Football Power Index" style={{ display: 'block', height: 42, width: 'auto' }} /></Link>
         <nav className="cf-nav" aria-label="Primary">{links('cf-nav-link')}</nav>
         <div className="cf-header-actions">
           <Search />

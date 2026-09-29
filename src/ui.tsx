@@ -13,7 +13,9 @@ export function TeamLogo({ name, src, size = 36 }: { name: string; src?: string 
   </span>
 }
 
-export function Tip({ text, align = 'center' }: { text: string; align?: 'start' | 'center' | 'end' }) {
+/** With children: no icon, the label itself shows the definition on hover or keyboard focus. Without: the ? icon. */
+export function Tip({ text, align = 'center', children }: { text: string; align?: 'start' | 'center' | 'end'; children?: ReactNode }) {
+  if (children) return <span className={`tip tip-${align}`}>{children}<span role="tooltip" className="tip-body">{text}</span></span>
   return <span className={`tip tip-${align}`}>
     <button type="button" className="tip-btn" aria-label={text}><CircleHelp size={13} /></button>
     <span role="tooltip" className="tip-body">{text}</span>

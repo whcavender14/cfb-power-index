@@ -183,14 +183,15 @@ if (!is.null(sim)) {
 
   # Representative field: the simulated season whose 12 (team, seed) pairs are jointly most likely under the
   # seed distributions. It is an actual simulated outcome, so it obeys the implemented selection rules.
-  fld <- st[st$in_field, c("sim", "team_id", "seed", "auto", "conf_champ", "cfp_rank")]
+  fld <- st[st$in_field, c("sim", "team_id", "seed", "auto", "conf_champ", "cfp_rank", "wins", "losses")]
   fld$logp <- log(seed_tab[cbind(fld$team_id, as.character(fld$seed))] / n_sims)
   score <- tapply(fld$logp, fld$sim, sum)
   best <- as.integer(names(score)[which.max(score)])
   rf <- fld[fld$sim == best, ]; rf <- rf[order(rf$seed), ]
   rep_field <- list(sim = best, sims_with_identical_field = NA_integer_,
                     seeds = lapply(seq_len(nrow(rf)), function(k) list(seed = rf$seed[k], team_id = rf$team_id[k],
-                      bid = if (rf$auto[k]) "auto" else "at-large", conf_champ = isTRUE(rf$conf_champ[k]))))
+                      bid = if (rf$auto[k]) "auto" else "at-large", conf_champ = isTRUE(rf$conf_champ[k]),
+                      wins = as.integer(rf$wins[k]), losses = as.integer(rf$losses[k]))))
   key <- tapply(paste(fld$seed, fld$team_id), fld$sim, function(v) paste(sort(v), collapse = "|"))
   rep_field$sims_with_identical_field <- sum(key == key[as.character(best)])
 }
@@ -208,11 +209,12 @@ if (!is.null(sim) && !is.null(sim$schedule) && !is.null(sim$team_power)) {
   neutral <- as.logical(g$neutral)
   mu <- hp - ap + ifelse(neutral, 0, hfa)
   p_home <- pnorm(mu / sigma)
-  # Strength: FBS power percentile (1 = best rated, 0 = worst); non-FBS teams count as 0.
-  pct <- if (!is.null(rat)) setNames(1 - (rat$rank - 1) / (nrow(rat) - 1), rat$team_id) else numeric(0)
+  # Strength: 1 - sqrt((rank - 1) / (N - 1)) among the N rated FBS teams (1 = best rated, 0 = worst; the square root keeps the top 25 clearly apart from the rest without flattening ranks 8-25); non-FBS teams count as 0.
+  pct <- if (!is.null(rat)) setNames(1 - sqrt((rat$rank - 1) / (nrow(rat) - 1)), rat$team_id) else numeric(0)
   sh <- ifelse(g$home_fbs, pct[as.character(g$home_id)], 0); sa <- ifelse(g$away_fbs, pct[as.character(g$away_id)], 0)
   sh[is.na(sh)] <- 0; sa[is.na(sa)] <- 0
-  quality <- round(100 * ((sh + sa) / 2) * (1 - abs(2 * p_home - 1)))
+  # Closeness is quadratic, so near toss-ups are barely penalised and real mismatches still fall off sharply.
+  quality <- round(100 * ((sh + sa) / 2) * (1 - (2 * p_home - 1)^2))
   gs <- as.data.frame(sim$game_summary); gs <- gs[gs$game_type == "REG", ]
   gsm <- match(paste(g$week, g$home_team, g$away_team), paste(gs$week, gs$home_team, gs$away_team))
   conf_game <- if ("conference_game" %in% names(g)) as.logical(g$conference_game) else

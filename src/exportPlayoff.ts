@@ -29,7 +29,7 @@ function label(ctx: CanvasRenderingContext2D, text: string, x: number, y: number
 }
 function card(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r = 6, fill: string = C.card) {
   ctx.save()
-  ctx.shadowColor = 'rgba(28, 47, 85, 0.10)'
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.08)'
   ctx.shadowBlur = 14
   ctx.shadowOffsetY = 4
   rounded(ctx, x, y, w, h, r)
@@ -41,7 +41,7 @@ function card(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h:
   ctx.lineWidth = 1
   ctx.stroke()
 }
-/** Navy header bar with a gold rule, as on the rankings export's columns. */
+/** Dark header bar with an accent rule, as on the rankings export's columns. */
 function panelHead(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, text: string, right?: string) {
   ctx.save()
   rounded(ctx, x, y, w, 36, [6, 6, 0, 0])
@@ -52,7 +52,7 @@ function panelHead(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.fillRect(x, y + 34, w, 2)
   ctx.restore()
   label(ctx, text, x + 16, y + 22.5, { size: 11, color: C.cream, track: '1.8px' })
-  if (right) label(ctx, right, x + w - 16, y + 22.5, { size: 10.5, weight: 500, color: '#c5cfe0', track: '1.4px', align: 'right' })
+  if (right) label(ctx, right, x + w - 16, y + 22.5, { size: 10.5, weight: 500, color: '#d1d1d6', track: '1.4px', align: 'right' })
 }
 function lede(ctx: CanvasRenderingContext2D, text: string, x: number, y: number) {
   ctx.font = `400 16px ${BODY}`
@@ -78,12 +78,12 @@ export async function exportPlayoffHuntPng({ teams, season, week, updatedAt, asO
   const logos = await loadLogos([...new Map([...shown, ...titleLeaders, ...champs.map(c => c.t)].map(t => [t.team_id, t])).values()])
 
   const W = 1600, pad = 56
-  const plot = { x0: pad + 78, y0: 236, x1: 1112, y1: 1136 }
+  const plot = { x0: pad + 78, y0: 216, x1: 1112, y1: 1050 }
   const side = { x: 1156, w: W - pad - 1156 }
-  const H = plot.y1 + 224
+  const H = plot.y1 + 176
   const { canvas, ctx } = createCanvas(W, H)
   drawMasthead(ctx, W, pad, { kicker: 'COLLEGE FOOTBALL · SEASON SIMULATIONS', title: 'The Playoff Hunt', chips: [weekTag(week, season), simulations ? `${simulations.toLocaleString('en-US')} SIMS` : 'SIMULATIONS'], updatedAt })
-  lede(ctx, `Every contender’s playoff odds against its power rating, from ${sims(simulations)}.`, pad, 192)
+  lede(ctx, `Every contender’s playoff odds against its power rating, from ${sims(simulations)}.`, pad, 182)
 
   // Scales. Odds use equal-weight bands so the crowded low end stays legible;
   // ticks sit exactly on the band edges, where the scale bends.
@@ -104,7 +104,7 @@ export async function exportPlayoffHuntPng({ teams, season, week, updatedAt, asO
   }
 
   // Tier bands
-  const fills: Record<string, string> = { driver: '#efe1c3', hunt: '#f6ecd8', bubble: '#eaeef5', long: '#f1ede4' }
+  const fills: Record<string, string> = { driver: '#dcebfa', hunt: '#eaf2fb', bubble: '#f2f2f7', long: '#fafafc' }
   const inks: Record<string, string> = { driver: C.goldInk, hunt: C.goldInk, bubble: C.navy, long: C.ink2 }
   ctx.save()
   rounded(ctx, plot.x0, plot.y0, plot.x1 - plot.x0, plot.y1 - plot.y0, 6)
@@ -113,10 +113,10 @@ export async function exportPlayoffHuntPng({ teams, season, week, updatedAt, asO
     const top = Y(b.max), bottom = Y(b.min)
     ctx.fillStyle = fills[b.key]
     ctx.fillRect(plot.x0, top, plot.x1 - plot.x0, bottom - top)
-    if (b.min > 0) { ctx.fillStyle = 'rgba(28, 47, 85, 0.16)'; ctx.fillRect(plot.x0, bottom - 0.5, plot.x1 - plot.x0, 1) }
+    if (b.min > 0) { ctx.fillStyle = 'rgba(0, 0, 0, 0.14)'; ctx.fillRect(plot.x0, bottom - 0.5, plot.x1 - plot.x0, 1) }
   }
   // Vertical grid every 5 points
-  for (let v = xMin; v <= xMax; v += 5) { ctx.fillStyle = 'rgba(28, 47, 85, 0.07)'; ctx.fillRect(X(v) - 0.5, plot.y0, 1, plot.y1 - plot.y0) }
+  for (let v = xMin; v <= xMax; v += 5) { ctx.fillStyle = 'rgba(0, 0, 0, 0.06)'; ctx.fillRect(X(v) - 0.5, plot.y0, 1, plot.y1 - plot.y0) }
   // FBS average
   ctx.strokeStyle = C.navy
   ctx.globalAlpha = 0.55
@@ -180,7 +180,7 @@ export async function exportPlayoffHuntPng({ teams, season, week, updatedAt, asO
   shown.forEach((_, i) => {
     const e = exact[i], p = placed[i]
     if (Math.hypot(p.x - e.x, p.y - e.y) < 5) return
-    ctx.strokeStyle = 'rgba(28, 47, 85, 0.45)'
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)'
     ctx.lineWidth = 1
     ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(p.x, p.y); ctx.stroke()
     ctx.beginPath(); ctx.arc(e.x, e.y, 2.5, 0, Math.PI * 2); ctx.fillStyle = C.navy; ctx.fill()
@@ -188,7 +188,7 @@ export async function exportPlayoffHuntPng({ teams, season, week, updatedAt, asO
   // Draw weakest odds first so the leaders sit on top.
   shown.map((t, i) => ({ t, p: placed[i] })).reverse().forEach(({ t, p }) => {
     ctx.save()
-    ctx.shadowColor = 'rgba(20, 34, 63, 0.28)'
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.2)'
     ctx.shadowBlur = 5
     ctx.shadowOffsetY = 1.5
     drawLogo(ctx, logos.get(t.team_id), t.team, p.x, p.y, box)
@@ -197,7 +197,7 @@ export async function exportPlayoffHuntPng({ teams, season, week, updatedAt, asO
 
   // Side panel 1: national title odds
   let y = plot.y0
-  const rowH = 36
+  const rowH = 32
   const titleH = 36 + titleLeaders.length * rowH + 8
   card(ctx, side.x, y, side.w, titleH)
   panelHead(ctx, side.x, y, side.w, 'NATIONAL TITLE ODDS')
@@ -260,7 +260,7 @@ export async function exportPlayoffHuntPng({ teams, season, week, updatedAt, asO
   }
 
   // Footer
-  const fy = plot.y1 + 96
+  const fy = plot.y1 + 84
   ctx.fillStyle = C.line
   ctx.fillRect(pad, fy, W - pad * 2, 1)
   const run = asOfText(asOf)
@@ -300,7 +300,7 @@ function matchup(ctx: CanvasRenderingContext2D, logos: Logos, b: Box, champion: 
       ctx.save()
       rounded(ctx, x, y, w, rowH * 2, 6)
       ctx.clip()
-      ctx.fillStyle = champ ? C.goldSoft : 'rgba(232, 236, 244, 0.55)'
+      ctx.fillStyle = champ ? C.goldSoft : 'rgba(242, 242, 247, 0.8)'
       ctx.fillRect(x, rowY, w, rowH)
       ctx.fillStyle = champ ? C.gold : C.navy
       ctx.fillRect(x, rowY, 3, rowH)
@@ -323,13 +323,12 @@ function matchup(ctx: CanvasRenderingContext2D, logos: Logos, b: Box, champion: 
     ctx.textAlign = 'left'
     ctx.font = `${won ? 600 : 500} ${big ? 17 : 15}px ${BODY}`
     ctx.fillStyle = won ? C.ink : C.muted
-    ctx.fillText(fit(ctx, team.team, w - (nameX - x) - 46), nameX, mid + (big ? 6 : 5))
-    const p = game.shown ? game.shown[top ? 0 : 1] : won ? game.winProbability : 1 - game.winProbability
-    ctx.font = `${won ? 600 : 500} ${big ? 14 : 13}px ${MONO}`
-    ctx.fillStyle = won ? (champ ? C.goldInk : C.navy) : C.faint
-    ctx.textAlign = 'right'
-    ctx.fillText(pctText(p), x + w - 12, mid + 4.5)
-    ctx.textAlign = 'left'
+    ctx.fillText(fit(ctx, team.team, w - (nameX - x) - 14), nameX, mid + (team.record ? (big ? 0 : -1) : big ? 6 : 5))
+    if (team.record) {
+      ctx.font = `500 ${big ? 12.5 : 11.5}px ${BODY}`
+      ctx.fillStyle = C.muted
+      ctx.fillText(team.record, nameX, mid + (big ? 15 : 13))
+    }
   }
 }
 
@@ -371,17 +370,17 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
   const logos = await loadLogos([...new Map([...field, ...titleOdds].map(t => [t.team_id, t])).values()])
 
   const W = 1960, pad = 48, gap = 28
-  const fieldY = 846, chipH = 58, footY = fieldY + 16 + chipH + 40
-  const H = footY + 96
+  const fieldY = 782, chipH = 58, footY = fieldY + 16 + chipH + 30
+  const H = footY + 78
   const { canvas, ctx } = createCanvas(W, H)
   drawMasthead(ctx, W, pad, { kicker: 'COLLEGE FOOTBALL · SEASON SIMULATIONS', title: 'Projected Playoff', chips: [weekTag(week, season), chip], updatedAt })
-  lede(ctx, ledeText, pad, 192)
+  lede(ctx, ledeText, pad, 182)
 
   // Columns: FR, QF, SF | final | SF, QF, FR (left half = seeds 1/4 pod, right half = 2/3 pod)
   const colX = (i: number) => pad + i * (CARD_W + gap)
   const rColX = (i: number) => W - pad - CARD_W - i * (CARD_W + gap)
   const heads = ['FIRST ROUND', 'QUARTERFINALS', 'SEMIFINALS']
-  const headY = 250
+  const headY = 232
   for (let i = 0; i < 3; i++) for (const x of [colX(i), rColX(i)]) {
     label(ctx, heads[i], x + CARD_W / 2, headY, { size: 12, color: C.navy, track: '2.4px', align: 'center' })
     ctx.fillStyle = C.gold
@@ -389,7 +388,7 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
     if (i === 0) label(ctx, 'HIGHER SEED HOSTS', x + CARD_W / 2, headY + 30, { size: 10, weight: 500, color: C.muted, track: '1.6px', align: 'center' })
   }
 
-  const frC = [398, 658] // first-round card centres (per half)
+  const frC = [372, 588] // first-round card centres (per half)
   const box = (x: number, cy: number, game: Game, w = CARD_W, rowH = ROW): Box => ({ x, y: cy - rowH, w, game, rowH })
   const fr = rounds[0], qf = rounds[1], sf = rounds[2], fin = rounds[3][0]
   // Game order within each round follows the bracket: [0,1] left half, [2,3] right half.
@@ -416,9 +415,9 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
   label(ctx, 'NATIONAL CHAMPIONSHIP', cx, finBox.y - 16, { size: 12, color: C.navy, track: '2.4px', align: 'center' })
   matchup(ctx, logos, finBox, champion, true)
 
-  const cw = 300, chY = 236, chH = 180
+  const cw = 300, chY = 216, chH = 160
   ctx.save()
-  ctx.shadowColor = 'rgba(20, 34, 63, 0.25)'
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.2)'
   ctx.shadowBlur = 22
   ctx.shadowOffsetY = 8
   rounded(ctx, cx - cw / 2, chY, cw, chH, 8)
@@ -429,29 +428,29 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
   rounded(ctx, cx - cw / 2, chY, cw, chH, 8)
   ctx.clip()
   const glow = ctx.createRadialGradient(cx, chY + 20, 10, cx, chY + 20, 220)
-  glow.addColorStop(0, 'rgba(184, 137, 58, 0.30)')
-  glow.addColorStop(1, 'rgba(184, 137, 58, 0)')
+  glow.addColorStop(0, 'rgba(29, 111, 192, 0.25)')
+  glow.addColorStop(1, 'rgba(29, 111, 192, 0)')
   ctx.fillStyle = glow
   ctx.fillRect(cx - cw / 2, chY, cw, chH)
   ctx.fillStyle = C.gold
   ctx.fillRect(cx - cw / 2, chY + chH - 4, cw, 4)
   ctx.restore()
-  label(ctx, 'PROJECTED CHAMPION', cx, chY + 27, { size: 11, color: '#dcc491', track: '2.6px', align: 'center' })
+  label(ctx, 'PROJECTED CHAMPION', cx, chY + 24, { size: 11, color: '#8ab8e6', track: '2.6px', align: 'center' })
   ctx.beginPath()
-  ctx.arc(cx, chY + 72, 32, 0, Math.PI * 2)
+  ctx.arc(cx, chY + 64, 30, 0, Math.PI * 2)
   ctx.fillStyle = C.cream
   ctx.fill()
   ctx.strokeStyle = C.gold
   ctx.lineWidth = 2
   ctx.stroke()
-  drawLogo(ctx, logos.get(champion.team_id), champion.team, cx, chY + 72, 44)
+  drawLogo(ctx, logos.get(champion.team_id), champion.team, cx, chY + 64, 42)
   ctx.font = `800 28px ${DISPLAY}`
   spacing(ctx, '-0.6px')
   ctx.fillStyle = C.cream
   ctx.textAlign = 'center'
-  ctx.fillText(fit(ctx, champion.team, cw - 32), cx, chY + 136)
+  ctx.fillText(fit(ctx, champion.team, cw - 32), cx, chY + 118)
   spacing(ctx, '0px')
-  label(ctx, `NO. ${champion.seed} SEED · ${pct1(champion.title).toUpperCase()} TITLE ODDS`, cx, chY + 160, { size: 11, weight: 500, color: '#c5cfe0', track: '1.6px', align: 'center' })
+  label(ctx, `NO. ${champion.seed} SEED · ${pct1(champion.title).toUpperCase()} TITLE ODDS`, cx, chY + 143, { size: 11, weight: 500, color: '#d1d1d6', track: '1.6px', align: 'center' })
 
   // Title odds across all simulations, to keep the "most likely path" honest.
   const toY = finBox.y + finRow * 2 + 34
@@ -480,7 +479,7 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
   // The field, seeds 1–12
   const fy = fieldY
   label(ctx, 'THE FIELD', pad, fy, { size: 12, color: C.navy, track: '2.4px' })
-  label(ctx, 'SEEDS 1–4 EARN BYES  ·  GOLD = AUTOMATIC QUALIFIER', W - pad, fy, { size: 10.5, weight: 500, color: C.muted, track: '1.6px', align: 'right' })
+  label(ctx, 'SEEDS 1–4 EARN BYES  ·  BLUE = AUTOMATIC QUALIFIER', W - pad, fy, { size: 10.5, weight: 500, color: C.muted, track: '1.6px', align: 'right' })
   const chipGap = 8, chipW = (W - pad * 2 - chipGap * 11) / 12, chipY = fy + 16
   field.forEach((t, i) => {
     const x = pad + i * (chipW + chipGap)
@@ -503,7 +502,8 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
     ctx.textAlign = 'left'
     ctx.font = `600 13px ${BODY}`
     ctx.fillStyle = C.ink
-    ctx.fillText(fit(ctx, t.team, chipW - 64), x + 60, chipY + 26)
+    ctx.fillText(fit(ctx, t.team, chipW - 64), x + 60, chipY + (t.record ? 22 : 26))
+    if (t.record) { ctx.font = `500 11px ${BODY}`; ctx.fillStyle = C.muted; ctx.fillText(t.record, x + 60, chipY + 35) }
     label(ctx, AUTO_LABEL(t), x + 10, chipY + 47, { size: 9.5, weight: 600, color: t.autoBid ? C.goldInk : C.muted, track: '1.2px' })
   })
 

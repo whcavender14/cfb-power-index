@@ -20,6 +20,8 @@ type Rated = { team_id: string; power_rating: number | null }
 export type PlayoffTeam = {
   team_id: string; team: string; conference: string | null; logo_url: string | null
   power: number; playoff: number; confTitle: number; title: number
+  /** Optional record in the bracket's simulated season, e.g. "11–1" (shown under the name on the bracket graphic). */
+  record?: string
 }
 export type Seeded = PlayoffTeam & { seed: number; autoBid: 'champion' | 'g6' | 'notre-dame' | null }
 export type Game = { round: number; top: Seeded; bottom: Seeded; home: Seeded | null; winner: Seeded; loser: Seeded; winProbability: number

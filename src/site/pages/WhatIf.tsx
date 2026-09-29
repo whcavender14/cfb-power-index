@@ -38,7 +38,7 @@ export default function WhatIf() {
   const setPicks = (p: Pick[]) => setParam(formatPicks(p))
 
   return <>
-    <PageHead title="What if?" lede={<>Pick winners of upcoming games. The page keeps only the simulated seasons in which those results happened and recomputes the odds from them. Nothing is re-simulated, and a pick does not change any team’s rating. For the unconditional odds, see <Link to="/playoff/">Playoff</Link>.</>} />
+    <PageHead title="What If?" lede={<>Pick winners of upcoming games. The page keeps only the simulated seasons in which those results happened and recomputes the odds from them. Nothing is re-simulated, and a pick does not change any team’s rating. For the unconditional odds, see <Link to="/playoff/">Playoff</Link>.</>} />
     <DataGate source={scen} label="Scenario data">{() => <DataGate source={gamesDoc} label="Games">{({ meta, games }) => <DataGate source={playoff} label="Playoff odds">{po => {
       const d = decoded!
       const future = games.filter(g => g.status === 'scheduled' && d.games.has(g.game_id))
@@ -88,16 +88,16 @@ export default function WhatIf() {
             <div className="cf-panel-head"><h2 id="wi-res" className="cf-h2">Odds in these seasons</h2>
               <label className="cf-check"><input type="checkbox" checked={all} onChange={e => setAll(e.target.checked)} /> All teams</label></div>
             <div className="cf-table-wrap"><table className="cf-table cf-table-compact">
-              <thead><tr><th scope="col" className="cf-th-start">Team</th><th scope="col" className="cf-th-end">Playoff</th><th scope="col" className="cf-th-end cf-hide-sm">Bye</th>
-                <th scope="col" className="cf-th-end">Conf. title</th><th scope="col" className="cf-th-end cf-hide-sm">Title</th><th scope="col" className="cf-th-end">Exp. record</th></tr></thead>
+              <thead><tr><th scope="col" className="cf-th-start">Team</th><th scope="col" style={{ textAlign: 'center' }} className="cf-th-end">Playoff</th><th scope="col" style={{ textAlign: 'center' }} className="cf-th-end cf-hide-sm">Bye</th>
+                <th scope="col" style={{ textAlign: 'center' }} className="cf-th-end">Conf. Title</th><th scope="col" style={{ textAlign: 'center' }} className="cf-th-end cf-hide-sm">Title</th><th scope="col" style={{ textAlign: 'center' }} className="cf-th-end">Exp. Record</th></tr></thead>
               <tbody>{list.map(r => { const b = base.get(r.team_id); const t = directory.get(r.team_id)
                 return <tr key={r.team_id} className={involved.has(r.team_id) ? 'is-picked' : ''} onClick={() => setFocus(r.team_id)}>
                   <td><TeamLink id={r.team_id} size={20} /></td>
-                  <td className="cf-td-end"><Share k={r.playoff} n={n} base={valid.length ? b?.p_playoff : null} /></td>
-                  <td className="cf-td-end cf-hide-sm"><Share k={r.bye} n={n} base={valid.length ? b?.p_bye : null} /></td>
-                  <td className="cf-td-end">{t?.conference === 'FBS Independents' ? '—' : <Share k={r.conf} n={n} base={valid.length ? b?.p_conf : null} />}</td>
-                  <td className="cf-td-end cf-hide-sm"><Share k={r.champ} n={n} base={valid.length ? b?.p_champ : null} /></td>
-                  <td className="cf-td-end cf-num">{(r.wins / n).toFixed(1)}–{((d.teamGames.get(r.team_id) ?? 0) - r.wins / n).toFixed(1)}</td>
+                  <td style={{ textAlign: 'center' }} className="cf-td-end"><Share k={r.playoff} n={n} base={valid.length ? b?.p_playoff : null} /></td>
+                  <td style={{ textAlign: 'center' }} className="cf-td-end cf-hide-sm"><Share k={r.bye} n={n} base={valid.length ? b?.p_bye : null} /></td>
+                  <td style={{ textAlign: 'center' }} className="cf-td-end">{t?.conference === 'FBS Independents' ? '—' : <Share k={r.conf} n={n} base={valid.length ? b?.p_conf : null} />}</td>
+                  <td style={{ textAlign: 'center' }} className="cf-td-end cf-hide-sm"><Share k={r.champ} n={n} base={valid.length ? b?.p_champ : null} /></td>
+                  <td style={{ textAlign: 'center' }} className="cf-td-end cf-num">{(r.wins / n).toFixed(1)}–{((d.teamGames.get(r.team_id) ?? 0) - r.wins / n).toFixed(1)}</td>
                 </tr> })}</tbody>
             </table></div>
             <p className="cf-small cf-muted">{valid.length ? '▲▼ = change in percentage points from the published odds. ' : ''}Expected record is the mean over the matching seasons (regular season; conference title games are not simulated). Tap a row for seed odds.</p>
