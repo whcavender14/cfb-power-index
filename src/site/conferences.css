@@ -1,4 +1,38 @@
 /* Conference pages only: loads with the lazy Conferences chunk. */
+.cf-conf-grid { display: grid; gap: var(--s4); grid-template-columns: 1fr; }
+@media (min-width: 960px) { .cf-conf-grid { grid-template-columns: 1fr 1.2fr; align-items: start; } }
+.cf-strength { margin: 0; }
+.cf-strength-rows { display: grid; gap: 6px; }
+.cf-strength-row, .cf-strength-axis { display: grid; grid-template-columns: minmax(0, 8.5rem) 1fr 3.2rem; gap: var(--s2); align-items: center; font-size: .8125rem; }
+.cf-strength-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-strength-track, .cf-strength-ticks { position: relative; height: 14px; }
+.cf-strength-track i { position: absolute; top: 2px; bottom: 2px; border-radius: 3px; background: var(--cf-sky); }
+.cf-strength-track i.is-neg { background: var(--cf-faint); }
+.cf-strength-zero { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--cf-line-strong); }
+.cf-strength-med { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 1px dashed var(--cf-muted); }
+.cf-strength-val { text-align: right; }
+.cf-strength-ticks em { position: absolute; transform: translateX(-50%); font-style: normal; font-size: 12px; color: var(--cf-muted); }
+.cf-strength figcaption { margin-top: var(--s3); }
+.cf-confodds th, .cf-confodds td { white-space: nowrap; }
+.cf-confodds .cf-co-n { text-align: center; min-width: 3.25rem; }
+.cf-co-cell { text-align: center; font-size: .875rem; padding-left: 4px; padding-right: 4px; }
+.cf-co-done { color: var(--cf-up); font-weight: 700; }
+.cf-co-out { color: var(--cf-down); }
+.cf-co-note { margin: 0; padding: var(--s3) var(--s4); }
+@media (max-width: 719px) { .cf-confodds .cf-co-n { min-width: 2.75rem; } .cf-confodds td:nth-child(2), .cf-confodds th:nth-child(2) { position: sticky; left: 0; background: var(--cf-surface); z-index: 1; min-width: 7.5rem; max-width: 7.5rem; } }
+.cf-confodds :is(th, td):is(:nth-child(1), :nth-child(3), :nth-child(4)) { text-align: center; }
+.cf-cl { padding: 0; overflow: hidden; }
+.cf-cl-row { display: grid; grid-template-columns: 72px minmax(0, 1.3fr) minmax(0, 1.4fr) auto; gap: var(--s4); align-items: center; position: relative; padding: var(--s3) var(--s4); border-top: 1px solid var(--cf-line); }
+.cf-cl-head { border-top: 0; font-size: .75rem; color: var(--cf-muted); background: var(--cf-fill-2); }
+.cf-cl-name { display: block; font-weight: 600; color: var(--cf-ink); text-decoration: none; }
+.cf-cl-name::after { content: ''; position: absolute; inset: 0; }
+.cf-cl-row:hover { background: var(--cf-fill-2); }
+.cf-cl-sub { font-size: .75rem; color: var(--cf-muted); }
+.cf-cl-avg { display: grid; gap: 4px; }
+.cf-cl-avg i { height: 4px; border-radius: 2px; background: var(--cf-fill-2); overflow: hidden; }
+.cf-cl-avg u { display: block; height: 100%; border-radius: 2px; background: var(--cf-sky); }
+.cf-cl-hide { display: none; }
+.cf-cl-r { text-align: right; }
 /* Conference page: more room between panels and inside them */
 .cf-conf-grid { gap: var(--s5); margin-top: var(--s5); }
 .cf-conf-grid > .cf-panel { padding: var(--s5); }
