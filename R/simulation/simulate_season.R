@@ -38,6 +38,82 @@ if (!exists("v5_build")) suppressPackageStartupMessages(source(PATHS$model_ops))
 if (!exists("production_build")) source(PATHS$production_model)
 source(PATHS$dynamic_cfp)
 
+# ---- Execution helpers: progress logging + parallel plan (no model logic) ----
+# cfbseedR::cfb_simulations() splits `simulations` into `chunks` and maps them with
+# furrr::future_map(seed = TRUE): every chunk gets its own L'Ecuyer-CMRG stream derived
+# from set.seed(PRODUCTION$sim_seed), so results depend on the chunk layout only, never on
+# the number of workers or the future plan. Sequential and parallel runs are identical.
+sim_clock <- function(t = Sys.time()) format(t, "%H:%M:%S")
+sim_mins <- function(secs) sprintf("%.1f min", secs / 60)
+sim_log <- function(...) { message(...); flush.console() }   # message() -> stderr, unbuffered in Actions
+
+# Conservative worker count: available cores (cgroup/CI aware), capped at 4 and at the chunk count.
+# CFB_SIM_WORKERS overrides (1 = sequential).
+sim_worker_count <- function(chunks, cap = 4L) {
+  override <- suppressWarnings(as.integer(Sys.getenv("CFB_SIM_WORKERS", NA)))
+  if (!is.na(override) && override >= 1L) return(as.integer(min(override, chunks)))
+  as.integer(max(1L, min(future::availableCores(), cap, chunks)))
+}
+
+# progressr handler: cfbseedR signals once per finished chunk; log it with timing and ETA.
+sim_progress_handler <- function(state) {
+  progressr::make_progression_handler("cfb_sim_log", reporter = list(
+    update = function(config, state_, progression, ...) {
+      if (!identical(progression$type, "update") || is.null(progression$amount) || progression$amount == 0) return(invisible())
+      st <- state
+      st$done <- st$done + 1L
+      now <- Sys.time()
+      elapsed <- as.numeric(difftime(now, st$start, units = "secs"))
+      chunk_secs <- as.numeric(difftime(now, st$last, units = "secs"))
+      sims_done <- sum(st$sizes[seq_len(st$done)])
+      rem <- (elapsed / sims_done) * (st$total - sims_done)
+      sim_log(sprintf("\n[%s] Chunk %d/%d complete\n%s / %s simulations complete (%.1f%%)\nChunk time: %s\nTotal elapsed: %s\nEstimated remaining: %s",
+                      sim_clock(now), st$done, st$chunks, format(sims_done, big.mark = ","), format(st$total, big.mark = ","),
+                      100 * sims_done / st$total, sim_mins(chunk_secs), sim_mins(elapsed), sim_mins(rem)))
+      st$last <- now
+      if (st$done + st$workers - 1L < st$chunks && st$done < st$chunks)
+        sim_log(sprintf("[%s] Chunk %d/%d started - %s simulations", sim_clock(now), st$done + st$workers, st$chunks,
+                        format(st$sizes[st$done + st$workers], big.mark = ",")))
+      list2env(as.list(st), envir = state)   # persist updated counters
+      invisible()
+    }), interval = 0, intrusiveness = 0, target = "terminal", enable = TRUE)
+}
+
+# Runs cfb_dynamic_simulations() with a parallel plan (restored afterwards), chunk logging and failure context.
+run_logged_simulations <- function(chunks = 8L, ...) {
+  args <- list(...)
+  n <- args$simulations
+  chunks <- min(as.integer(chunks), n)
+  sizes <- tabulate(sort(rep_len(seq_len(chunks), n)), chunks)   # same split as cfbseedR
+  workers <- sim_worker_count(chunks)
+  old_plan <- if (workers > 1L) future::plan(future::multisession, workers = workers) else future::plan()
+  on.exit(future::plan(old_plan), add = TRUE)   # restoring the plan also shuts down the multisession workers
+  weeks <- length(unique(args$games$week[is.na(args$games$result)]))
+  t0 <- Sys.time()
+  sim_log(sprintf("Simulation started at %s\n%s seasons | %d weeks | %d chunks | %d worker%s%s", sim_clock(t0),
+                  format(n, big.mark = ","), weeks, chunks, workers, if (workers == 1L) "" else "s",
+                  if (workers == 1L) " (sequential)" else ""))
+  for (i in seq_len(min(workers, chunks)))
+    sim_log(sprintf("[%s] Chunk %d/%d started - %s simulations", sim_clock(t0), i, chunks, format(sizes[i], big.mark = ",")))
+  old_opt <- options(progressr.enable = TRUE)   # non-interactive (CI) sessions disable progressr by default
+  on.exit(options(old_opt), add = TRUE)
+  state <- new.env()
+  list2env(list(done = 0L, start = t0, last = t0, sizes = sizes, total = n, chunks = chunks, workers = workers), state)
+  handler <- sim_progress_handler(state)
+  sim <- tryCatch(
+    progressr::with_progress(do.call(cfb_dynamic_simulations, c(args, list(chunks = chunks))), handlers = handler),
+    error = function(e) {
+      sim_log(sprintf("\nSIMULATION FAILED after %s: %d/%d chunks complete (%s / %s simulations)\nError: %s",
+                      sim_mins(as.numeric(difftime(Sys.time(), t0, units = "secs"))), state$done, chunks,
+                      format(sum(sizes[seq_len(state$done)]), big.mark = ","), format(n, big.mark = ","), conditionMessage(e)))
+      stop(e)
+    })
+  secs <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+  sim_log(sprintf("\nSimulation complete\n%s seasons simulated\nWorkers used: %d\nTotal simulation runtime: %s\nAverage throughput: %.1f simulations/sec",
+                  format(n, big.mark = ","), workers, sim_mins(secs), n / secs))
+  sim
+}
+
 run_season_simulation <- function(season = as.integer(Sys.getenv("CFB_SEASON", "2026")),
                                   simulations = as.integer(Sys.getenv("CFB_SIM_COUNT", PRODUCTION$sim_count)),
                                   refresh_schedule = identical(Sys.getenv("CFB_REFRESH_SCHEDULE"), "true"),
@@ -146,7 +222,7 @@ run_season_simulation <- function(season = as.integer(Sys.getenv("CFB_SEASON", "
   simulations_verify_fct(cfb_power_results, games = games, teams = teams)
 
   set.seed(PRODUCTION$sim_seed)
-  sim <- cfb_dynamic_simulations(games = games, teams = teams, eligible_teams = cfp_eligible,
+  sim <- run_logged_simulations(games = games, teams = teams, eligible_teams = cfp_eligible,
                                  simulations = simulations, playoff_seeds = PRODUCTION$playoff_seeds,
                                  compute_results = cfb_power_results, ranking_spec = cfp_ranking,
                                  autobid = PRODUCTION$playoff_autobid, tiebreaker_depth = "POINTS")

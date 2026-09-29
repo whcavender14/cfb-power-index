@@ -12,6 +12,7 @@
 #   CFB_SIM_COUNT=50 Rscript scripts/run_weekly_pipeline.R        # offline smoke test
 # The prospective snapshot (scripts/04_...) is deliberately a separate step.
 # =============================================================================
+pipeline_start <- Sys.time()
 source("config/paths.R")
 source("config/production.R")
 ensure_output_dirs()
@@ -43,3 +44,4 @@ saveRDS(status, file.path(PATHS$state, sprintf("simulation_status_%d.rds", seaso
 # 3. Export.
 if (system2(rscript, "scripts/03_export_public_data.R") != 0L) stop("Export failed.")
 cat("Weekly pipeline complete. Outputs in", PATHS$output, "\n")
+cat(sprintf("Total weekly pipeline runtime: %.1f minutes\n", as.numeric(difftime(Sys.time(), pipeline_start, units = "mins"))))
