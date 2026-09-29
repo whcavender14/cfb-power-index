@@ -80,6 +80,8 @@ jobs:
           CFBD_API_KEY: ${{ secrets.CFBD_API_KEY }}
           CFB_PROJECT_ROOT: ${{ github.workspace }}
           CFB_REFRESH_SCHEDULE: 'true'
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
         run: Rscript scripts/run_weekly_pipeline.R
 
       - name: Export public data
@@ -89,6 +91,8 @@ jobs:
           CFB_PROJECT_ROOT: ${{ github.workspace }}
           CFB_REFRESH_SCHEDULE: 'true'
           CFB_EXPORT_BETTING: 'true'
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
         run: Rscript scripts/03_export_public_data.R
 
       - name: Validate public data
