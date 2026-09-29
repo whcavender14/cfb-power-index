@@ -1,3 +1,4 @@
+import '../matchup.css'
 import { useState, type ReactNode } from 'react'
 import { PlayerLink } from '../player'
 import { DataGate, fmt, fmtSigned, Info, Missing, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
@@ -6,6 +7,8 @@ import { kickoffText, QUALITY_INFO, useLines } from '../games'
 import { Link } from '../router'
 import { STAT_GROUPS, statRank, statValue, type StatDef } from '../stats'
 import NotFound from './NotFound'
+import GameRecap from '../GameRecap'
+import { teamTheme } from '../teamTheme'
 
 // Matchup breakdown (/games/<game_id>/): the model's forecast, the sportsbook line when one exists (evaluation only),
 // and both teams side by side. Every number is precomputed (games.json, index.json, efficiency.json, usage/<slug>.json,
@@ -24,7 +27,7 @@ function Side({ label, away, home, better }: { label: ReactNode; away: ReactNode
     <span className={`cf-mu-h${better === 'home' ? ' is-better' : ''}`}>{home}</span>
   </div>
 }
-const valRank = (v: ReactNode, r: number | null | undefined) => <>{v}{r ? <small className="cf-mu-rank">No. {r}</small> : null}</>
+const valRank = (v: ReactNode, r: number | null | undefined) => <><span className="cf-mu-val">{v}</span><small className="cf-mu-rank">{r ? `No. ${r}` : ''}</small></>
 const betterOf = (ra: number | null | undefined, rh: number | null | undefined) => ra == null || rh == null || ra === rh ? null : ra < rh ? 'away' : 'home'
 
 function StatSides({ d, a, h }: { d: StatDef; a?: Efficiency; h?: Efficiency }) {
@@ -60,8 +63,9 @@ function StarCard({ s }: { s: Star }) {
 function TeamHead({ id, name, row, side, g }: { id: string; name: string; row?: TeamRow; side: 'home' | 'away'; g: Game }) {
   const flag = g.neutral ? 'Neutral' : side === 'home' ? 'Home' : 'Away'
   const pts = g.status === 'final' ? (side === 'home' ? g.home_points : g.away_points) : null
-  return <div className={`cf-mu-team is-${side}`}>
-    <TeamLogo id={id} name={name} size={64} />
+  const t = useTeams().get(id)
+  return <div className={`cf-mu-team is-${side}`} style={teamTheme(t?.color ?? null, t?.alt_color ?? null)}>
+    <span className="cf-mu-logotile"><TeamLogo id={id} name={name} size={64} /></span>
     <div className="cf-mu-team-text">
       <span className="cf-mu-flag">{flag}</span>
       <strong className="cf-mu-name"><TeamLink id={id} name={name} logo={false} /></strong>
@@ -108,17 +112,18 @@ export default function Matchup({ id }: { id: string }) {
         <div className="cf-mu-mid">
           <span className="cf-mu-vs">{g.status === 'final' ? 'Final' : sep}</span>
           <span className="cf-small">{kickoffText(g)}</span>
-          {g.venue && <span className="cf-small cf-muted">{g.venue}{g.neutral ? ' (neutral site)' : ''}</span>}
-          {g.conference_game && <span className="cf-small cf-muted">Conference game</span>}
+          {g.venue && <span className="cf-small cf-muted">{g.venue}{g.neutral ? ' (Neutral Site)' : ''}</span>}
+          {g.conference_game && <span className="cf-small cf-muted">Conference Game</span>}
         </div>
         <TeamHead id={g.home_id} name={g.home_team} row={rh} side="home" g={g} />
       </header>
       <h1 className="cf-sr">{g.away_team} {sep} {g.home_team}, Week {g.week}</h1>
 
-      <section className="cf-panel cf-mu-fc" aria-labelledby="mu-fc">
+      {g.status === 'final' && <GameRecap g={g} season={games.data!.meta.season} hfa={games.data!.meta.hfa} />}
+
+      {g.status !== 'final' && <section className="cf-panel cf-mu-fc" aria-labelledby="mu-fc">
         <h2 id="mu-fc" className="cf-h2">Forecast and line {line && <span className="cf-tag">Vegas figures: evaluation only</span>}</h2>
-        {g.status === 'final' && <p className="cf-muted">Final. Forecasts and lines are shown for upcoming games only; the pre-game figures are not stored.</p>}
-        {g.status !== 'final' && <div className="cf-mu-tiles">
+        {<div className="cf-mu-tiles">
           <div className="cf-mu-tile is-model">
             <span className="cf-mu-tile-k">Model line <Info text={MODEL_LINE_INFO} label="About the model line" /></span>
             <strong className="cf-mu-tile-v">{modelLine != null ? spreadText(g.home_team, g.away_team, modelLine) : <Missing why="No projection" />}</strong>
@@ -145,8 +150,8 @@ export default function Matchup({ id }: { id: string }) {
             <span className="cf-mu-meter" aria-hidden="true"><i style={{ width: `${g.quality}%` }} /></span>
           </div>}
         </div>}
-        {g.status !== 'final' && !line && <p className="cf-small cf-muted cf-mu-fc-note">No Vegas line available: lines are pulled only for games that have not kicked off when the data updates.</p>}
-      </section>
+        {!line && <p className="cf-small cf-muted cf-mu-fc-note">No Vegas line available: lines are pulled only for games that have not kicked off when the data updates.</p>}
+      </section>}
 
       {(ra || rh || groups.length > 0) && <section className={`cf-panel cf-mu-compare${oneSided ? ` is-one-${oneSided}` : ''}`} aria-labelledby="mu-cmp">
         <div className="cf-mu-cmp-head">

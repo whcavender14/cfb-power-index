@@ -63,9 +63,12 @@ export function TeamLogo({ id, name, size = 28 }: { id?: string | null; name: st
 }
 
 /** A team name that links to its team page when it is an FBS team. */
-export function TeamLink({ id, name, logo = true, size = 24, sub }: { id: string; name?: string; logo?: boolean; size?: number; sub?: ReactNode }) {
+export function TeamLink({ id, name, logo = true, size = 24, sub, subTo }: { id: string; name?: string; logo?: boolean; size?: number; sub?: ReactNode; subTo?: string }) {
   const team = useTeams().get(id)
   const label = team?.team ?? name ?? '—'
+  if (team && sub && subTo) return <span className="cf-team">
+    {logo && <Link to={`/teams/${team.slug}/`} tabIndex={-1} aria-hidden="true"><TeamLogo id={id} name={label} size={size} /></Link>}
+    <span className="cf-team-text"><Link to={`/teams/${team.slug}/`} className="cf-team-name" title={label}>{label}</Link><Link to={subTo} className="cf-team-sub cf-team-sublink">{sub}</Link></span></span>
   const body = <>{logo && <TeamLogo id={id} name={label} size={size} />}<span className="cf-team-text"><span className="cf-team-name" title={label}>{label}</span>{sub && <span className="cf-team-sub">{sub}</span>}</span></>
   return team ? <Link className="cf-team" to={`/teams/${team.slug}/`}>{body}</Link> : <span className="cf-team">{body}</span>
 }

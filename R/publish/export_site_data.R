@@ -593,6 +593,14 @@ if (!is.null(eff_plays) && length(eff_ids)) {
                                  meta_block, length(eff_ids), week, basic), file.path(site_out, "efficiency.json"))
 } else { message("Efficiency: no cached play-by-play; efficiency.json not written."); unlink(file.path(site_out, "efficiency.json")) }
 
+# Per-game advanced team stats for the finished-game recap (display only). Same play-by-play as the efficiency file above.
+if (!is.null(eff_plays) && !is.null(games) && all(c("game_id", "home_id", "away_id", "home_team", "away_team") %in% names(games))) {
+  source(file.path(PATHS$root, "R", "publish", "game_advanced.R"), local = TRUE)
+  ga <- tryCatch(game_advanced(eff_plays, as.data.frame(games)[, c("game_id", "home_id", "away_id", "home_team", "away_team")]),
+                 error = function(e) { message("Game advanced stats: ", conditionMessage(e)); NULL })
+  if (!is.null(ga)) message("Game advanced stats: ", write_game_advanced(ga, file.path(site_out, "game_adv"), meta_block), " games")
+}
+
 # Players by usage (display only). Defense uses the same player stats as the leaders, only when they cover the ratings week.
 source(file.path(PATHS$root, "R", "publish", "player_usage.R"), local = TRUE)
 usage_raw <- pull_player_usage(site_season)

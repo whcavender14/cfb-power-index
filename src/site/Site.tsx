@@ -12,6 +12,7 @@ const Teams = lazy(() => import('./pages/Teams'))
 const Team = lazy(() => import('./pages/Team'))
 const Matchup = lazy(() => import('./pages/Matchup'))
 const ConferenceList = lazy(() => import('./pages/Conferences').then(m => ({ default: m.ConferenceList })))
+const ConferenceVs = lazy(() => import('./pages/Conferences').then(m => ({ default: m.ConferenceVs })))
 const ConferenceDetail = lazy(() => import('./pages/Conferences').then(m => ({ default: m.ConferenceDetail })))
 const Resume = lazy(() => import('./pages/Resume'))
 const WhatIf = lazy(() => import('./pages/WhatIf'))
@@ -38,6 +39,8 @@ function route(path: string) {
   if (team) return { page: <Team slug={team[1]} />, section: '/teams/', title: null }
   const game = path.match(/^\/games\/(\d+)\/$/)
   if (game) return { page: <Matchup id={game[1]} />, section: '/games/', title: 'Matchup' }
+  const vs = path.match(/^\/conferences\/([a-z0-9-]+)\/vs\/([a-z0-9-]+)\/$/)
+  if (vs) return { page: <ConferenceVs slug={vs[1]} other={vs[2]} />, section: '/conferences/', title: null }
   const conf = path.match(/^\/conferences\/([a-z0-9-]+)\/$/)
   if (conf) return { page: <ConferenceDetail slug={conf[1]} />, section: '/conferences/', title: null }
   const pages: Record<string, [ReactElement, string]> = {
