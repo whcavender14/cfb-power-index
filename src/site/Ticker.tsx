@@ -68,7 +68,7 @@ export function pickGames(lines: Map<string, Line>, ranks: Map<string, number>):
     .slice(0, SIZE)
 }
 
-export default function Ticker({ teams }: { teams: TeamRow[] }) {
+export default function Ticker({ teams, bleed = false }: { teams: TeamRow[]; bleed?: boolean }) {
   const lines = useLines()
   const [paused, setPaused] = useState(false)
   const games = useData<GamesDoc>('games.json')
@@ -78,7 +78,9 @@ export default function Ticker({ teams }: { teams: TeamRow[] }) {
   if (LOGO_ONLY) return <section className="cf-tk cf-tk-static" aria-label="Top-ranked matchups this week">
     <ul className="cf-tk-row">{cards.map(c => <Item key={c.line.game_id} c={c} proj={proj} />)}</ul>
   </section>
-  return <section className={`cf-tk${paused ? ' is-paused' : ''}`} aria-label="CFPi lines for top-ranked matchups this week">
+  // bleed: a flat strip that continues the header (no card, no shadow), for the top of the home page
+  const flat = bleed ? { margin: 0, padding: '8px 0', borderRadius: 0, boxShadow: 'none', background: 'transparent' } as const : undefined
+  return <section className={`cf-tk${paused ? ' is-paused' : ''}`} style={flat} aria-label="CFPi lines for top-ranked matchups this week">
     <div className="cf-tk-track">
       <ul className="cf-tk-row">{cards.map(c => <Item key={c.line.game_id} c={c} proj={proj} />)}</ul>
       <ul className="cf-tk-row" aria-hidden="true">{cards.map(c => <Item key={c.line.game_id} c={c} proj={proj} hidden />)}</ul>

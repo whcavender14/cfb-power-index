@@ -13,14 +13,16 @@ type Options = { teams: Rating[]; season: number; week: number | null; updatedAt
 export type ExportResult = { logos: number; total: number }
 
 export const C = {
-  bg: '#f7f4ec', card: '#fffdf8', stripe: '#faf6ee', ink: '#1a1c20', ink2: '#474b53', muted: '#6a6e76',
-  line: '#e6dfd1', faint: '#9c9a93', navy: '#1c2f55', navyLine: '#c5cfe0', navyDeep: '#14223f', navySoft: '#e8ecf4', cream: '#f7f4ec',
-  gold: '#b8893a', goldInk: '#8b6520', goldSoft: '#f3e9d4', pos: '#2f6f4e', neg: '#a4433b',
+  bg: '#f2f5f9', card: '#ffffff', stripe: '#f8fafc', ink: '#0b1b33', ink2: '#2c3b52', muted: '#5f6d82',
+  line: '#e1e7ef', faint: '#a9b4c4', navy: '#0b1b33', navyLine: '#c9d3e0', navyDeep: '#0b1b33', navySoft: '#eef2f7', cream: '#ffffff',
+  gold: '#5aa5eb', goldInk: '#1d6fc0', goldSoft: '#e1eefb', pos: '#1d7a3a', neg: '#c0362c',
 }
-export const DISPLAY = '"Inter Tight", Inter, system-ui, sans-serif'
-export const BODY = 'Inter, system-ui, sans-serif'
-export const MONO = '"JetBrains Mono", ui-monospace, Menlo, monospace'
-const FONTS = [`800 50px ${DISPLAY}`, `700 16px ${DISPLAY}`, `500 14.5px ${BODY}`, `italic 400 13px ${BODY}`, `500 12px ${MONO}`, `600 14.5px ${MONO}`]
+// The site's own font stack (site.css --cf-font), so the downloads match the pages.
+const SITE_FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, "Segoe UI", Roboto, sans-serif'
+export const DISPLAY = SITE_FONT
+export const BODY = SITE_FONT
+export const MONO = SITE_FONT
+const FONTS = [`700 50px ${DISPLAY}`, `700 16px ${DISPLAY}`, `500 14.5px ${BODY}`, `italic 400 13px ${BODY}`, `500 12px ${MONO}`, `600 14.5px ${MONO}`]
 
 async function readAsDataUrl(url: string): Promise<string | null> {
   try {
@@ -100,7 +102,15 @@ export function tag(ctx: CanvasRenderingContext2D, text: string, right: number, 
 
 // ── Shared canvas helpers (also used by exportPlayoff.ts) ──────────────────
 /** Waits for every face used on the canvas, then for any still-pending font work. */
+/** The CFPi+ logo (dark lettering, for the light masthead); same-origin so the canvas stays clean. Null if it fails to load. */
+let BRAND: HTMLImageElement | null = null
+async function loadBrand() {
+  if (BRAND) return
+  const img = new Image()
+  BRAND = await new Promise<HTMLImageElement | null>(resolve => { img.onload = () => resolve(img.naturalWidth > 0 ? img : null); img.onerror = () => resolve(null); img.src = `${import.meta.env.BASE_URL}brand/logo-on-light.png` })
+}
 export async function loadFonts() {
+  await loadBrand()
   try { await Promise.all(FONTS.map(font => document.fonts.load(font))) } catch { /* system fallback */ }
   await document.fonts.ready
 }
@@ -144,29 +154,18 @@ export function drawLogo(ctx: CanvasRenderingContext2D, logo: HTMLImageElement |
   ctx.fillText(initials(name), cx, cy + r * 0.28)
 }
 /** Brand mark, kicker, wordmark-sized title, right-aligned chips and the navy/gold rule. */
-export function drawMasthead(ctx: CanvasRenderingContext2D, W: number, pad: number, { kicker, title, chips, updatedAt }: { kicker: string; title: string; chips: [string, string]; updatedAt: string | null }) {
-  rounded(ctx, pad, 52, 58, 58, 8)
-  ctx.fillStyle = C.navy
-  ctx.fill()
-  ctx.fillStyle = C.gold
-  ctx.fillRect(pad + 14, 96, 30, 3)
-  ctx.fillStyle = C.cream
-  ctx.font = `800 22px ${DISPLAY}`
-  ctx.textAlign = 'center'
-  ctx.fillText('PI', pad + 29, 89)
-  ctx.textAlign = 'left'
-  spacing(ctx, '2.5px')
-  ctx.font = `600 12.5px ${MONO}`
-  ctx.fillStyle = C.goldInk
-  ctx.fillText(kicker, pad + 78, 68)
+export function drawMasthead(ctx: CanvasRenderingContext2D, W: number, pad: number, { title, chips, updatedAt }: { kicker?: string; title: string; chips: [string, string]; updatedAt: string | null }) {
+  let brandW = 0
+  if (BRAND) { const h = 68; brandW = BRAND.naturalWidth * h / BRAND.naturalHeight; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(BRAND, pad, 10, brandW, h) }
+  else { ctx.font = `700 22px ${DISPLAY}`; ctx.fillStyle = C.ink; ctx.fillText('CFPi+', pad, 66); brandW = 70 }
   spacing(ctx, '-1.2px')
-  ctx.font = `800 50px ${DISPLAY}`
+  ctx.font = `700 50px ${DISPLAY}`
   ctx.fillStyle = C.ink
-  ctx.fillText(title, pad + 76, 112)
+  ctx.fillText(title, pad, 130)
   spacing(ctx, '0px')
   let right = W - pad
   right -= tag(ctx, chips[0], right, 58, C.navy, C.navy, C.cream) + 10
-  tag(ctx, chips[1], right, 58, C.goldSoft, '#dcc491', C.goldInk)
+  tag(ctx, chips[1], right, 58, C.goldSoft, '#8ab8e6', C.goldInk)
   const updated = updatedAt ? new Date(updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).toUpperCase() : 'UNAVAILABLE'
   spacing(ctx, '1.5px')
   ctx.font = `500 12px ${MONO}`
@@ -175,20 +174,17 @@ export function drawMasthead(ctx: CanvasRenderingContext2D, W: number, pad: numb
   ctx.fillText(`UPDATED ${updated}`, W - pad, 112)
   ctx.textAlign = 'left'
   spacing(ctx, '0px')
-  ctx.fillStyle = C.navy
-  ctx.fillRect(pad, 144, W - pad * 2, 2)
-  ctx.fillStyle = C.gold
-  ctx.fillRect(pad, 150, 96, 2)
+  ctx.fillStyle = C.line
+  ctx.fillRect(pad, 148, W - pad * 2, 1)
 
 }
 /** Right-aligned "CFPi+" signature with its gold underline. */
 export function drawFooterBrand(ctx: CanvasRenderingContext2D, right: number, baseline: number) {
+  if (BRAND) { const h = 44, w = BRAND.naturalWidth * h / BRAND.naturalHeight; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(BRAND, right - w, baseline - h + 10, w, h); return }
   ctx.textAlign = 'right'
   ctx.font = `700 16px ${DISPLAY}`
-  ctx.fillStyle = C.navy
+  ctx.fillStyle = C.ink
   ctx.fillText('CFPi+', right, baseline)
-  ctx.fillStyle = C.gold
-  ctx.fillRect(right - 24, baseline + 8, 24, 2)
   ctx.textAlign = 'left'
 }
 
@@ -213,7 +209,7 @@ export async function exportRankingsPng({ teams, season, week, updatedAt }: Opti
     if (!slice.length) continue
     const colH = headH + slice.length * rowH
     ctx.save()
-    ctx.shadowColor = 'rgba(28, 47, 85, 0.10)'
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.08)'
     ctx.shadowBlur = 14
     ctx.shadowOffsetY = 4
     rounded(ctx, x0, top, colW, colH, 6)

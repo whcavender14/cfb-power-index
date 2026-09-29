@@ -1,7 +1,6 @@
-import type { ReactNode } from 'react'
-import ShareButton from '../ShareButton'
-import { DataGate, Freshness, Info, Movement, Num, Pct, TeamLink, useData, useTeams } from '../components'
-import type { ChangesDoc, IndexDoc, Meta, TeamChange, TeamRow } from '../data'
+import { useEffect, type ReactNode } from 'react'
+import { DataGate, Freshness, Info, Movement, Num, Pct, TeamLink, useData } from '../components'
+import type { ChangesDoc, HistoryDoc, IndexDoc, TeamChange, TeamRow } from '../data'
 import { GameCard, QUALITY_INFO } from '../games'
 import { Link } from '../router'
 import Ticker from '../Ticker'
@@ -49,13 +48,36 @@ function MoverList({ title, rows, kind, changes }: { title: string; rows: TeamRo
   </section>
 }
 
-function WhatChanged({ meta, teams }: { meta: Meta; teams: TeamRow[] }) {
-  const directory = useTeams()
+/** Rank movement since the preseason ranking (first point of history.json), for teams ranked in both. */
+function SeasonMovers({ teams }: { teams: TeamRow[] }) {
+  const doc = useData<HistoryDoc>('history.json')
+  if (!doc.data) return null
+  const rows = teams.flatMap(t => {
+    const r = doc.data!.teams[t.team_id]?.rank
+    const from = r?.[0], to = t.rank
+    return from != null && to != null ? [{ t, from, to, d: from - to }] : []
+  })
+  const list = (title: string, up: boolean) => {
+    const top = rows.filter(r => up ? r.d > 0 : r.d < 0).sort((a, b) => up ? b.d - a.d || a.to - b.to : a.d - b.d || a.to - b.to).slice(0, N)
+    return <section className="cf-panel cf-movers" aria-label={title}>
+      <h3 className="cf-h3">{title}</h3>
+      <ol className="cf-mover-list">{top.map(r => <li key={r.t.team_id} className="cf-mover"><div className="cf-mover-head">
+        <TeamLink id={r.t.team_id} size={24} sub={`Preseason No. ${r.from} → No. ${r.to}`} />
+        <span className="cf-mover-val"><Movement change={r.d} /></span>
+      </div></li>)}</ol>
+    </section>
+  }
+  return <div className="cf-movers-grid cf-movers-compact cf-movers-season">
+    {list('Biggest risers this season', true)}
+    {list('Biggest fallers this season', false)}
+  </div>
+}
+
+function WhatChanged({ teams }: { teams: TeamRow[] }) {
   const doc = useData<ChangesDoc>('changes.json')
   return <section className="cf-section" id="changed" aria-labelledby="h-changed">
     <div className="cf-section-head">
-      <h2 id="h-changed">What changed this week?</h2>
-      {doc.data && doc.data.compared_to_week != null && <ShareButton run={async () => (await import('../graphics')).moversPng(meta, teams, doc.data!, directory)} />}
+      <h2 id="h-changed">Weekly Risers &amp; Fallers</h2>
     </div>
     <DataGate source={doc} label="Weekly changes">{ch => {
       if (ch.compared_to_week == null) return <p className="cf-muted">No comparable previous week yet. Changes appear once two consecutive weeks of CFPi+ ratings exist.</p>
@@ -71,6 +93,7 @@ function WhatChanged({ meta, teams }: { meta: Meta; teams: TeamRow[] }) {
           <MoverList title="Largest rating increases" rows={byRating(true)} kind="rating" changes={changes} />
           <MoverList title="Largest rating decreases" rows={byRating(false)} kind="rating" changes={changes} />
         </div>
+        <SeasonMovers teams={teams} />
         <p className="cf-small cf-muted"><Link to="/rankings/?sort=move&dir=desc">Every team’s movement on the Rankings page</Link></p>
       </>
     }}</DataGate>
@@ -78,18 +101,22 @@ function WhatChanged({ meta, teams }: { meta: Meta; teams: TeamRow[] }) {
 }
 
 export default function Home() {
+  useEffect(() => { const prev = document.body.style.overflowX; document.body.style.overflowX = 'clip'; return () => { document.body.style.overflowX = prev } }, [])
   const index = useData<IndexDoc>('index.json')
   return <DataGate source={index} label="Ratings">{({ meta, teams, top_games, top_swing }) => {
     const ranked = teams.filter(t => t.rank != null).sort((a, b) => a.rank! - b.rank!)
     const contenders = teams.filter(t => t.p_playoff != null && t.p_playoff > 0).sort((a, b) => b.p_playoff! - a.p_playoff! || (a.rank ?? 999) - (b.rank ?? 999)).slice(0, 12)
     const sims = meta.sim_status === 'available'
     return <>
-      <h1 className="cf-title" aria-label="CFPi, Cavender Football Power Index"><span className="cf-title-mark" aria-hidden="true">CFPi</span><span className="cf-title-bar" aria-hidden="true" /><span className="cf-title-name" aria-hidden="true">Cavender Football Power Index</span></h1>
-      <Freshness meta={meta} />
-      <Ticker teams={teams} />
+      <h1 className="cf-sr">CFPi+, Cavender Football Power Index</h1>
+      {/* Ticker: a full-width strip directly under the header, same surface, so the two read as one bar */}
+      <div style={{ margin: 'calc(-1 * var(--s5)) calc(50% - 50vw) 0', background: 'var(--cf-surface)', borderBottom: '1px solid var(--cf-line)' }}>
+        <div className="cf-wrap"><Ticker teams={teams} bleed /></div>
+      </div>
+      <div className="cf-subbar" style={{ padding: 'var(--s2) 0', marginBottom: 0 }}><Freshness meta={meta} /></div>
 
       <div className="cf-questions">
-        <Question id="q-best" q="Who are the best teams?" more="Full rankings" to="/rankings/">
+        <Question id="q-best" q="Power Ratings" more="Full rankings" to="/rankings/">
           <ol className="cf-list">
             {ranked.slice(0, 12).map(t => <li key={t.team_id} className="cf-list-row">
               <span className="cf-rank">{t.rank}</span>
@@ -100,7 +127,7 @@ export default function Home() {
           </ol>
         </Question>
 
-        <Question id="q-playoff" q="Who’s making the playoff?" more="Playoff odds and projected field" to="/playoff/">
+        <Question id="q-playoff" q="Playoff Hunt" more="Playoff odds and projected field" to="/playoff/">
           {sims ? <ol className="cf-list">
             {contenders.map(t => <li key={t.team_id} className="cf-list-row">
               <TeamLink id={t.team_id} size={24} sub={t.rank ? `No. ${t.rank}` : undefined} />
@@ -109,16 +136,16 @@ export default function Home() {
           </ol> : <p className="cf-muted">Simulation results are unavailable for this update.</p>}
         </Question>
 
-        <Question id="q-games" q={`Which games matter${meta.current_week != null ? ` in Week ${meta.current_week}` : ' this week'}?`} more="All games" to={meta.current_week != null ? `/games/?week=${meta.current_week}` : '/games/'}
+        <Question id="q-games" q="Games of the Week" more="All games" to={meta.current_week != null ? `/games/?week=${meta.current_week}` : '/games/'}
           info={<Info text={QUALITY_INFO} label="How games are chosen" />}>
           {top_games && top_games.length
             ? <><div className="cf-q-games">{top_games.slice(0, 4).map(g => <GameCard key={g.game_id} g={g} swing={top_swing?.[g.game_id]} />)}</div>
-              {top_swing && <p className="cf-small cf-muted cf-swing-note"><b className="cf-swing-w">▲</b> / <b className="cf-swing-l">▼</b> = the team’s playoff chance if it wins / loses that game, from the simulated seasons (same filter as <Link to="/whatif/">What if?</Link>).</p>}</>
+              {top_swing && <p className="cf-small cf-muted cf-swing-note"><b className="cf-swing-w">▲</b> / <b className="cf-swing-l">▼</b> = the team’s playoff chance if it wins / loses that game, from the simulated seasons (same filter as <Link to="/whatif/">What If?</Link>).</p>}</>
             : <p className="cf-muted">No upcoming games with projections.</p>}
         </Question>
       </div>
 
-      {meta.movement_compared_to_week != null && <WhatChanged meta={meta} teams={teams} />}
+      {meta.movement_compared_to_week != null && <WhatChanged teams={teams} />}
     </>
   }}</DataGate>
 }

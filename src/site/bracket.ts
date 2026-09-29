@@ -7,7 +7,7 @@
 // 2/7/10 v 3/6/11. In each game the team that reached the next round in more simulations advances (ties: higher seed).
 import type { PlayoffDoc, PlayoffTeam } from './data'
 
-export type BracketTeam = { team_id: string; seed: number; bid: 'auto' | 'at-large'; conf_champ: boolean; odds: PlayoffTeam }
+export type BracketTeam = { team_id: string; seed: number; bid: 'auto' | 'at-large'; conf_champ: boolean; wins?: number; losses?: number; odds: PlayoffTeam }
 /** p: share of all simulations in which the team reached the round after this game (won it). */
 export type BracketGame = { round: 0 | 1 | 2 | 3; top: BracketTeam; bottom: BracketTeam; pTop: number; pBottom: number; winner: BracketTeam }
 export type SimBracket = { field: BracketTeam[]; rounds: BracketGame[][]; champion: BracketTeam; identical: number; sims: number | null }
@@ -25,7 +25,7 @@ export function simBracket(doc: PlayoffDoc): SimBracket | null {
   const f = doc.representative_field
   if (!f || f.seeds.length !== 12) return null
   const odds = new Map(doc.teams.map(t => [t.team_id, t]))
-  const field: BracketTeam[] = f.seeds.map(s => ({ team_id: s.team_id, seed: s.seed, bid: s.bid, conf_champ: s.conf_champ, odds: odds.get(s.team_id)! }))
+  const field: BracketTeam[] = f.seeds.map(s => ({ team_id: s.team_id, seed: s.seed, bid: s.bid, conf_champ: s.conf_champ, wins: s.wins, losses: s.losses, odds: odds.get(s.team_id)! }))
   if (field.some(t => !t.odds)) return null
   const s = new Map(field.map(t => [t.seed, t]))
   const fr = [game(0, s.get(8)!, s.get(9)!), game(0, s.get(5)!, s.get(12)!), game(0, s.get(7)!, s.get(10)!), game(0, s.get(6)!, s.get(11)!)]

@@ -7,7 +7,7 @@ import { pctText } from './components'
 
 const W = 1200, PAD = 48
 const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, "Segoe UI", Roboto, sans-serif'
-const K = { bg: '#f5f5f7', card: '#ffffff', ink: '#1d1d1f', ink2: '#3a3a3c', muted: '#6e6e73', line: '#e5e5ea', fill: '#f2f2f7', accent: '#0066cc', up: '#1d7a3a', down: '#c0362c' }
+const K = { bg: '#f2f5f9', card: '#ffffff', ink: '#0b1b33', ink2: '#3a3a3c', muted: '#5f6d82', line: '#e5e5ea', fill: '#f2f2f7', accent: '#1d6fc0', up: '#1d7a3a', down: '#c0362c' }
 
 type Ctx = CanvasRenderingContext2D
 export type Logos = Map<string, HTMLImageElement>
@@ -17,7 +17,7 @@ export const signed = (v: number | null | undefined, d = 1) => v == null ? '—'
 export const pct = (p: number | null | undefined) => pctText(p) ?? '—'
 
 export function stamp(meta: Meta) {
-  const wk = meta.ratings_week == null ? '' : meta.ratings_week === 0 ? 'Preseason' : `Ratings through Week ${meta.ratings_week}`
+  const wk = meta.ratings_week == null ? '' : meta.ratings_week === 0 ? 'Preseason' : `Ratings Through Week ${meta.ratings_week}`
   const date = meta.ratings_updated_at ? new Date(meta.ratings_updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
   return [wk, date && `Updated ${date}`].filter(Boolean).join(' · ')
 }

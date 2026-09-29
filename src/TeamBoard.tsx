@@ -85,10 +85,12 @@ export default function TeamBoard<T extends Team>({ caption, rows, columns, defa
             <caption className="visually-hidden">{caption}</caption>
             <thead><tr>{columns.map((c, i) => <th key={c.key} scope="col" className={`col-${c.kind}`} aria-sort={sort.key === c.key ? sort.desc ? 'descending' : 'ascending' : undefined}>
               <span className="th-inner">
-                {c.sortValue
-                  ? <button type="button" onClick={() => toggleSort(c)}>{c.label}{sort.key === c.key ? sort.desc ? <ArrowDown size={12} /> : <ArrowUp size={12} /> : <ArrowUpDown size={11} className="sort-idle" />}</button>
-                  : <span>{c.label}</span>}
-                {c.tip && <Tip text={c.tip} align={i < 2 ? 'start' : i >= columns.length - 2 ? 'end' : 'center'} />}
+                {(() => {
+                  const control = c.sortValue
+                    ? <button type="button" onClick={() => toggleSort(c)}>{c.label}{sort.key === c.key ? sort.desc ? <ArrowDown size={12} /> : <ArrowUp size={12} /> : <ArrowUpDown size={11} className="sort-idle" />}</button>
+                    : <span tabIndex={c.tip ? 0 : undefined}>{c.label}</span>
+                  return c.tip ? <Tip text={c.tip} align={i < 2 ? 'start' : i >= columns.length - 2 ? 'end' : 'center'}>{control}</Tip> : control
+                })()}
               </span>
             </th>)}</tr></thead>
             <tbody>{visible.map(row => <tr key={row.team_id} className={rowClass?.(row)}>

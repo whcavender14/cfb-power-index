@@ -16,6 +16,8 @@ function Game({ g }: { g: NotableGame | null }) {
   return <span className="cf-notable"><span className="cf-at">{g.loc < 0 ? 'at' : 'vs'}</span>{g.opp_fbs ? <TeamLink id={g.opp_id} name={g.opp} size={18} sub={`${g.opp_rank ? `No. ${g.opp_rank} · ` : ''}${g.pts}–${g.opp_pts}`} /> : <span>{g.opp} <span className="cf-small cf-muted">(non-FBS) {g.pts}–{g.opp_pts}</span></span>}</span>
 }
 
+const C = { textAlign: 'center' } as const
+
 export default function Resume() {
   const doc = useData<ResumeDoc>('resume.json')
   const [sk, setSk] = useQueryParam('sort', 'resume')
@@ -29,26 +31,27 @@ export default function Resume() {
       const rows = sortRows(teams, val, sort.desc)
       return <>
         <Freshness meta={meta} />
-        <div className="cf-table-wrap"><table className="cf-table">
+        <div className="cf-table-wrap"><table className="cf-table" style={{ tableLayout: 'fixed' }}>
+          <colgroup><col style={{ width: '13%' }} /><col /><col style={{ width: '7%' }} /><col style={{ width: '8%' }} /><col className="cf-hide-sm" style={{ width: '14%' }} /><col className="cf-hide-sm" style={{ width: '15%' }} /><col className="cf-hide-sm" style={{ width: '15%' }} /><col style={{ width: '13%' }} /></colgroup>
           <thead><tr>
-            <SortTh label="Résumé rank" sortKey="resume" sort={sort} onSort={onSort} align="start" info={RESUME_INFO} />
+            <SortTh label="Résumé" sortKey="resume" sort={sort} onSort={onSort} align="start" style={C} info={RESUME_INFO} />
             <th scope="col" className="cf-th-start">Team</th>
-            <th scope="col" className="cf-th-end">Record</th>
-            <SortTh label="SOR" sortKey="sor" sort={sort} onSort={onSort} info="Strength of record: wins minus the benchmark team's expected wins on the same schedule." />
-            <SortTh label="Schedule played" sortKey="sos" sort={sort} onSort={onSort} className="cf-hide-sm" info="Mean current CFPi+ rating of the opponents faced so far (rank among FBS)." />
-            <th scope="col" className="cf-th-start cf-hide-sm">Best win</th>
-            <th scope="col" className="cf-th-start cf-hide-sm">Worst loss</th>
-            <SortTh label="CFPi+ (predictive) rank" sortKey="predictive" sort={sort} onSort={onSort} info="The CFPi+ power-rating rank: how good the team is, not what it has done." />
+            <th scope="col" className="cf-th-start" style={C}>Record</th>
+            <SortTh label="SOR" sortKey="sor" sort={sort} onSort={onSort} align="start" style={C} info="Strength of record: wins minus the benchmark team's expected wins on the same schedule." />
+            <SortTh label="Schedule" sortKey="sos" sort={sort} onSort={onSort} align="start" style={C} className="cf-hide-sm" info="Mean current CFPi+ rating of the opponents faced so far (rank among FBS)." />
+            <th scope="col" className="cf-th-start cf-hide-sm">Best Win</th>
+            <th scope="col" className="cf-th-start cf-hide-sm">Worst Loss</th>
+            <SortTh label="Predictive" sortKey="predictive" sort={sort} onSort={onSort} align="start" style={C} info="The CFPi+ power-rating rank: how good the team is, not what it has done." />
           </tr></thead>
           <tbody>{rows.map(r => <tr key={r.team_id}>
-            <td className="cf-num cf-strong">{r.resume_rank ?? '—'}</td>
+            <td className="cf-num cf-strong" style={C}>{r.resume_rank ?? '—'}</td>
             <td><TeamLink id={r.team_id} size={22} /></td>
-            <td className="cf-td-end cf-num">{r.wins == null ? '—' : `${r.wins}–${r.losses}`}</td>
-            <td className="cf-td-end"><Num value={r.sor} signed digits={2} /></td>
-            <td className="cf-td-end cf-hide-sm"><Num value={r.sos_played} signed /> <span className="cf-small cf-muted">{r.sos_played_rank ? `No. ${r.sos_played_rank}` : ''}</span></td>
+            <td className="cf-num" style={C}>{r.wins == null ? '—' : `${r.wins}–${r.losses}`}</td>
+            <td style={C}><Num value={r.sor} signed digits={2} /></td>
+            <td className="cf-hide-sm" style={C}><Num value={r.sos_played} signed /> <span className="cf-small cf-muted">{r.sos_played_rank ? `No. ${r.sos_played_rank}` : ''}</span></td>
             <td className="cf-hide-sm"><Game g={r.best_win} /></td>
             <td className="cf-hide-sm"><Game g={r.worst_loss} /></td>
-            <td className="cf-td-end cf-num cf-muted">{r.predictive_rank ?? '—'}</td>
+            <td className="cf-num cf-muted" style={C}>{r.predictive_rank ?? '—'}</td>
           </tr>)}</tbody>
         </table></div>
         <section className="cf-prose cf-resume-method">
