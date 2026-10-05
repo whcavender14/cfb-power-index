@@ -4,12 +4,13 @@
 #
 # Display only: nothing here feeds the model. Every value is a CFBD value or a sum of CFBD box-score rows.
 #   Game log:   CFBD game player stats (cfbfastR::cfbd_game_player_stats), one all-teams call per week and season
-#               type, joined to CFBD game info for week, date, opponent and score. Past seasons are cached in
-#               output/state/player_games_<season>.rds and pulled once; the current season is pulled every run.
+#               type, joined to CFBD game info for week, date, opponent and score. Cached in data/reference/player_cache
+#               (completed seasons, and each completed week of the current season), so each is pulled once.
 #   Seasons:    sums of the game log by season and team (so the season and game views always agree).
 #   Bio:        CFBD roster (jersey, position, height, weight, hometown, class year) for the current season.
 #   Recruiting: CFBD high-school recruiting rows (stars, national ranking, class, high school), joined by athlete_id.
-#   Transfers:  CFBD transfer portal, matched by first + last name and origin school (the portal has no athlete id).
+#   Transfers:  CFBD transfer portal rows matched to the athlete id by name at the destination roster, else the origin
+#               roster and box scores (R/publish/transfers.R; the portal has no athlete id).
 # Not available in the box scores: air yards (so no ADOT), snaps, targets. The modal says so.
 # =============================================================================
 PROFILE_FIRST_SEASON <- 2021L
@@ -24,22 +25,26 @@ PROFILE_STATS <- c(
 
 .quiet <- function(expr) tryCatch(suppressWarnings(suppressMessages(expr)), error = function(e) { message("  ", conditionMessage(e)); NULL })
 
-# All box-score rows for one season (regular weeks 1..max_week, plus postseason when include_post), with game context.
-pull_season_games <- function(season, max_week = 16L, include_post = TRUE) {
+# Committed cache (data/reference/player_cache/, refreshed and committed by the weekly workflow): completed seasons
+# games_<season>.rds; current-season weeks games_<season>_wk<NN>.rds; recruiting classes recruits_<year>.rds and portal
+# years portal_<year>.rds up to the current season. Anything cached is never pulled again.
+PROFILE_CACHE <- file.path(PATHS$reference, "player_cache")
+.cache_file <- function(...) file.path(PROFILE_CACHE, paste0(..., ".rds"))
+
+# CFBD game info for a season (week, date, teams, score), used to place box-score rows. One call.
+season_game_info <- function(season) {
   info <- .quiet(cfbfastR::cfbd_game_info(year = season, season_type = "both"))
   if (is.null(info) || !NROW(info)) return(NULL)
-  info <- as.data.frame(info); info$game_id <- as.character(info$game_id)
-  calls <- c(lapply(seq_len(max_week), function(w) list(week = w, type = "regular")),
-             if (include_post) list(list(week = 1L, type = "postseason")))
-  rows <- lapply(calls, function(k) {
-    x <- .quiet(cfbfastR::cfbd_game_player_stats(year = season, week = k$week, season_type = k$type))
-    if (is.null(x) || !NROW(x)) return(NULL)
-    x <- as.data.frame(x)
-    x <- x[, intersect(c("game_id", "team", "athlete_id", "athlete_name", unname(PROFILE_STATS)), names(x)), drop = FALSE]
-    x$game_id <- as.character(x$game_id); x
-  })
-  rows <- do.call(rbind, Filter(Negate(is.null), rows))
-  if (is.null(rows)) return(NULL)
+  info <- as.data.frame(info); info$game_id <- as.character(info$game_id); info
+}
+
+# Box-score rows for one week (all teams, one call), with game context from `info`.
+pull_week_games <- function(season, week, type, info) {
+  rows <- .quiet(cfbfastR::cfbd_game_player_stats(year = season, week = week, season_type = type))
+  if (is.null(rows) || !NROW(rows)) return(NULL)
+  rows <- as.data.frame(rows)
+  rows <- rows[, intersect(c("game_id", "team", "athlete_id", "athlete_name", unname(PROFILE_STATS)), names(rows)), drop = FALSE]
+  rows$game_id <- as.character(rows$game_id)
   rows <- rows[!is.na(rows$athlete_id) & rows$athlete_id != "" & !grepl("^-", rows$athlete_id), , drop = FALSE]
   rows$athlete_id <- as.character(rows$athlete_id)
   g <- info[match(rows$game_id, info$game_id), ]
@@ -57,31 +62,62 @@ pull_season_games <- function(season, max_week = 16L, include_post = TRUE) {
   attr(rows, "pulled_at") <- Sys.time(); rows
 }
 
-# Past seasons come from the cache (pulled once); the current season is always pulled fresh.
+# All box-score rows for one completed season (regular weeks 1..16 plus postseason): 18 calls, then cached for good.
+pull_season_games <- function(season) {
+  info <- season_game_info(season)
+  if (is.null(info)) return(NULL)
+  calls <- c(lapply(1:16, function(w) list(week = w, type = "regular")), list(list(week = 1L, type = "postseason")))
+  rows <- do.call(rbind, Filter(Negate(is.null), lapply(calls, function(k) pull_week_games(season, k$week, k$type, info))))
+  if (!is.null(rows)) attr(rows, "pulled_at") <- Sys.time()
+  rows
+}
+
+# Past seasons and completed current-season weeks come from the cache; only missing ones are pulled
+# (weekly: one game-info call plus one call for the new week).
 career_games <- function(season, current_week) {
+  dir.create(PROFILE_CACHE, recursive = TRUE, showWarnings = FALSE)
   out <- list()
-  for (s in PROFILE_FIRST_SEASON:season) {
-    f <- file.path(PATHS$state, sprintf("player_games_%d.rds", s))
-    if (s < season && file.exists(f)) { out[[as.character(s)]] <- readRDS(f); next }
-    message(sprintf("Player games %d: pulling", s))
-    x <- if (s < season) pull_season_games(s) else pull_season_games(s, max_week = current_week, include_post = FALSE)
-    if (is.null(x)) { if (file.exists(f)) x <- readRDS(f) else next }
-    else saveRDS(x, f)
-    out[[as.character(s)]] <- x
+  for (s in PROFILE_FIRST_SEASON:(season - 1L)) {
+    f <- .cache_file("games_", s)
+    if (!file.exists(f)) { message(sprintf("Player games %d: pulling (18 CFBD calls)", s)); x <- pull_season_games(s); if (!is.null(x)) saveRDS(x, f) }
+    if (file.exists(f)) out[[as.character(s)]] <- readRDS(f)
   }
+  weeks <- seq_len(current_week)
+  missing <- weeks[!file.exists(.cache_file(sprintf("games_%d_wk%02d", season, weeks)))]
+  if (length(missing)) {
+    message(sprintf("Player games %d: pulling week(s) %s (%d CFBD calls)", season, paste(missing, collapse = ", "), length(missing) + 1L))
+    info <- season_game_info(season)
+    if (!is.null(info)) for (w in missing) { x <- pull_week_games(season, w, "regular", info); if (!is.null(x) && nrow(x)) saveRDS(x, .cache_file(sprintf("games_%d_wk%02d", season, w))) }
+  }
+  for (w in weeks) { f <- .cache_file(sprintf("games_%d_wk%02d", season, w)); if (file.exists(f)) out[[sprintf("%d-%d", season, w)]] <- readRDS(f) }
   do.call(rbind, out)
 }
 
-pull_recruits <- function(first, last) {
-  x <- lapply(first:last, function(y) .quiet(cfbfastR::cfbd_recruiting_player(year = y, recruit_type = "HighSchool")))
-  x <- do.call(rbind, lapply(Filter(Negate(is.null), x), as.data.frame))
+# One CFBD call per year not yet cached. Years up to `season` are final once the season is under way (that class has
+# signed and enrolled; that portal year's windows have closed), so they are cached; later years (next year's class,
+# the portal year that opens in December) are pulled every run.
+cached_years <- function(prefix, first, last, season, pull) {
+  dir.create(PROFILE_CACHE, recursive = TRUE, showWarnings = FALSE)
+  x <- lapply(first:last, function(y) {
+    f <- .cache_file(prefix, y)
+    if (y <= season && file.exists(f)) return(readRDS(f))
+    message(sprintf("  %s %d: 1 CFBD call", prefix, y))
+    r <- pull(y)
+    if (!is.null(r) && NROW(r)) { r <- as.data.frame(r); attr(r, "pulled_at") <- Sys.time(); if (y <= season) saveRDS(r, f) } else if (file.exists(f)) r <- readRDS(f)
+    if (!is.null(r)) attr(r, "year") <- y
+    r
+  })
+  do.call(rbind, Filter(function(d) !is.null(d) && NROW(d), x))
+}
+
+pull_recruits <- function(first, last, season = last) {
+  x <- cached_years("recruits_", first, last, season, function(y) .quiet(cfbfastR::cfbd_recruiting_player(year = y, recruit_type = "HighSchool")))
   if (is.null(x)) return(NULL)
   x$athlete_id <- as.character(x$athlete_id); x$id <- as.character(x$id); x
 }
 
-pull_portal <- function(first, last) {
-  x <- lapply(first:last, function(y) .quiet(cfbfastR::cfbd_recruiting_transfer_portal(year = y)))
-  x <- do.call(rbind, lapply(Filter(Negate(is.null), x), as.data.frame))
+pull_portal <- function(first, last, season = last) {
+  x <- cached_years("portal_", first, last, season, function(y) .quiet(cfbfastR::cfbd_recruiting_transfer_portal(year = y)))
   if (is.null(x)) return(NULL)
   x$key <- tolower(paste(x$first_name, x$last_name)); x
 }

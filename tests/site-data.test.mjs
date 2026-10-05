@@ -77,3 +77,70 @@ test('rejects a playoff swing that does not average back to the published odds',
     side.win = side.win > 0.5 ? side.win - 0.3 : side.win + 0.3
   }).some(e => e.includes('top_swing')))
 })
+
+// /players/ leaderboards
+const leaders = cat => `players/leaders/${cat}.json`
+test('rejects a qualified flag that does not follow from the counts', () => {
+  assert.ok(broken(leaders('passing'), d => { const r = d.rows.find(x => x[5] === true); r[5] = false }).some(e => e.includes('qualified flag')))
+})
+test('rejects a leaderboard player without a profile file', () => {
+  assert.ok(broken(leaders('rushing'), d => { d.rows[0][0] = '999999999' }).some(e => e.includes('no player/999999999.json')))
+})
+test('rejects PPA published from a pull that does not line up with the ratings week', () => {
+  assert.ok(broken(leaders('receiving'), d => { d.ppa.available = false; d.ppa.reason = 'pulled after week 5 games had started' }).some(e => e.includes('PPA published')))
+})
+test('rejects a leaderboard for a different week', () => {
+  assert.ok(broken(leaders('defense'), d => { d.through_week -= 1 }).some(e => e.includes('ratings week')))
+})
+test('rejects a leaderboard out of order', () => {
+  assert.ok(broken(leaders('kicking'), d => { d.rows.reverse() }).some(e => e.includes('not sorted')))
+})
+test('accepts an unavailable board only when it lists no players', () => {
+  assert.deepEqual(broken(leaders('punting'), d => { d.through_week = null; d.unavailable = 'no season player stats pulled'; d.rows = [] }), [])
+  assert.ok(broken(leaders('punting'), d => { d.through_week = null; d.unavailable = 'x' }).some(e => e.includes('unavailable board')))
+})
+
+// Recruiting
+test('rejects class counts that disagree with the recruit rows', () => {
+  assert.ok(broken('recruiting/teams_2026.json', d => { d.rows[0][4] += 1 }).some(e => e.includes('differ from hs_2026.json')))
+})
+test('rejects a ranked open class', () => {
+  assert.ok(broken('recruiting/teams_2027.json', d => { d.rows[0][1] = 1; d.ranked = true }).some(e => e.includes('open class cannot be ranked')))
+})
+test('rejects recruits out of national-rank order', () => {
+  assert.ok(broken('recruiting/hs_2025.json', d => { [d.rows[0], d.rows[1]] = [d.rows[1], d.rows[0]] }).some(e => e.includes('national-rank order')))
+})
+test('rejects a blue-chip share that does not match its counts', () => {
+  assert.ok(broken('recruiting/cards.json', d => { const c = d.teams.find(t => t.blue_chip.rated > 0); c.blue_chip.share = 0.999 }).some(e => e.includes('blue-chip share')))
+})
+test('rejects a team card rank that differs from the class file', () => {
+  assert.ok(broken('recruiting/cards.json', d => { const c = d.teams.find(t => t.classes[3]?.rank); c.classes[3].rank += 1 }).some(e => e.includes('rank differs')))
+})
+
+// Transfer portal
+test('rejects a Star Churn that does not follow from the rows', () => {
+  assert.ok(broken('recruiting/portal_2026.json', d => { d.teams[0][9] += 1 }).some(e => e.includes('team totals differ')))
+})
+test('rejects a matched transfer without an athlete id', () => {
+  assert.ok(broken('recruiting/portal_2026.json', d => { const r = d.rows.find(x => x[10] === 'destination'); r[11] = null }).some(e => e.includes('athlete_id must be set')))
+})
+test('rejects match counts that disagree with the rows', () => {
+  assert.ok(broken('recruiting/portal_2025.json', d => { d.match.unmatched += 1 }).some(e => e.includes('match counts')))
+})
+test('rejects a team-card portal tile that differs from the portal file', () => {
+  assert.ok(broken('recruiting/cards.json', d => { const c = d.teams.find(t => t.portal); c.portal.in += 1 }).some(e => e.includes('portal tile')))
+})
+
+// Player ratings beta
+test('rejects a tight end in the rating lists', () => {
+  assert.ok(broken('players/ratings/top.json', d => { d.rows[0][4] = 'TE' }).some(e => e.includes('tight ends')))
+})
+test('rejects an offensive lineman not flagged Estimated', () => {
+  assert.ok(broken('players/ratings/team/333.json', d => { const r = d.rows.find(x => x[4] === 'OL'); r[9] = false }).some(e => e.includes('flags')))
+})
+test('rejects a rating outside 30-99', () => {
+  assert.ok(broken('players/ratings/team/333.json', d => { d.rows[0][6] = 100 }).some(e => e.includes('ovr 100')))
+})
+test('rejects a list rating that differs from the team file', () => {
+  assert.ok(broken('players/ratings/top.json', d => { d.rows[d.rows.length - 1][7] += 1 }).some(e => e.includes('differs from the team file')))
+})

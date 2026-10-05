@@ -4,6 +4,7 @@ import './player.css'
 import { DataGate, Info, InfoLabel, Segmented, SortTh, sortRows, TeamLogo, useData, useTeams, type Sort } from './components'
 import type { Meta } from './data'
 import { teamTheme } from './teamTheme'
+import { FLAG_INFO, RATING_INFO, ratingRows, TIER, type RatingsTeam } from './ratings'
 
 // Player detail modal (docs/website/PLAYER_DATA.md). Every number is a CFBD box-score value or a sum of them;
 // rates (Y/A, Y/C, ...) are simple divisions done here for display.
@@ -131,6 +132,7 @@ function PlayerBody({ doc }: { doc: PlayerDoc }) {
           {p.position && <span className="cf-pm-chip">{p.position}</span>}
         </p>
       </div>
+      {p.team_id && <RatingBadge id={p.athlete_id} teamId={p.team_id} />}
     </header>
     <Bio p={p} season={doc.meta.season} />
     <div className="cf-pm-tabs" role="tablist" aria-label="Player details">
@@ -146,6 +148,21 @@ function PlayerBody({ doc }: { doc: PlayerDoc }) {
   </div>
 }
 
+/** CFPi+ Player Rating (beta): the player's row in players/ratings/team/<team_id>.json, if rated. */
+function RatingBadge({ id, teamId }: { id: string; teamId: string }) {
+  const doc = useData<RatingsTeam>(`players/ratings/team/${teamId}.json`)
+  const r = doc.data ? ratingRows(doc.data).find(x => x.athlete_id === id) : null
+  if (!r || !doc.data) return null
+  const te = r.group === 'TE' ? ' Tight-end ratings validated weakly (their gain over recruiting alone was not significant), so treat them with extra caution.' : ''
+  return <div className="cf-pm-ovr">
+    <span className="cf-pm-ovr-k">CFPi+ Rating <span className="cf-pm-chip">Beta</span></span>
+    <span className="cf-pm-ovr-v"><b className="cf-num">{r.ovr}</b><span className="cf-num"> ± {r.band}</span>
+      <Info text={`${RATING_INFO} Built from games through the ${doc.data.rated_through} season. ${TIER(r.ovr)} (CFPi+ interpretation).${te}`} label="About the CFPi+ rating" /></span>
+    {(r.provisional || r.estimated) && <span className="cf-pm-ovr-k">{[r.provisional && 'Provisional', r.estimated && 'Estimated'].filter(Boolean).join(' · ')}
+      <Info text={[r.provisional && FLAG_INFO.provisional, r.estimated && FLAG_INFO.estimated].filter(Boolean).join(' ')} label="About these flags" /></span>}
+  </div>
+}
+
 function Bio({ p, season }: { p: Player; season: number }) {
   const h = p.hometown
   const home = h ? [h.city, h.state ?? (h.country !== 'USA' ? h.country : null)].filter(Boolean).join(', ') : null
@@ -153,13 +170,14 @@ function Bio({ p, season }: { p: Player; season: number }) {
   const stars = r?.stars ? `${r.stars}-star` : null
   const recruit = r ? [stars && r.ranking ? `${stars} No. ${r.ranking} national` : stars ?? 'Unranked', `${r.year} class`].join(' · ') : null
   const body = [heightText(p.height), p.weight ? `${p.weight} lb` : null].filter(Boolean).join(' · ')
+  const redshirt = !!(p.class && p.class >= 1 && p.class <= 4 && r && r.year <= season && season - r.year > p.class - 1)
   const next = season + 1
   const draft = p.draft_year == null ? null : p.draft_year <= next ? `Eligible for ${next} draft` : `Eligible in ${p.draft_year}`
   const items: [string, string | null, string?][] = [
     ['Hometown', home],
     ['Recruiting', recruit],
     ['Size', body || null],
-    ['Class', p.class ? CLASS[p.class] ?? `Year ${p.class}` : null],
+    ['Class', p.class ? `${redshirt ? 'Redshirt ' : ''}${redshirt ? (CLASS[p.class] ?? '').toLowerCase() : CLASS[p.class] ?? `Year ${p.class}`}` : null, redshirt ? 'Redshirt is inferred: CollegeFootballData has no redshirt flag. It is tagged when more seasons have passed since the recruiting class than the class year accounts for.' : undefined],
     ['Draft', draft, p.hs_class_estimated ? 'Estimated from class year: no recruiting record. NFL rule: three seasons after high school.' : 'NFL rule: eligible three seasons after high school graduation.'],
   ]
   return <dl className="cf-pm-bio">

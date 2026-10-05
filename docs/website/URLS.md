@@ -13,6 +13,11 @@ All paths are under the GitHub Pages base `/cfb-power-index/` (set in `vite.conf
 | `/playoff/` | Playoff odds, projected field, seed probabilities | `playoff.json` | `show=all`, sort keys |
 | `/whatif/` | Pick winners; odds from matching simulated seasons | `scenario.json` (lazy), `games.json`, `playoff.json` | `pick=<game_id>:home,<game_id>:away`, `week` |
 | `/teams/` | All teams, searchable, sortable by power rating | `index.json` | `q`, `conf`, `sort`, `dir` |
+| `/players/` | Player statistical leaders (six categories) | `players/leaders/<category>.json` (lazy, one category), `player/<id>.json` on selection | `cat` (a stat category or `ratings`), `conf`, `team` (team id), `pos` (group), `class` (1-4), `all=1` (include unqualified), `sort`, `dir` |
+| `/players/ratings/` | CFPi+ Player Ratings beta: methodology, validation, limits | `players/ratings/top.json` | none |
+| `/recruiting/` | Recruiting overview | `recruiting/dashboard.json` | none |
+| `/recruiting/high-school/` | High-school classes: Team Rankings, Players, Commitments | `recruiting/dashboard.json`, `recruiting/teams_<year>.json`, `recruiting/hs_<year>.json` (Players/Commitments) | `year`, `tab` (`teams`/`players`/`commits`), `conf`, `team` (team id), `pos`, `state`, `stars` (minimum), `commit` (`yes`/`no`), `sort`, `dir` |
+| `/recruiting/transfers/` | Transfer portal: Team Rankings (CFPi+ derived), Incoming, Outgoing, By Position | `recruiting/dashboard.json`, `recruiting/portal_<year>.json` | `year`, `tab` (`teams`/`in`/`out`/`position`), `conf`, `team` (team id), `pos`, `stars`, `sort`, `dir` |
 | `/teams/<slug>/` | Team page | `team/<slug>.json`, `history.json` | none |
 | `/conferences/` | Conference cards (group aggregates) | `conferences.json`, `index.json` | none |
 | `/conferences/<slug>/` | One conference: members, strength chart, group stats | `conferences.json`, `index.json` | `sort`, `dir` |

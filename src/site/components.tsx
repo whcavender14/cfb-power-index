@@ -167,7 +167,9 @@ export function SortTh({ label, sortKey, sort, onSort, info, align = 'end', clas
   label: string; sortKey: string; sort: Sort; onSort: (s: Sort) => void; info?: string; align?: 'start' | 'end'; className?: string; style?: React.CSSProperties
 }) {
   const active = sort.key === sortKey
-  return <th scope="col" className={`cf-th-${align} ${className}`} style={style} aria-sort={active ? (sort.desc ? 'descending' : 'ascending') : 'none'}>
+  // A centered header reserves room for the sort arrow beside its text (12 px + 2 px gap); pad the other side so the text itself is centered over its column.
+  const th = style?.textAlign === 'center' ? { paddingLeft: 24, ...style } : style
+  return <th scope="col" className={`cf-th-${align} ${className}`} style={th} aria-sort={active ? (sort.desc ? 'descending' : 'ascending') : 'none'}>
     <span className="cf-th">
       {(() => {
         const button = <button type="button" className={`cf-sort${active ? ' is-active' : ''}`} onClick={() => onSort({ key: sortKey, desc: active ? !sort.desc : true })}>
