@@ -253,7 +253,7 @@ html { background: var(--cf-mast); }                 /* no white band below a sh
 .cf-nav-more { border: 0; background: transparent; cursor: pointer; gap: 2px; font: inherit; }
 .cf-nav-more.cf-nav-link { font-family: var(--cf-font-cond); font-size: .9875rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
 .cf-nav-more.is-active, .cf-nav-more[aria-expanded="true"] { color: var(--cf-mast-ink); box-shadow: inset 0 -3px 0 var(--cf-carolina); }
-.cf-nav-pop { left: 0; right: auto; top: 100%; width: 11rem; animation: cf-tip var(--m-quick) var(--cf-ease); }
+.cf-nav-pop { left: 0; right: auto; top: 100%; width: 11rem; }
 .cf-nav-pop .cf-hs-item[aria-current="page"] { font-weight: 700; box-shadow: inset 3px 0 0 var(--cf-carolina); }
 
 /* Recruiting section tabs (recruiting.css loads later, hence :root): same condensed-caps tabs as elsewhere. */
@@ -268,3 +268,20 @@ html { background: var(--cf-mast); }                 /* no white band below a sh
 /* Player popup (player.css loads later, hence :root): square close button, caps tabs like the rest of the site. */
 :root .cf-pm-close { border-radius: 2px; }
 :root .cf-pm-tabs button { font-family: var(--cf-font-cond); font-size: .9375rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+
+/* Dropdowns (transitions.dev menu-dropdown, opening only): grow from the trigger's corner. Closing stays instant,
+   like every exit on the site. The search popover hangs from the right, the More menu from the left. */
+.cf-hs-pop { transform-origin: top right; animation: cf-menu var(--m-fast) var(--cf-ease); }
+.cf-nav-pop { transform-origin: top left; }
+@keyframes cf-menu { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+
+/* What If? numbers (transitions.dev number pop-in, cut down): a value a pick just changed settles up 3px from
+   a dimmed state. One element, no per-digit stagger, no blur, no overshoot. Never on first render. */
+.cf-bump { display: inline-block; animation: cf-bump var(--m-quick) var(--cf-ease); }
+@keyframes cf-bump { from { opacity: .35; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .cf-hs-pop, .cf-bump { animation: none; } }
+
+/* Focused header search turns white, so its text, placeholder and icon switch back to dark ink. */
+.cf-hs-field:focus-within, .cf-hs.is-wide .cf-hs-field { color: var(--cf-muted); border-radius: 2px; box-shadow: 0 0 0 2px var(--cf-carolina); }
+.cf-hs-field:focus-within input, .cf-hs.is-wide .cf-hs-field input { color: var(--cf-ink); }
+.cf-hs-field:focus-within input::placeholder, .cf-hs.is-wide .cf-hs-field input::placeholder { color: var(--cf-muted); }

@@ -139,6 +139,14 @@ export function useThemeName(): 'light' | 'dark' {
   return theme
 }
 
+/** Re-plays a short settle on its contents whenever `on` changes (never on first render), so a What If? pick
+ *  visibly moves the numbers it affects. Purely visual: the value is rendered exactly as given. */
+export function Bump({ on, children }: { on: unknown; children: ReactNode }) {
+  const prev = useRef(on), n = useRef(0)
+  if (!Object.is(prev.current, on)) { prev.current = on; n.current++ }
+  return <span key={n.current} className={n.current ? 'cf-bump' : undefined}>{children}</span>
+}
+
 // ---------------------------------------------------------------------------------------------
 // Tooltip: a focusable button that reveals a short definition (hover, focus or tap)
 // ---------------------------------------------------------------------------------------------

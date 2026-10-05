@@ -5,7 +5,7 @@ import { lazy, Suspense, useEffect, useMemo, type ReactNode } from 'react'
 const DepthChartSection = lazy(() => import('../DepthChart'))
 const RecruitingCard = lazy(() => import('../RecruitingCard'))
 import { RESUME_INFO } from './Resume'
-import { DataGate, Freshness, Info, Missing, Movement, Num, Pct, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
+import { Bump, DataGate, Freshness, Info, Missing, Movement, Num, Pct, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import NotFound from './NotFound'
 import { PlayerLink } from '../player'
 import type { EfficiencyDoc, Game, HistoryDoc, Leader, Leaders, NotableGame, PlayoffTeam, RecordCount, ScenarioDoc, TeamDoc, TeamMeta } from '../data'
@@ -123,16 +123,16 @@ function TeamWhatIf({ team, picks, base, nGames, onClear }: { team: TeamMeta; pi
       const r = res.get(team.team_id)
       const games = d.teamGames.get(team.team_id) ?? nGames
       return <>
-        <p className={`cf-whatif-status${n < WARN_BELOW ? ' is-warn' : ''}`} role="status"><strong className="cf-num">{n.toLocaleString()}</strong> of {d.n.toLocaleString()} simulated seasons match.
+        <p className={`cf-whatif-status${n < WARN_BELOW ? ' is-warn' : ''}`} role="status"><Bump on={n}><strong className="cf-num">{n.toLocaleString()}</strong></Bump> of {d.n.toLocaleString()} simulated seasons match.
           {n === 0 ? ' This combination never happened in the simulations. Remove a pick.'
             : n < COUNTS_BELOW ? ` Too few seasons for percentages (fewer than ${COUNTS_BELOW}); counts are shown instead. Treat them as anecdotes.`
             : n < WARN_BELOW ? ` Fewer than ${WARN_BELOW} seasons: a 50% figure could be off by about 10 points either way. Read changes loosely.` : ''}
           <Info text={`Each pick keeps only the simulated seasons in which that result happened; nothing is re-simulated and no rating changes. Below ${WARN_BELOW} matching seasons a warning appears; below ${COUNTS_BELOW} only counts are shown.`} label="About matching seasons" /></p>
         {r && n > 0 && <dl className="cf-kv cf-wi-kv">
-          <div><dt>Make playoff</dt><dd><Share k={r.playoff} n={n} base={base.p_playoff} /></dd></div>
-          <div><dt>First-round bye</dt><dd><Share k={r.bye} n={n} base={base.p_bye} /></dd></div>
-          <div><dt>Conference title</dt><dd>{indep ? <Missing why="Independent: no conference title" /> : <Share k={r.conf} n={n} base={base.p_conf} />}</dd></div>
-          <div><dt>Expected record</dt><dd className="cf-num">{(r.wins / n).toFixed(1)}–{(games - r.wins / n).toFixed(1)}<Delta now={r.wins / n} base={base.proj_wins} /></dd></div>
+          <div><dt>Make playoff</dt><dd><Bump on={r.playoff / n}><Share k={r.playoff} n={n} base={base.p_playoff} /></Bump></dd></div>
+          <div><dt>First-round bye</dt><dd><Bump on={r.bye / n}><Share k={r.bye} n={n} base={base.p_bye} /></Bump></dd></div>
+          <div><dt>Conference title</dt><dd>{indep ? <Missing why="Independent: no conference title" /> : <Bump on={r.conf / n}><Share k={r.conf} n={n} base={base.p_conf} /></Bump>}</dd></div>
+          <div><dt>Expected record</dt><dd className="cf-num"><Bump on={r.wins / n}>{(r.wins / n).toFixed(1)}–{(games - r.wins / n).toFixed(1)}<Delta now={r.wins / n} base={base.proj_wins} /></Bump></dd></div>
         </dl>}
         <p className="cf-small cf-muted">▲▼ = change from the published odds (percentage points; wins for the record). <Link to={link}>Open these picks on the What If? page</Link> to add other games and see every team.</p>
       </>
