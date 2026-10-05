@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { ArrowDown, ArrowUp, ChevronDown, ChevronUp, Minus } from 'lucide-react'
 import { load, type Meta, type TeamMeta } from './data'
 import { Link } from './router'
@@ -26,13 +26,25 @@ export function useData<T>(path: string | null): Loadable<T> {
 
 /** Loading / error states around a page body. Errors say what failed and offer a retry. */
 export function DataGate<T>({ source, label, children }: { source: Loadable<T>; label: string; children: (data: T) => ReactNode }) {
-  if (source.data) return <>{children(source.data)}</>
+  // Fade content in only when it replaces a loading state, so cached pages render instantly.
+  const waited = useRef(false)
+  if (!source.data && !source.error) waited.current = true
+  if (source.data) return waited.current ? <div className="cf-reveal">{children(source.data)}</div> : <>{children(source.data)}</>
   if (source.error) return <div className="cf-state" role="alert">
     <p className="cf-state-title">{label} could not be loaded</p>
     <p className="cf-muted">{source.error}. The rest of the site still works.</p>
     <button type="button" className="cf-btn" onClick={source.retry}>Try again</button>
   </div>
-  return <div className="cf-state" role="status" aria-live="polite"><span className="cf-spinner" aria-hidden="true" />Loading {label.toLowerCase()}…</div>
+  return <Skeleton label={`Loading ${label.toLowerCase()}…`} />
+}
+
+/** Placeholder rows shaped like the tables they stand in for. Hidden for the first 150 ms so fast loads never flash. */
+export function Skeleton({ label = 'Loading…', rows = 8 }: { label?: string; rows?: number }) {
+  return <div className="cf-skel" role="status" aria-live="polite">
+    <span className="cf-sr">{label}</span>
+    <div className="cf-skel-head" aria-hidden="true" />
+    {Array.from({ length: rows }, (_, i) => <div key={i} className="cf-skel-row" aria-hidden="true"><i /><i /><i /></div>)}
+  </div>
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -216,7 +228,26 @@ export function PageHead({ title, lede, children }: { title: string; lede?: Reac
 }
 
 export function Segmented<T extends string>({ value, options, onChange, label }: { value: T; options: { value: T; label: string }[]; onChange: (v: T) => void; label: string }) {
-  return <div className="cf-seg" role="radiogroup" aria-label={label}>
+  // The underline is one element that slides to the active option; CSS owns the tween.
+  const bar = useRef<HTMLDivElement>(null)
+  const ind = useRef<HTMLSpanElement>(null)
+  const placed = useRef(false)
+  const place = useCallback((animate: boolean) => {
+    const on = bar.current?.querySelector<HTMLElement>('[aria-checked="true"]'), el = ind.current
+    if (!on || !el) return
+    if (!animate) el.style.transition = 'none'
+    el.style.width = `${on.offsetWidth}px`
+    el.style.transform = `translateX(${on.offsetLeft}px)`
+    if (!animate) { void el.offsetWidth; el.style.transition = '' }
+  }, [])
+  useLayoutEffect(() => { place(placed.current); placed.current = true }, [value, place])
+  useEffect(() => {   // re-measure without animating when the bar itself resizes (fonts, viewport)
+    const ro = new ResizeObserver(() => place(false))
+    if (bar.current) ro.observe(bar.current)
+    return () => ro.disconnect()
+  }, [place])
+  return <div className="cf-seg cf-seg-slide" role="radiogroup" aria-label={label} ref={bar}>
+    <span className="cf-seg-ind" ref={ind} aria-hidden="true" />
     {options.map(o => <button key={o.value} type="button" role="radio" aria-checked={value === o.value} className={value === o.value ? 'is-on' : ''} onClick={() => onChange(o.value)}>{o.label}</button>)}
   </div>
 }

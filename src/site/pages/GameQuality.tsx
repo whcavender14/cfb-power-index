@@ -55,7 +55,7 @@ export default function GameQuality() {
               <tr className={`cf-row-link${w.week === meta.current_week ? ' is-picked' : ''}`} onClick={() => toggle(w.week)}>
                 <td><button type="button" onClick={e => { e.stopPropagation(); toggle(w.week) }} aria-expanded={on} aria-label={`Week ${w.week}: ${on ? 'hide' : 'show'} the ${TOP_N} best games`}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6, border: 0, background: 'none', padding: 0, font: 'inherit', fontWeight: 600, color: 'inherit', cursor: 'pointer' }}>
-                  <ChevronRight size={14} aria-hidden="true" style={{ transform: on ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }} />Week {w.week}</button></td>
+                  <ChevronRight size={14} aria-hidden="true" style={{ transform: on ? 'rotate(90deg)' : 'none', transition: 'transform var(--m-quick) var(--cf-ease)' }} />Week {w.week}</button></td>
                 <td className="cf-num">{w.when}</td>
                 <td><span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span className="cf-num" style={{ width: 34, fontWeight: 600 }}>{w.rating.toFixed(1)}</span>

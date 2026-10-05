@@ -34,14 +34,14 @@ export default function Resume() {
         <div className="cf-table-wrap"><table className="cf-table" style={{ tableLayout: 'fixed' }}>
           <colgroup><col style={{ width: '13%' }} /><col /><col style={{ width: '7%' }} /><col style={{ width: '8%' }} /><col className="cf-hide-sm" style={{ width: '14%' }} /><col className="cf-hide-sm" style={{ width: '15%' }} /><col className="cf-hide-sm" style={{ width: '15%' }} /><col style={{ width: '13%' }} /></colgroup>
           <thead><tr>
-            <SortTh label="Résumé" sortKey="resume" sort={sort} onSort={onSort} align="start" style={C} info={RESUME_INFO} />
+            <SortTh label="Résumé Rank" sortKey="resume" sort={sort} onSort={onSort} align="start" style={C} info={RESUME_INFO} />
             <th scope="col" className="cf-th-start">Team</th>
             <th scope="col" className="cf-th-start" style={C}>Record</th>
             <SortTh label="SOR" sortKey="sor" sort={sort} onSort={onSort} align="start" style={C} info="Strength of record: wins minus the benchmark team's expected wins on the same schedule." />
             <SortTh label="Schedule" sortKey="sos" sort={sort} onSort={onSort} align="start" style={C} className="cf-hide-sm" info="Mean current CFPi+ rating of the opponents faced so far (rank among FBS)." />
             <th scope="col" className="cf-th-start cf-hide-sm">Best Win</th>
             <th scope="col" className="cf-th-start cf-hide-sm">Worst Loss</th>
-            <SortTh label="Predictive" sortKey="predictive" sort={sort} onSort={onSort} align="start" style={C} info="The CFPi+ power-rating rank: how good the team is, not what it has done." />
+            <SortTh label="CFPi+" sortKey="predictive" sort={sort} onSort={onSort} align="start" style={C} info="The CFPi+ power-rating rank: how good the team is, not what it has done." />
           </tr></thead>
           <tbody>{rows.map(r => <tr key={r.team_id}>
             <td className="cf-num cf-strong" style={C}>{r.resume_rank ?? '—'}</td>

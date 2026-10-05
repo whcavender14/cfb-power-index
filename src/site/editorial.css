@@ -1,0 +1,249 @@
+/* ═════════════════════════════ CFPi+ editorial layer ═════════════════════════════
+   Loaded after site.css. Moves the shell from "grouped cards on grey" to a sports-desk
+   layout: a solid navy masthead, flat sections divided by heavy rules instead of floating
+   rounded cards, condensed uppercase section labels, square controls, and denser tables
+   with a strong header rule. Tokens first, then components in site.css order. */
+
+:root {
+  --cf-bg: #ffffff;
+  --cf-bg-grouped: #ffffff;
+  --cf-surface: #ffffff;
+  --cf-fill: #e9edf2;
+  --cf-fill-2: #f3f5f8;
+  --cf-line: #e1e5eb;
+  --cf-line-strong: #0b1b33;
+  --cf-rule: #0b1b33;
+  --cf-mast: #0a1830;
+  --cf-mast-ink: #ffffff;
+  --cf-mast-muted: #a9b8cf;
+  --cf-mast-line: rgb(255 255 255 / .12);
+  --cf-zebra: #f7f9fb;
+  --cf-shadow: none;
+  --cf-radius: 2px;
+  --cf-radius-sm: 2px;
+  --cf-font: "Inter", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  --cf-font-display: "Inter Tight", var(--cf-font);
+  --cf-font-cond: "Barlow Condensed", "Inter Tight", "Arial Narrow", sans-serif;
+  --cf-max: 1240px;
+}
+:root[data-theme="dark"] {
+  --cf-bg: #08111f;
+  --cf-bg-grouped: #08111f;
+  --cf-surface: #08111f;
+  --cf-fill: #1a2638;
+  --cf-fill-2: #111c2c;
+  --cf-line: #1e2a3c;
+  --cf-line-strong: #cbd5e3;
+  --cf-rule: #cbd5e3;
+  --cf-mast: #040a14;
+  --cf-mast-line: rgb(255 255 255 / .08);
+  --cf-zebra: #0c1626;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --cf-bg: #08111f; --cf-bg-grouped: #08111f; --cf-surface: #08111f;
+    --cf-fill: #1a2638; --cf-fill-2: #111c2c; --cf-line: #1e2a3c;
+    --cf-line-strong: #cbd5e3; --cf-rule: #cbd5e3; --cf-mast: #040a14;
+    --cf-mast-line: rgb(255 255 255 / .08); --cf-zebra: #0c1626;
+  }
+}
+
+body { letter-spacing: -.006em; line-height: 1.45; }
+
+/* ── Type: condensed caps for labels, tight display for titles ───────── */
+h1 { font-weight: 800; letter-spacing: -.03em; line-height: 1.02; }
+h2, .cf-h2 {
+  font-family: var(--cf-font-cond); font-size: 1.25rem; font-weight: 700; line-height: 1.1;
+  letter-spacing: .02em; text-transform: uppercase;
+}
+.cf-h3 { font-family: var(--cf-font-cond); font-size: .9375rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.cf-lede { font-size: .9375rem; color: var(--cf-muted); letter-spacing: -.004em; }
+
+/* ── Masthead: solid, not frosted ─────────────────────────────────────── */
+.cf-header {
+  background: var(--cf-mast); -webkit-backdrop-filter: none; backdrop-filter: none;
+  border-bottom: 0; box-shadow: inset 0 -3px 0 var(--cf-accent);
+}
+.cf-header-row { height: 56px; gap: var(--s4); }
+.cf-nav { gap: 0; align-self: stretch; }
+.cf-nav-link {
+  display: flex; align-items: center; padding: 0 12px; border-radius: 0;
+  font-family: var(--cf-font-cond); font-size: .9875rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--cf-mast-muted); white-space: nowrap; box-shadow: inset 0 -3px 0 transparent;
+}
+.cf-nav-link:hover { background: transparent; color: var(--cf-mast-ink); box-shadow: inset 0 -3px 0 var(--cf-mast-muted); }
+.cf-nav-link:active { background: transparent; }
+.cf-nav-link[aria-current="page"] { background: transparent; color: var(--cf-mast-ink); font-weight: 700; box-shadow: inset 0 -3px 0 #fff; }
+.cf-header .cf-icon-btn { color: var(--cf-mast-muted); border-radius: 2px; }
+.cf-header .cf-icon-btn:hover { background: var(--cf-mast-line); color: var(--cf-mast-ink); }
+.cf-hs-field { border-radius: 2px; background: var(--cf-mast-line); color: var(--cf-mast-muted); }
+.cf-hs-field:hover { background: rgb(255 255 255 / .18); }
+.cf-hs-field input { color: var(--cf-mast-ink); }
+.cf-hs-field input::placeholder { color: var(--cf-mast-muted); }
+.cf-hs-pop { border-radius: 2px; }
+@media (max-width: 899px) {
+  .cf-mobile-nav { background: var(--cf-mast); border-top-color: var(--cf-mast-line); }
+  .cf-mobile-link { color: var(--cf-mast-ink); border-bottom-color: var(--cf-mast-line); font-family: var(--cf-font-cond); font-size: 1.125rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .cf-mobile-link[aria-current="page"] { color: #fff; box-shadow: inset 3px 0 0 var(--cf-accent); padding-left: 12px; }
+  .cf-mobile-link[aria-current="page"]::after { content: none; }
+}
+.cf-footer { background: var(--cf-mast); border-top: 0; }
+.cf-footer-row { color: var(--cf-mast-muted); }
+.cf-footer-row a { color: #fff; }
+.cf-footer-row strong, .cf-footer-row b { color: #fff; }
+
+/* ── Sections: a heavy rule and a label, no floating box ──────────────── */
+.cf-panel, .cf-card, .cf-table-wrap, .cf-gamecard, .cf-prose, .cf-state, .cf-teamhead, .cf-dc, .cf-wi, .cf-whatif-status {
+  border-radius: 0; box-shadow: none;
+}
+.cf-panel { padding: var(--s3) 0 var(--s2); border-top: 3px solid var(--cf-rule); background: transparent; }
+.cf-panel-head { margin-bottom: var(--s2); padding-bottom: var(--s2); border-bottom: 1px solid var(--cf-line); }
+.cf-more { font-family: var(--cf-font-cond); font-size: .875rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.cf-more::after { content: " →"; }
+.cf-state { border: 1px solid var(--cf-line); }
+.cf-card { border: 0; }
+.cf-gamecard { border: 0; border-bottom: 1px solid var(--cf-line); padding: var(--s3) 0; }
+.cf-gamecard:last-child { border-bottom: 0; }
+.cf-prose { padding: var(--s3) 0 0; border-top: 3px solid var(--cf-rule); background: transparent; }
+.cf-fresh { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+
+/* ── Controls: square, bordered, quiet ────────────────────────────────── */
+.cf-btn {
+  height: 32px; padding: 0 12px; border-radius: 2px; background: var(--cf-surface);
+  box-shadow: inset 0 0 0 1px var(--cf-line-strong); font-size: .8125rem; font-weight: 600;
+}
+.cf-btn:hover { background: var(--cf-fill-2); }
+.cf-btn:active { transform: none; background: var(--cf-fill); }
+.cf-search, .cf-select select { border-radius: 2px; background: var(--cf-surface); box-shadow: inset 0 0 0 1px var(--cf-line); height: 34px; }
+.cf-search:focus-within { box-shadow: inset 0 0 0 1px var(--cf-accent), 0 0 0 2px var(--cf-accent-soft); }
+.cf-field-label { font-family: var(--cf-font-cond); font-size: .8125rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.cf-seg, .cf-rank-tabs { padding: 0; gap: 0; border-radius: 0; background: transparent; border-bottom: 1px solid var(--cf-line); }
+.cf-seg button, .cf-rank-tabs a {
+  padding: 8px 14px 7px; border-radius: 0; font-family: var(--cf-font-cond); font-size: .9375rem; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--cf-muted); box-shadow: inset 0 -3px 0 transparent; margin-bottom: -1px;
+}
+.cf-seg button:hover, .cf-rank-tabs a:hover { color: var(--cf-ink); }
+.cf-seg button.is-on, .cf-rank-tabs a.is-on { background: transparent; color: var(--cf-ink); box-shadow: inset 0 -3px 0 var(--cf-accent); font-weight: 700; }
+.cf-chip { border-radius: 2px; background: transparent; box-shadow: inset 0 0 0 1px var(--cf-line); }
+.cf-pick { border-radius: 2px; }
+.cf-tag { border-radius: 2px; }
+.cf-info-body, .cf-hist-tip { border-radius: 2px; box-shadow: 0 0 0 1px var(--cf-line-strong), 0 6px 18px rgb(0 0 0 / .12); }
+
+/* ── Tables: the core product ─────────────────────────────────────────── */
+.cf-table-wrap { background: transparent; border-top: 3px solid var(--cf-rule); }
+.cf-table { font-size: .8125rem; }
+.cf-table th {
+  top: 56px; padding: 8px 8px 6px; background: var(--cf-surface); color: var(--cf-ink);
+  font-family: var(--cf-font-cond); font-size: .8125rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  border-bottom: 2px solid var(--cf-rule);
+}
+.cf-table td { padding: 5px 8px; border-bottom-color: var(--cf-line); }
+.cf-table tbody tr:nth-child(even) td { background: var(--cf-zebra); }
+.cf-table tbody tr:hover td { background: var(--cf-accent-soft); }
+.cf-table th:first-child, .cf-table td:first-child { padding-left: 8px; }
+.cf-table th:last-child, .cf-table td:last-child { padding-right: 8px; }
+.cf-table .cf-rank { font-family: var(--cf-font-display); font-weight: 800; font-size: .9375rem; }
+.cf-table .cf-team-name { font-weight: 600; }
+.cf-table .cf-team-sub { font-size: .6875rem; }
+.cf-table-compact td, .cf-table-compact th { padding: 5px 6px; }
+.cf-bar, .cf-bar i, .cf-quality-meter, .cf-quality-meter i { border-radius: 0; }
+.cf-bar i { background: var(--cf-accent); }
+
+/* Home lists: ranked rows like a newspaper agate column */
+.cf-list-row { min-height: 38px; gap: var(--s2); }
+.cf-list-row .cf-rank { font-family: var(--cf-font-display); font-weight: 800; }
+.cf-list-val { font-family: var(--cf-font-display); font-weight: 700; }
+
+/* ── Team page: full-bleed band, square ───────────────────────────────── */
+.cf-teamhead { padding: var(--s4); border-top-width: 6px; }
+.cf-teamhead h1 { text-transform: uppercase; letter-spacing: -.01em; font-family: var(--cf-font-cond); font-weight: 800; font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.25rem); line-height: .95; }
+.cf-teamhead-stats dt { font-family: var(--cf-font-cond); font-size: .8125rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.cf-big { font-weight: 800; letter-spacing: -.03em; }
+.cf-themed .cf-teamhead img { border-radius: 2px; }
+
+/* ── Ticker: a scoreboard strip ───────────────────────────────────────── */
+.cf-tk { margin: 0 0 var(--s4); padding: 0; border-radius: 0; box-shadow: none; background: var(--cf-surface); border-bottom: 1px solid var(--cf-line); }
+.cf-tk-row { gap: 0; }
+.cf-tk-link { border-radius: 0; border-right: 1px solid var(--cf-line); padding: 6px 12px; }
+.cf-tk-top { font-family: var(--cf-font-cond); font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--cf-muted); }
+.cf-tk-btn { border-radius: 2px; }
+
+/* ── Phone cards: rows, not floating tiles ────────────────────────────── */
+.cf-cards { gap: 0; border-top: 3px solid var(--cf-rule); }
+.cf-cards .cf-card { border: 0; border-bottom: 1px solid var(--cf-line); padding: var(--s2) 0; }
+
+@media (prefers-contrast: more) {
+  .cf-panel, .cf-card, .cf-table-wrap, .cf-gamecard { box-shadow: none; }
+}
+
+/* Header labels inside sort buttons / definition triggers inherit the caps style; the popover keeps body type. */
+.cf-table th .cf-sort, .cf-table th .cf-th > span:not(.cf-info-body) { font: inherit; letter-spacing: inherit; text-transform: inherit; }
+.cf-table th .cf-info-body { text-transform: none; letter-spacing: -.004em; font-family: var(--cf-font); font-weight: 400; color: var(--cf-ink); }
+
+/* ── Refinement pass ───────────────────────────────────────────────────
+   Carolina blue is reserved for chrome indicators on navy (it fails 4.5:1 as text on
+   white, so body links keep the darker --cf-accent). */
+:root { --cf-carolina: #4b9cd3; }
+html { background: var(--cf-mast); }                 /* no white band below a short page's footer */
+.cf-header { box-shadow: inset 0 -3px 0 var(--cf-carolina); }
+.cf-nav-link[aria-current="page"] { box-shadow: inset 0 -3px 0 var(--cf-carolina); }
+@media (max-width: 899px) { .cf-mobile-link[aria-current="page"] { box-shadow: inset 3px 0 0 var(--cf-carolina); } }
+/* Keyboard focus must stay visible on the navy masthead and footer. */
+.cf-header :focus-visible, .cf-footer :focus-visible, .cf-mobile-nav :focus-visible { outline: 2px solid #fff; outline-offset: -2px; border-radius: 0; }
+
+/* Timestamp line: quiet metadata, not a shouted label. */
+.cf-fresh { font-size: .8125rem; text-transform: none; letter-spacing: 0; font-weight: 500; }
+
+/* Ticker: games between two ranked teams get a Carolina top rule instead of a gold box. */
+.cf-tk .cf-tk-item > a.cf-tk-marquee { box-shadow: inset 0 3px 0 var(--cf-carolina); }
+.cf-tk .cf-tk-item > a.cf-tk-marquee:hover { background: var(--cf-fill-2); }
+
+/* "?" definition triggers stay 16px visually but get a 24px pointer target (WCAG 2.5.8). */
+.cf-info-btn { position: relative; }
+.cf-info-btn::after { content: ""; position: absolute; inset: -4px; }
+
+/* Phone ranking rows: stat labels match the table headers. */
+.cf-card-stats dt { font-family: var(--cf-font-cond); font-size: .75rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; line-height: 1.15; }
+
+/* ── Motion ─────────────────────────────────────────────────────────────
+   Two durations and one curve for the whole site (scale from transitions.dev). Motion only
+   confirms a state change: nothing bounces, overshoots, scales on press, or animates data
+   rows, sorting or the ticker. Exits are instant. The global prefers-reduced-motion block in
+   site.css cuts every duration to 1 ms. */
+:root {
+  --m-quick: 150ms;                          /* hover, press, tooltip, popover, chevrons */
+  --m-fast: 200ms;                           /* menus, tab underline, content reveal */
+  --cf-ease: cubic-bezier(.22, 1, .36, 1);   /* smooth-out: fast start, soft landing */
+}
+
+/* No shrink-on-press: a colour change is enough feedback on a data site. */
+.cf-icon-btn:active, .cf-chip button:active, .cf-pick:active, :root .cf-wl:active { transform: none; }
+.cf-nav-link { transition: color var(--m-quick) var(--cf-ease), box-shadow var(--m-quick) var(--cf-ease); }
+
+/* Sliding tab underline (Segmented): the per-button underline gives way to one moving bar. */
+.cf-seg-slide { position: relative; }
+.cf-seg-slide button.is-on { box-shadow: none; }
+.cf-seg-slide button { transition: color var(--m-quick) var(--cf-ease); }
+.cf-seg-ind { position: absolute; left: 0; bottom: -1px; height: 3px; width: 0; background: var(--cf-accent); pointer-events: none;
+  transition: transform var(--m-fast) var(--cf-ease), width var(--m-fast) var(--cf-ease); }
+
+/* Tooltip: an 80 ms hover-intent delay, a short fade-and-settle in, instant out. */
+.cf-info-body.is-open { animation: cf-tip var(--m-quick) var(--cf-ease) 80ms both; }
+@keyframes cf-tip { from { opacity: 0; translate: 0 -2px; } to { opacity: 1; translate: 0 0; } }
+.cf-th-end .cf-info-body.is-open, .cf-td-end .cf-info-body.is-open { animation-name: cf-tip; }
+@media (max-width: 759px) { .cf-info-body.is-open { animation-delay: 0ms; } }
+
+/* Mobile nav: drops 4px from the masthead; the scrim fades. Closing is instant. */
+@keyframes cf-drop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+/* Loading: table-shaped placeholders, held back 150 ms so quick loads never flash, then a
+   gentle pulse. Content that replaces them fades in once. */
+.cf-skel { padding-top: var(--s2); border-top: 3px solid var(--cf-rule); animation: cf-fade var(--m-fast) var(--cf-ease) 150ms both; }
+.cf-skel-head { height: 12px; width: 30%; margin: var(--s2) 0 var(--s3); background: var(--cf-fill); }
+.cf-skel-row { display: grid; grid-template-columns: 2rem 1fr 4rem; gap: var(--s4); align-items: center; padding: 11px 0; border-bottom: 1px solid var(--cf-line); }
+.cf-skel-row i { display: block; height: 10px; background: var(--cf-fill); animation: cf-skel-pulse 1.4s ease-in-out infinite; }
+.cf-skel-row i:nth-child(2) { width: min(14rem, 60%); }
+@keyframes cf-skel-pulse { 50% { opacity: .45; } }
+.cf-reveal { animation: cf-fade var(--m-fast) var(--cf-ease); }
+@media (prefers-reduced-motion: reduce) { .cf-skel-row i { animation: none; } .cf-skel { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .cf-info-body.is-open { animation-delay: 0ms; } }

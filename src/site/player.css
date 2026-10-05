@@ -1,6 +1,6 @@
 /* Player detail modal: loads with the lazy PlayerModal chunk, not with every page. */
-.cf-pm-backdrop { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / .42); animation: cf-pm-fade 160ms var(--cf-ease); }
-.cf-pm { position: relative; width: min(1080px, 100%); max-height: min(94vh, 1100px); overflow: auto; overscroll-behavior: contain; background: var(--cf-surface); border-radius: 16px; box-shadow: 0 24px 64px rgb(0 0 0 / .28); padding: var(--s5) var(--s5) var(--s4); animation: cf-pm-rise 220ms var(--cf-ease); }
+.cf-pm-backdrop { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / .42); animation: cf-pm-fade var(--m-quick) var(--cf-ease); }
+.cf-pm { position: relative; width: min(1080px, 100%); max-height: min(94vh, 1100px); overflow: auto; overscroll-behavior: contain; background: var(--cf-surface); border-radius: 16px; box-shadow: 0 24px 64px rgb(0 0 0 / .28); padding: var(--s5) var(--s5) var(--s4); animation: cf-pm-rise var(--m-fast) var(--cf-ease); }
 .cf-pm:focus { outline: none; }
 .cf-pm-close { position: absolute; top: 10px; right: 10px; background: var(--cf-fill-2); }
 .cf-pm-close:hover { background: var(--cf-fill); }
@@ -21,7 +21,7 @@
 .cf-pm-tabs button:hover { color: var(--cf-ink); }
 .cf-pm-tabs button.is-on { color: var(--cf-ink); font-weight: 650; }
 .cf-pm-tabs button.is-on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px; background: var(--cf-accent); }
-.cf-pm-panel { animation: cf-pm-fade 180ms var(--cf-ease); min-height: 160px; }
+.cf-pm-panel { animation: cf-pm-fade var(--m-quick) var(--cf-ease); min-height: 160px; }
 .cf-pm-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); margin-bottom: var(--s3); }
 .cf-pm-best-key { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--cf-accent-soft); box-shadow: inset 0 0 0 1px var(--cf-accent); vertical-align: -1px; margin-right: 2px; }
 .cf-pm-scroll { overflow-x: auto; margin: 0 calc(-1 * var(--s5)); padding: 0 var(--s5); }
