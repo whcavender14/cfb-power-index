@@ -194,8 +194,8 @@ html { background: var(--cf-mast); }                 /* no white band below a sh
 /* Timestamp line: quiet metadata, not a shouted label. */
 .cf-fresh { font-size: .8125rem; text-transform: none; letter-spacing: 0; font-weight: 500; }
 
-/* Ticker: games between two ranked teams get a Carolina top rule instead of a gold box. */
-.cf-tk .cf-tk-item > a.cf-tk-marquee { box-shadow: inset 0 3px 0 var(--cf-carolina); }
+/* Ticker: games between two ranked teams keep the gold box. */
+.cf-tk .cf-tk-item > a.cf-tk-marquee { box-shadow: inset 0 0 0 1.5px #d4a017; }
 .cf-tk .cf-tk-item > a.cf-tk-marquee:hover { background: var(--cf-fill-2); }
 
 /* "?" definition triggers stay 16px visually but get a 24px pointer target (WCAG 2.5.8). */
@@ -338,3 +338,11 @@ details.cf-details:not([open])::details-content, details.cf-rules:not([open])::d
 @keyframes cf-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes cf-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { [data-in]:not([data-done]) :is(.cf-ol-track i, .cf-bar i, .cf-eff-bar i, .cf-mu-meter i, .cf-cl-avg u, .cf-strength-track i, .cf-pbar i, .cf-dist-col i, .cf-hist-line, .cf-hist-dot) { animation: none; } }
+
+/* Conference comparison chart (native SVG, ConferenceChart.tsx): axis titles in the page's condensed caps; swatches
+   in the conference toggles replace the legend the old image had baked in. */
+.cf-cc-svg { display: block; overflow: visible; }
+.cf-cc-axis { font-family: var(--cf-font-cond); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; fill: var(--cf-muted); }
+.cf-cc-svg image { pointer-events: none; }
+.cf-cc-swatch { display: inline-block; width: 14px; height: 4px; margin-right: 7px; vertical-align: middle; box-shadow: 0 0 0 1px rgb(255 255 255 / .35); }
+.cf-cc-swatch.is-dot { width: 8px; height: 8px; border-radius: 50%; }

@@ -1,9 +1,9 @@
 import '../conferences.css'
 import { teamTheme, CONF_COLORS } from '../teamTheme'
-import { Fragment, useEffect, useMemo, useState } from 'react'
-import type { ChartPoint } from '../confChart'
+import { Fragment, useMemo, useState } from 'react'
+import { ConferenceSvg, confColor, layoutChart, useElementWidth } from '../ConferenceChart'
 import ShareButton from '../ShareButton'
-import { DataGate, fmt, Freshness, InfoLabel, InView, Num, PageHead, Pct, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, type Sort } from '../components'
+import { DataGate, fmt, Freshness, InfoLabel, InView, Num, PageHead, Pct, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, useThemeName, type Sort } from '../components'
 import { kickoffText, projection } from '../games'
 import type { Conference, ConferencesDoc, Game, ConfStanding, GamesDoc, IndexDoc, TeamRow } from '../data'
 import { Link, useQueryParam } from '../router'
@@ -56,14 +56,16 @@ export function ConferenceList() {
   </>
 }
 
-/** Conference comparison graphic: a preview of the downloadable PNG (src/site/confChart.ts), with the conferences to draw
- *  selectable. Every logo on the chart is an invisible link laid over the image: hover (or focus) shows the team's key numbers,
- *  and clicking opens its team page. */
+/** Conference comparison chart: native SVG (src/site/ConferenceChart.tsx) with the conferences to draw selectable; the PNG
+ *  download is drawn separately by src/site/confChart.ts. Every logo is an invisible link laid over the chart: hover (or focus)
+ *  shows the team's key numbers, and clicking opens its team page. */
 function ConferenceComparison({ meta, conferences, rows }: { meta: ConferencesDoc['meta']; conferences: Conference[]; rows: TeamRow[] }) {
   const dir = useTeams()
   const [picked, setPicked] = useState<string[]>(() => conferences.map(c => c.slug))
   const chosen = useMemo(() => conferences.filter(c => picked.includes(c.slug)), [conferences, picked])
-  const [chart, setChart] = useState<{ src: string; W: number; H: number; points: ChartPoint[] } | null>(null)
+  const dark = useThemeName() === 'dark'
+  const [wrap, width] = useElementWidth<HTMLDivElement>()
+  const chart = useMemo(() => width > 0 && chosen.length && dir.size ? layoutChart(width, chosen, conferences, rows, dark) : null, [width, chosen, conferences, rows, dark, dir])
   const [hot, setHot] = useState<string | null>(null)
   const byId = useMemo(() => new Map(rows.map(r => [r.team_id, r])), [rows])
   // Current place in each conference's standings (by conference record, then overall record; equal records share a place, shown "T-")
@@ -82,17 +84,6 @@ function ConferenceComparison({ meta, conferences, rows }: { meta: ConferencesDo
     }
     return out
   }, [conferences, byId])
-  useEffect(() => {
-    if (!chosen.length || !dir.size) { setChart(null); return }
-    let live = true, url = ''
-    ;(async () => {
-      const { conferenceChart } = await import('../confChart')
-      const c = await conferenceChart(meta, rows, chosen, dir)
-      const blob = await new Promise<Blob | null>(r => c.canvas.toBlob(r, 'image/png'))
-      if (live && blob) { url = URL.createObjectURL(blob); setChart({ src: url, W: c.W, H: c.H, points: c.points }) }
-    })().catch(() => { if (live) setChart(null) })
-    return () => { live = false; if (url) URL.revokeObjectURL(url) }
-  }, [chosen, dir, meta, rows])
   const toggle = (slug: string) => setPicked(p => p.includes(slug) ? p.filter(x => x !== slug) : [...p, slug])
   const games = useData<GamesDoc>('games.json')
   const totalGames = useMemo(() => { const n = new Map<string, number>(); for (const g of games.data?.games ?? []) for (const id of [g.home_id, g.away_id]) n.set(id, (n.get(id) ?? 0) + 1); return n }, [games.data])
@@ -108,12 +99,13 @@ function ConferenceComparison({ meta, conferences, rows }: { meta: ConferencesDo
       }} /></div>
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, margin: '0 0 12px' }} role="group" aria-label="Conferences to compare">
       {conferences.map(c => <button key={c.slug} type="button" className="cf-btn" aria-pressed={picked.includes(c.slug)} onClick={() => toggle(c.slug)}
-        style={picked.includes(c.slug) ? { background: 'var(--cf-ink)', color: 'var(--cf-bg)' } : undefined}>{c.is_conference ? c.name : 'Independents'}</button>)}
+        style={picked.includes(c.slug) ? { background: 'var(--cf-ink)', color: 'var(--cf-bg)' } : undefined}>
+        <i className={`cf-cc-swatch${c.is_conference ? '' : ' is-dot'}`} style={{ background: confColor(conferences.indexOf(c), dark) }} aria-hidden="true" />{c.is_conference ? c.name : 'Independents'}</button>)}
     </div>
-    <div className="cf-panel" style={{ padding: 8 }}>
+    <div className="cf-panel" ref={wrap}>
       {chosen.length === 0 ? <p className="cf-muted" style={{ margin: 12 }}>Select at least one conference.</p>
-        : chart ? <div style={{ position: 'relative' }}>
-          <img src={chart.src} alt="Line chart of CFPi+ power rating by rank within each selected conference, with every team's logo on its point" style={{ display: 'block', width: '100%', height: 'auto', borderRadius: 8 }} />
+        : chart ? <InView key={chosen.map(c => c.slug).join()} style={{ position: 'relative' }}>
+          <ConferenceSvg L={chart} dir={dir} />
           {chart.points.map(p => { const t = dir.get(p.id); return t ? <Link key={p.id} to={`/teams/${t.slug}/`} aria-label={`${t.team}: open team page`}
             onMouseEnter={() => setHot(p.id)} onMouseLeave={() => setHot(h => h === p.id ? null : h)} onFocus={() => setHot(p.id)} onBlur={() => setHot(h => h === p.id ? null : h)}
             style={{ position: 'absolute', left: `${100 * p.x / chart.W}%`, top: `${100 * p.y / chart.H}%`, width: `${100 * p.size / chart.W}%`, aspectRatio: '1', transform: 'translate(-50%, -50%)', outline: 'none' }} /> : null })}
@@ -134,7 +126,7 @@ function ConferenceComparison({ meta, conferences, rows }: { meta: ConferencesDo
             </dl>
             <div className="cf-muted" style={{ fontSize: '.75rem', marginTop: 8 }}>Click for the team page</div>
           </div>}
-        </div>
+        </InView>
         : <p className="cf-muted" style={{ margin: 12 }} role="status">Drawing the chart…</p>}
     </div>
   </section>
