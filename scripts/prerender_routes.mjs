@@ -20,6 +20,11 @@ const routes = [
   ['games', 'Games | CFPi+', 'Every FBS game with CFPi+ projections, win probabilities and matchup quality.'],
   ['playoff', 'Playoff | CFPi+', 'College Football Playoff odds, seed probabilities and a projected 12-team field from CFPi+ simulations.'],
   ['teams', 'Teams | CFPi+', 'Every FBS team, searchable and sortable by CFPi+ power rating, offense, defense, schedule strength and strength of record.'],
+  ['players', 'Players | CFPi+', 'FBS player statistical leaders: passing, rushing, receiving, defense, kicking and punting, with CollegeFootballData PPA and success rates.'],
+  ['players/ratings', 'CFPi+ Player Ratings (Beta) | CFPi+', 'How the CFPi+ Player Ratings beta works: a modelled 30-99 rating (not official) built from CollegeFootballData production and 247Sports recruiting ratings, with its validation and limits.'],
+  ['recruiting', 'Recruiting | CFPi+', 'College football recruiting from the 247Sports Composite via CollegeFootballData: the class in progress, final class rankings and roster talent.'],
+  ['recruiting/high-school', 'High School Recruiting | CFPi+', 'High-school recruiting by class: team class rankings, every rated recruit and commitments, from the 247Sports Composite via CollegeFootballData.'],
+  ['recruiting/transfers', 'Transfers | CFPi+', 'The college football transfer portal by year from CollegeFootballData with 247Sports ratings: incoming and outgoing transfers per FBS team, by position, and a CFPi+ net transfer value ranking.'],
   ['conferences', 'Conferences | CFPi+', 'How each FBS conference compares as a group in CFPi+: average and median rating, top-25 depth and expected playoff teams.'],
   // Retired (Round 18): History moved off the site; the shells stay so old links load and redirect to Home.
   ['compare', 'CFPi+ | College Football Power Ratings', 'CFPi+ college football power ratings.'],

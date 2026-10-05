@@ -3,6 +3,7 @@ import { STAT_GROUPS, StatRow, statValue } from '../stats'
 import { teamTheme } from '../teamTheme'
 import { lazy, Suspense, useEffect, useMemo, type ReactNode } from 'react'
 const DepthChartSection = lazy(() => import('../DepthChart'))
+const RecruitingCard = lazy(() => import('../RecruitingCard'))
 import { RESUME_INFO } from './Resume'
 import { DataGate, Freshness, Info, Missing, Movement, Num, Pct, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import NotFound from './NotFound'
@@ -98,11 +99,10 @@ function Delta({ now, base }: { now: number; base: number | null | undefined }) 
 
 /** This team's odds in the simulated seasons where every pick happened (same filter as the What If? page; nothing is
  *  re-simulated). Scenario data loads only once a pick exists. */
-function TeamWhatIf({ team, picks, games, base, nGames, onClear }: { team: TeamMeta; picks: Pick[]; games: Game[]; base: PlayoffTeam; nGames: number; onClear: () => void }) {
+function TeamWhatIf({ team, picks, base, nGames, onClear }: { team: TeamMeta; picks: Pick[]; base: PlayoffTeam; nGames: number; onClear: () => void }) {
   const scen = useData<ScenarioDoc>(picks.length ? 'scenario.json' : null)
   const decoded = useMemo(() => scen.data ? decode(scen.data) : null, [scen.data])
   const indep = team.conference === 'FBS Independents'
-  const byId = new Map(games.map(g => [g.game_id, g]))
   const baseLosses = nGames - base.proj_wins
   const published = <dl className="cf-kv cf-wi-kv">
     <div><dt>Make playoff</dt><dd><Pct value={base.p_playoff} /></dd></div>
@@ -123,9 +123,6 @@ function TeamWhatIf({ team, picks, games, base, nGames, onClear }: { team: TeamM
       const r = res.get(team.team_id)
       const games = d.teamGames.get(team.team_id) ?? nGames
       return <>
-        <ul className="cf-chips cf-wi-chips">{valid.map(p => { const g = byId.get(p.gameId); if (!g) return null
-          const won = (p.side === 'home') === (g.home_id === team.team_id); const opp = g.home_id === team.team_id ? g.away_team : g.home_team
-          return <li key={p.gameId} className="cf-chip">{won ? 'Beat' : 'Lose to'} {opp} <span className="cf-muted">(Wk {g.week})</span></li> })}</ul>
         <p className={`cf-whatif-status${n < WARN_BELOW ? ' is-warn' : ''}`} role="status"><strong className="cf-num">{n.toLocaleString()}</strong> of {d.n.toLocaleString()} simulated seasons match.
           {n === 0 ? ' This combination never happened in the simulations. Remove a pick.'
             : n < COUNTS_BELOW ? ` Too few seasons for percentages (fewer than ${COUNTS_BELOW}); counts are shown instead. Treat them as anecdotes.`
@@ -338,6 +335,8 @@ export default function Team({ slug }: { slug: string }) {
 
         <Suspense fallback={null}><DepthChartSection slug={team.slug} team={team} /></Suspense>
 
+        <Suspense fallback={null}><RecruitingCard id={team.team_id} /></Suspense>
+
         <section className="cf-panel cf-sched-panel" aria-labelledby="t-sched">
           <h2 id="t-sched" className="cf-h2">Schedule <Info text={`Results for played games; for the rest, projected margin (negative = favored) and ${WINPROB_INFO.charAt(0).toLowerCase()}${WINPROB_INFO.slice(1)} ${QUALITY_INFO}${whatIf ? ' W / L: pick a result for the What If? panel.' : ''}`} label="About projections" /></h2>
           <div className={whatIf ? 'cf-sched-layout' : undefined}>
@@ -351,7 +350,7 @@ export default function Team({ slug }: { slug: string }) {
                     : <span className="cf-sched-pick" aria-hidden="true" />) : undefined} />)}</ol>}
           <p className="cf-small cf-muted"><Link to={`/games/?team=${team.slug}`}>All {team.team} games on the Games page</Link></p>
           </div>
-          {whatIf && <TeamWhatIf team={team} picks={picks} games={upcoming} base={playoff!} nGames={schedule.length} onClear={() => setParam('')} />}
+          {whatIf && <TeamWhatIf team={team} picks={picks} base={playoff!} nGames={schedule.length} onClear={() => setParam('')} />}
           </div>
         </section>
       </div>

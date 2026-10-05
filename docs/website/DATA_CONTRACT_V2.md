@@ -158,3 +158,51 @@ passing, descriptive). Source: CFBD game team stats, one call per regular-season
   `market_spread`), null when not quoted. Evaluation and display only: never a model input. Quotes exist only for games
   not yet kicked off at export time; the matchup page omits the market section otherwise. CFPi+ has no total or
   implied score of its own (it predicts margins).
+
+## `players/leaders/<category>.json` (the /players/ leaderboards; display only)
+
+Categories: `passing`, `rushing`, `receiving`, `defense`, `kicking`, `punting`. Written by `scripts/export_player_leaders.R` (`R/publish/player_leaders.R`; sourcing in `PLAYER_DATA.md`). `meta` is `index.json`'s (same export).
+
+`{meta, category, through_week, rank_stat, columns[], team_games{team_id: n}, qualifier, floor, ppa, success, usage, source, rows[]}`
+
+- `rows[]`: arrays in `columns` order, sorted by `rank_stat` (descending). The first seven columns are always `athlete_id, player, team_id, position, class, q, rs` (`rs` = inferred redshirt, 0 or 1, see `PLAYER_DATA.md`); the rest are CFBD season totals with CFBD's cfbfastR names (e.g. `passing_att`, `defensive_qb_hur`), then per category: passing `rating` (NCAA formula), `ppa_avg`, `ppa_total`, `sr_plays`, `sr_successes`; rushing `ppa_avg`, `ppa_total`, `sr_plays`, `sr_successes`, `usage` (rush share); receiving `ppa_avg`, `ppa_total`, `usage` (pass share). Null = not available for that player (or for everyone that week, see `ppa`).
+- `class`: CFBD roster year 1-4, or null. `q`: meets the qualifier (null for defense, which has none).
+- `team_games`: regular-season games through `through_week` per FBS team (final games in `games.json`).
+- `qualifier`: `{stat, per_team_game, text}` or null. `floor`: who is listed, in words.
+- `ppa` / `usage`: `{available, reason, pulled_at}`. `available` is false when the season-to-date pull happened after a later week's game had kicked off (or covers another week); the PPA/usage columns are then all null. `success`: `{available, through_week}`.
+- When the season stats do not cover the ratings week, every board is written with `through_week: null`, `unavailable` (the reason) and no rows.
+
+Sizes (week 4, 2026, gzip): passing 14.6 KB (379 players), rushing 21.2 KB (639), receiving 23.1 KB (789), defense 24.7 KB (1,168), kicking 5.2 KB (192), punting 4.4 KB (151). Budget: 25 KB each.
+
+## `players.json` and `player/<athlete_id>.json`
+
+Unchanged in shape (player modal; `PLAYER_DATA.md`). Since Stage 1 they are rebuilt in the weekly export and cover every leaderboard player. The validator checks that `players.json` has one row per profile file and that each file's `athlete_id` matches its name.
+
+## `recruiting/*.json` (high-school recruiting; display only)
+
+Written by `scripts/export_recruiting.R` (`R/publish/recruiting.R`; sourcing in `PLAYER_DATA.md`). Every file carries `meta` (index.json's), `source`, `pulled_at`.
+
+- `hs_<year>.json` (2018 to next year's class): `{year, open, columns, rows[]}`; columns `id, profile_id, ranking, name, position, stars, rating, school, state, height, weight, team_id, committed_other`. `open` = the class has not enrolled yet. `profile_id` is set only when `player/<id>.json` exists. `team_id` is the FBS commitment; `committed_other` names a non-FBS commitment. Rows in national-rank order, unranked recruits last.
+- `teams_<year>.json`: `{year, ranked, columns, rows[]}`; columns `team_id, rank, points, commits, five, four, three, avg_rating` (FBS programs). `rank`/`points` are CFBD's team class ranking (null for the open class). Counts and `avg_rating` come from the recruit rows.
+- `cards.json`: `{season, last4[], open_class, classes[], teams[]}`; each team `{team_id, classes[{year, rank}], avg_rank_4yr, blue_chip{share, blue, rated}, open_class{year, commits, five, four, avg_rating}, talent{value, rank} | null}`.
+- `dashboard.json`: `{open_class, latest_ranked_class, classes[], talent_season, open_top[20], open_players[10], latest_top[20], talent[30]}` (`talent[]` has `cfpi_rank`, this week's CFPi+ rank, for side-by-side display only).
+
+Sizes (gzip): `hs_<year>.json` 84-120 KB (lazy: one class, only on the Players and Commitments views; budget 130 KB); `teams_<year>.json` ~2.4 KB; `cards.json` 5.6 KB; `dashboard.json` 1.4 KB.
+
+## `recruiting/portal_<year>.json` (transfer portal; display only)
+
+`{meta, source, pulled_at, year, open, rows_total, fbs_rows, match{destination, origin, ambiguous, conflict, unmatched}, columns, rows[], team_columns, teams[]}`
+
+- `rows[]` (columns `name, position, origin_id, origin_other, dest_id, dest_other, date, stars, rating, eligibility, match, athlete_id, profile`): every entry with an FBS program on one side, by rating (unrated last). `*_id` = FBS team id, `*_other` = non-FBS school name; both null on the destination side = no destination yet. `match` is how the entry was tied to a CFBD athlete id (`PLAYER_DATA.md`); `athlete_id` is set only for `destination`/`origin` matches; `profile` = a player modal exists.
+- `teams[]` (columns `team_id, rank, in, out, churn, in_stars, out_stars, star2_in, star2_out, star_churn`): the CFPi+ Star Churn table (derived, methodology v2: `PLAYER_DATA.md`), ordered by `rank`. `in_stars`/`out_stars` = transfers with a star rating; `star2_*` = average stars² (null when none); `star_churn` null when either side has none (ranked last).
+- `cards.json` teams gain `portal {year, in, out, churn, star_churn, rank, teams}` (latest portal year); `dashboard.json` gains `portal_years[]` and `portal {year, fbs_rows, match, top[5], bottom[5]}` (each `{team_id, rank, in, out, churn, star_churn}`, teams with a Star Churn only).
+
+Sizes (gzip): 40-98 KB per year (lazy, one year per view; budget 110 KB).
+
+## `players/ratings/top.json` and `players/ratings/team/<team_id>.json` (CFPi+ Player Ratings beta; modelled, not official)
+
+Columns (both): `athlete_id, name, team_id, position, group, class, ovr, band, provisional, estimated, profile, rs`. `rs` = inferred redshirt (`PLAYER_DATA.md`). `ovr` 30-99 (integer), `band` = ± one SD in OVR points, `estimated` = OL, K or P, `profile` = a player modal exists.
+- `top.json`: `{meta, source, method, columns, rows[]}`; rows ordered by rating: the top 300 overall plus each group's top 50, no TE. `method`: `{version, label, rated_through, roster_season, note, counts{rated, provisional, estimated}, distribution{mean, median, sd, at{95,90,80,70}}, left_out{TE}, validation}` (`validation` = `data/reference/ratings_v1_validation.json`).
+- `team/<team_id>.json`: `{meta, team_id, rated_through, version, columns, rows[]}`: every rated player on the roster.
+
+Sizes (gzip): `top.json` 10.3 KB (budget 15 KB); team files up to 3.2 KB (budget 5 KB).

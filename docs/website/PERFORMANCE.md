@@ -14,6 +14,13 @@ Sizes are gzip (level 9), which is what GitHub Pages sends. Measured on the Week
 | `scenario.json` (What if only, lazy) | 250 KB | 181.5 KB |
 | Largest team file | 5 KB | 2.1 KB |
 | Largest small logo | 40 KB | 23.3 KB |
+| Each `players/leaders/<category>.json` (lazy, one per view; added Stage 1) | 25 KB | largest 24.7 KB (defense) |
+| Largest `recruiting/hs_<year>.json` (lazy, one class per view; added Stage 2) | 130 KB | 119.6 KB (2018) |
+| `players/ratings/top.json` / largest `players/ratings/team/<id>.json` (lazy; added Stage 4) | 15 / 5 KB | 10.3 / 3.2 KB |
+| Largest `recruiting/portal_<year>.json` (lazy, one year per view; added Stage 3) | 110 KB | 98.1 KB (2025) |
+| Largest `recruiting/teams_<year>.json` / `cards.json` / `dashboard.json` (Stage 2) | 10 / 10 / 5 KB | 2.3 / 5.6 / 1.4 KB |
+
+Player features baseline and Stage 1 deltas: `PLAYER_FEATURES_STAGE0.md`. Stage 1 added the `Players` chunk (3.5 KB) and the header's More menu (entry JS 83.0 → 83.4 KB); Stage 2 added the `Recruiting` chunk (3.9 KB) and `RecruitingCard` (1.1 KB, lazy on team pages; entry JS 83.5 KB). Stage 3 added the `Transfers` chunk (3.8 KB; `Recruiting` 4.3 KB, `RecruitingCard` 1.3 KB). Global CSS unchanged (18.2 KB).
 
 A build that exceeds any line fails, so size regressions cannot ship unnoticed.
 

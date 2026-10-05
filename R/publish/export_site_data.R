@@ -605,6 +605,9 @@ if (!is.null(eff_plays) && !is.null(games) && all(c("game_id", "home_id", "away_
 source(file.path(PATHS$root, "R", "publish", "player_usage.R"), local = TRUE)
 usage_raw <- pull_player_usage(site_season)
 rosters <- pull_rosters(site_season)
+# Kept for the /players/ leaderboards and player profiles (scripts/export_player_leaders.R), so neither pulls again.
+if (!is.null(usage_raw)) saveRDS(usage_raw, file.path(site_state, sprintf("player_usage_%d.rds", site_season)))
+if (!is.null(rosters)) { attr(rosters, "pulled_at") <- Sys.time(); saveRDS(rosters, file.path(site_state, sprintf("rosters_%d.rds", site_season))) }
 source(file.path(PATHS$root, "R", "publish", "depth_charts.R"), local = TRUE)
 depth <- read_opt(file.path(site_state, sprintf("depth_charts_%d.rds", site_season)))   # R/publish/pull_depth_charts.R
 if (is.null(depth)) depth <- read_opt(file.path(PATHS$reference, "depth_charts", sprintf("depth_charts_%d.rds", site_season)))
