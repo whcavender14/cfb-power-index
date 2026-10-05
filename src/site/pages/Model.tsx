@@ -46,7 +46,7 @@ function PickRecord({ season, hfa }: { season: number; hfa: number | null }) {
 export default function Model() {
   const index = useData<IndexDoc>('index.json')
   return <>
-    <PageHead title="Model" lede={<>CFPi+ is the production version of the <strong>Cavender Football Power Index</strong>. It rates every FBS team in points relative to an average FBS team, then plays out the rest of the season many times.</>} />
+    <PageHead title="Model" />
     <DataGate source={index} label="Model details">{({ meta }) => <div className="cf-prose">
       <Freshness meta={meta} sims />
       <PickRecord season={meta.season} hfa={meta.hfa} />

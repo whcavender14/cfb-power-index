@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Bump, DataGate, Freshness, Info, PageHead, pctText, Select, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import type { Game, GamesDoc, PlayoffDoc, ScenarioDoc } from '../data'
 import { kickoffText } from '../games'
-import { Link, useQueryParam } from '../router'
+import { useQueryParam } from '../router'
 import { COUNTS_BELOW, decode, formatPicks, parsePicks, scenarioResults, WARN_BELOW, type Pick, type TeamResult } from '../scenario'
 import { Share } from '../ScenarioShare'
 
@@ -38,7 +38,7 @@ export default function WhatIf() {
   const setPicks = (p: Pick[]) => setParam(formatPicks(p))
 
   return <>
-    <PageHead title="What If?" lede={<>Pick winners of upcoming games. The page keeps only the simulated seasons in which those results happened and recomputes the odds from them. Nothing is re-simulated, and a pick does not change any team’s rating. For the unconditional odds, see <Link to="/playoff/">Playoff</Link>.</>} />
+    <PageHead title="What If?" />
     <DataGate source={scen} label="Scenario data">{() => <DataGate source={gamesDoc} label="Games">{({ meta, games }) => <DataGate source={playoff} label="Playoff odds">{po => {
       const d = decoded!
       const future = games.filter(g => g.status === 'scheduled' && d.games.has(g.game_id))

@@ -23,7 +23,7 @@ export function ConferenceList() {
     if (best) top.set(c.slug, best)
   }
   return <>
-    <PageHead title="Conferences" lede={<>How each conference stacks up as a group: average and median strength, depth, and expected playoff teams. For individual team ratings, use <Link to="/teams/">Teams</Link>.</>} />
+    <PageHead title="Conferences" />
     <DataGate source={doc} label="Conferences">{({ meta, conferences }) => {
       const list = [...conferences].sort((a, b) => Number(b.is_conference) - Number(a.is_conference) || (b.avg_power ?? -99) - (a.avg_power ?? -99))
       const avgs = list.map(c => c.avg_power ?? 0), lo = Math.min(...avgs), span = Math.max(1, Math.max(...avgs) - lo)

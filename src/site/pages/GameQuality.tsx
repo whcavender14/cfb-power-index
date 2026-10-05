@@ -25,7 +25,7 @@ export default function GameQuality() {
   const onSort = (x: Sort) => { setSortKey(x.key); setDir(x.desc === natural(x.key) ? '' : x.desc ? 'desc' : 'asc') }
   const toggle = (w: number) => setOpen(o => { const n = new Set(o); if (n.has(w)) n.delete(w); else n.add(w); return n })
   return <>
-    <PageHead title="Game Quality" lede={<>How good each week of college football looks, and the best games of the season. Game Quality scores every matchup from 0 to 100 by how strong both teams are and how close the game projects. Back to <Link to="/games/">Games</Link>.</>} />
+    <PageHead title="Game Quality" />
     <DataGate source={doc} label="Games">{({ games, meta }) => {
       const scored = games.filter(g => quality.has(g.game_id)).map(g => ({ g, q: quality.get(g.game_id)! }))
       const weeks = [...new Set(scored.map(s => s.g.week))].sort((a, b) => a - b).map(week => {

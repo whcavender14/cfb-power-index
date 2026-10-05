@@ -65,7 +65,7 @@ const pct = (e: { est: number; lo: number; hi: number }, d = 3) => `${e.est > 0 
 export default function RatingsMethodology() {
   const top = useData<RatingsTop>('players/ratings/top.json')
   return <>
-    <PageHead title="CFPi+ Player Ratings (Beta)" lede={<><strong>{LABEL}.</strong> A CFPi+ modelled rating, 30–99, for every rostered FBS player in a rated position. It is not a CollegeFootballData, NCAA, 247Sports, Madden or EA Sports rating, and it never feeds the CFPi+ team ratings or simulations. <Link to="/players/?cat=ratings">See the ratings</Link>.</>} />
+    <PageHead title="CFPi+ Player Ratings (Beta)" />
     <DataGate source={top} label="Ratings method">{d => <Method m={d.method} />}</DataGate>
   </>
 }

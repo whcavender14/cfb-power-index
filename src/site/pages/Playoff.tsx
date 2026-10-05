@@ -76,7 +76,7 @@ export default function Playoff() {
   const onSort = (s: Sort) => { setSortKey(s.key); setDir(s.desc === natural(s.key) ? '' : s.desc ? 'desc' : 'asc') }
 
   return <>
-    <PageHead title="Playoff" lede={<>Odds for the 12-team College Football Playoff, from the simulated seasons. Each season is played out, ranked, seeded and bracketed with the rules below. Try <Link to="/whatif/">What If?</Link> to see how picks change them.</>} />
+    <PageHead title="Playoff" />
     <DataGate source={doc} label="Playoff odds">{({ meta, format, teams: rows, representative_field: field }) => {
       if (meta.sim_status !== 'available' || !rows.length) return <div className="cf-state" role="status"><p className="cf-state-title">Simulation results are unavailable for this update</p><p className="cf-muted">Ratings are still current. Playoff odds return with the next successful simulation.</p></div>
       const contenders = rows.filter(r => r.p_playoff > 0)

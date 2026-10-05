@@ -25,7 +25,7 @@ export default function Resume() {
   const sort: Sort = { key: sk, desc: sd === 'desc' }
   const onSort = (s: Sort) => { setSk(s.key); setSd(s.desc ? 'desc' : 'asc') }
   return <>
-    <PageHead title="Résumé ranking" lede={<>What each team has accomplished so far. It is not a prediction: for how good teams are, see the <Link to="/rankings/">CFPi+ (predictive) rankings</Link>.</>}><RankingTabs active="resume" /></PageHead>
+    <PageHead title="Résumé ranking"><RankingTabs active="resume" /></PageHead>
     <DataGate source={doc} label="Résumé ranking">{({ meta, teams, method }) => {
       const val = (r: ResumeRow) => ({ resume: r.resume_rank, predictive: r.predictive_rank, sor: r.sor == null ? null : -r.sor, sos: r.sos_played == null ? null : -r.sos_played } as Record<string, number | null>)[sort.key] ?? r.resume_rank
       const rows = sortRows(teams, val, sort.desc)

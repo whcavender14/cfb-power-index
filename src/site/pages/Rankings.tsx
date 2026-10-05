@@ -46,7 +46,7 @@ export default function Rankings() {
   const conferences = useMemo(() => [...new Set([...teams.values()].map(t => t.conference).filter(Boolean) as string[])].sort(), [teams])
 
   return <>
-    <PageHead title="Rankings" lede="All FBS teams ordered by CFPi+ power rating: how good each team is (predictive). Rank movement (weekly and since the preseason) and rating change are listed separately."><RankingTabs active="predictive" /></PageHead>
+    <PageHead title="Rankings"><RankingTabs active="predictive" /></PageHead>
     <DataGate source={index} label="Rankings">{({ meta, teams: rows }) => {
       const needle = q.trim().toLowerCase()
       const filtered = rows.filter(r => {

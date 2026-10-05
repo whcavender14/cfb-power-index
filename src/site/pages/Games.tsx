@@ -42,7 +42,7 @@ export default function Games() {
   const teamOptions = useMemo(() => [...teams.values()].sort((a, b) => a.team.localeCompare(b.team)), [teams])
 
   return <>
-    <PageHead title="Games" lede={<>Every game involving an FBS team: results so far and CFPi+ projections for the rest. See the best weeks and games in <Link to="/games/quality/">Game Quality</Link>.</>} />
+    <PageHead title="Games"><p className="cf-small" style={{ margin: 'var(--s2) 0 0' }}><Link to="/games/quality/" className="cf-more">Game Quality</Link></p></PageHead>
     <DataGate source={doc} label="Games">{({ meta, games }) => {
       const weeks = [...new Set(games.map(g => g.week))].sort((a, b) => a - b)
       const slug = teams.get(team) ? team : [...teams.values()].find(t => t.slug === team)?.team_id ?? ''

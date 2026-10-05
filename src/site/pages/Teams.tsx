@@ -26,7 +26,7 @@ export default function Teams() {
   const sort: Sort = { key: sk, desc: sd !== 'asc' }
   const onSort = (s: Sort) => { setSk(s.key); setSd(s.desc ? 'desc' : 'asc') }
   return <>
-    <PageHead title="Teams" lede={<>Every FBS team, searchable and sortable by its CFPi+ power rating and its parts. For how conferences compare as groups, see <Link to="/conferences/">Conferences</Link>.</>} />
+    <PageHead title="Teams" />
     <DataGate source={index} label="Teams">{({ meta, teams }) => {
       const needle = q.trim().toLowerCase()
       const confs = [...new Set([...directory.values()].map(t => t.conference).filter(Boolean) as string[])].sort()
