@@ -307,3 +307,13 @@ details.cf-details:not([open])::details-content, details.cf-rules:not([open])::d
 @media (prefers-reduced-motion: reduce) {
   details.cf-details::details-content, details.cf-rules::details-content, .cf-seedbar i { transition: none; }
 }
+
+/* Playoff bracket header: the Projected / Current toggle always sits directly left of the image button, and the
+   button keeps one width for both labels, so nothing shifts when the view changes. */
+.cf-bracket-controls { display: inline-flex; align-items: center; gap: var(--s4); margin-left: auto; }
+.cf-bracket-controls .cf-btn { min-width: 11.5rem; justify-content: center; }
+@media (max-width: 559px) { .cf-bracket-controls { width: 100%; flex-wrap: wrap; justify-content: space-between; gap: var(--s2) var(--s3); } .cf-bracket-controls .cf-btn { min-width: 0; white-space: nowrap; } }
+
+/* The 7-column bracket diagram is for wide screens. site.css hides it below 1100px, but a later `.cf-brk { display: grid }`
+   in the same file overrode that, so phones showed the diagram squeezed on top of the per-round list. */
+@media (max-width: 1099px) { .cf-brk { display: none; } }

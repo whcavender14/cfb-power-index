@@ -98,8 +98,10 @@ export default function Playoff() {
         <section className="cf-section" style={{ marginTop: "var(--s3)" }} aria-labelledby="po-field">
           <div className="cf-panel-head">
             <h2 id="po-field">{current ? 'Current' : 'Projected'} bracket <Info text={current ? CURRENT_INFO : BRACKET_INFO} label="How the bracket is built" /></h2>
-            <Segmented label="Bracket view" value={current ? 'current' : 'projected'} onChange={v => setView(v === 'current' ? 'current' : '')} options={[{ value: 'projected', label: 'Projected' }, { value: 'current', label: 'Current' }]} />
-            {bracket && !current && <ShareButton label="Predicted Bracket" run={async () => { await (await import('../bracketPng')).bracketPng(doc.data!, bracket, teams) }} />}
+            <span className="cf-bracket-controls">
+              <Segmented label="Bracket view" value={current ? 'current' : 'projected'} onChange={v => setView(v === 'current' ? 'current' : '')} options={[{ value: 'projected', label: 'Projected' }, { value: 'current', label: 'Current' }]} />
+            {bracket ? <ShareButton label={current ? 'Current Bracket' : 'Predicted Bracket'} run={async () => { await (await import('../bracketPng')).bracketPng(doc.data!, bracket, teams, current) }} /> : <ShareButton label={current ? 'Current Bracket' : 'Predicted Bracket'} run={async () => {}} disabled />}
+            </span>
           </div>
           {bracket ? <>
             <div className="cf-panel cf-brk-panel"><Bracket b={bracket} current={current} /></div>
