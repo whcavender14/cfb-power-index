@@ -437,7 +437,7 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
   ctx.fillStyle = C.gold
   ctx.fillRect(cx - cw / 2, chY + chH - 4, cw, 4)
   ctx.restore()
-  label(ctx, current ? 'TOP SEED' : 'PROJECTED CHAMPION', cx, chY + 24, { size: 11, color: '#8ab8e6', track: '2.6px', align: 'center' })
+  label(ctx, 'CHAMPION', cx, chY + 24, { size: 11, color: '#8ab8e6', track: '2.6px', align: 'center' })
   ctx.beginPath()
   ctx.arc(cx, chY + 64, 30, 0, Math.PI * 2)
   ctx.fillStyle = C.cream
