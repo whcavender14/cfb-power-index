@@ -285,3 +285,7 @@ html { background: var(--cf-mast); }                 /* no white band below a sh
 .cf-hs-field:focus-within, .cf-hs.is-wide .cf-hs-field { color: var(--cf-muted); border-radius: 2px; box-shadow: 0 0 0 2px var(--cf-carolina); }
 .cf-hs-field:focus-within input, .cf-hs.is-wide .cf-hs-field input { color: var(--cf-ink); }
 .cf-hs-field:focus-within input::placeholder, .cf-hs.is-wide .cf-hs-field input::placeholder { color: var(--cf-muted); }
+
+/* Header search: on focus the field widens (15 → 19rem) while its background fades to white. */
+.cf-hs-field { transition: background-color var(--m-fast) var(--cf-ease), box-shadow var(--m-fast) var(--cf-ease), width var(--m-fast) var(--cf-ease); }
+@media (prefers-reduced-motion: reduce) { .cf-hs-field { transition: none; } }
