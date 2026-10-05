@@ -142,17 +142,19 @@ export function useThemeName(): 'light' | 'dark' {
 /** Bars and lines that grow to their value the first time they scroll into view (CSS in editorial.css keys off
  *  `data-grow` / `data-in`). The attributes are added here, never rendered, so server-rendered and no-script pages stay
  *  fully drawn. Skipped entirely for reduced motion or when IntersectionObserver is missing. Remount (key) to replay. */
-const GROW_BARS = '.cf-ol-track i, .cf-bar i, .cf-eff-bar i, .cf-mu-meter i, .cf-cl-avg u, .cf-strength-track i, .cf-dist-col i'
+const GROW_BARS = '.cf-ol-track i, .cf-bar i, .cf-eff-bar i, .cf-mu-meter i, .cf-cl-avg u, .cf-strength-track i, .cf-dist-col i, .cf-pbar i'
 export function useGrowOnView(ref: React.RefObject<HTMLElement | null>) {
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
     if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return
     el.querySelectorAll<HTMLElement>(GROW_BARS).forEach((b, i) => b.style.setProperty('--i', String(Math.min(i, 10))))
-    el.removeAttribute('data-in'); el.setAttribute('data-grow', '')
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { el.setAttribute('data-in', ''); io.disconnect() } }, { rootMargin: '0px 0px -12% 0px' })
+    el.removeAttribute('data-in'); el.removeAttribute('data-done'); el.setAttribute('data-grow', '')
+    let done: ReturnType<typeof setTimeout> | undefined
+    // After the intro finishes, `data-done` switches the animations off, so rows that are re-sorted, filtered or re-inserted later never replay it.
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { el.setAttribute('data-in', ''); io.disconnect(); done = setTimeout(() => el.setAttribute('data-done', ''), 2400) } }, { rootMargin: '0px 0px -12% 0px' })
     io.observe(el)
-    return () => { io.disconnect(); el.removeAttribute('data-grow'); el.removeAttribute('data-in') }
+    return () => { io.disconnect(); clearTimeout(done); el.removeAttribute('data-grow'); el.removeAttribute('data-in'); el.removeAttribute('data-done') }
   }, [ref])
 }
 export function InView({ as = 'div', children, ...rest }: { as?: 'div' | 'ol' | 'dl' | 'figure'; children: ReactNode } & React.HTMLAttributes<HTMLElement>) {
