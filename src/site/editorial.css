@@ -317,3 +317,8 @@ details.cf-details:not([open])::details-content, details.cf-rules:not([open])::d
 /* The 7-column bracket diagram is for wide screens. site.css hides it below 1100px, but a later `.cf-brk { display: grid }`
    in the same file overrode that, so phones showed the diagram squeezed on top of the per-round list. */
 @media (max-width: 1099px) { .cf-brk { display: none; } }
+
+/* Season Outlook bars (team page): each grows from zero to its value when the page opens, top to bottom, and replays
+   when you move to another team. Transform-only, so it never reflows; the global reduced-motion rule collapses it. */
+.cf-ol-track i { transform-origin: left; animation: cf-ol-grow 900ms var(--cf-ease) calc(200ms + var(--i, 0) * 90ms) both; }
+@keyframes cf-ol-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
