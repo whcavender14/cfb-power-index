@@ -289,3 +289,21 @@ html { background: var(--cf-mast); }                 /* no white band below a sh
 /* Header search: on focus the field widens (15 → 19rem) while its background fades to white. */
 .cf-hs-field { transition: background-color var(--m-fast) var(--cf-ease), box-shadow var(--m-fast) var(--cf-ease), width var(--m-fast) var(--cf-ease); }
 @media (prefers-reduced-motion: reduce) { .cf-hs-field { transition: none; } }
+
+/* Expanders ("Show as a table", "All players by usage", final records, playoff rules): the body grows open and
+   fades in, same 200ms feel as the search field. Pure CSS on native <details>; browsers without
+   interpolate-size / ::details-content simply open instantly. Closing is instant. */
+:root { interpolate-size: allow-keywords; }
+details.cf-details::details-content, details.cf-rules::details-content {
+  block-size: 0; overflow: clip; opacity: 0;
+  transition: block-size var(--m-fast) var(--cf-ease), opacity var(--m-fast) var(--cf-ease), content-visibility var(--m-fast) allow-discrete;
+}
+details.cf-details[open]::details-content, details.cf-rules[open]::details-content { block-size: auto; opacity: 1; }
+details.cf-details:not([open])::details-content, details.cf-rules:not([open])::details-content { transition-duration: 0ms; }
+
+/* What If? seed odds: bars glide to their new height when a pick or the selected team changes (no motion on load). */
+.cf-seedbar i { border-radius: 0; transition: height var(--m-fast) var(--cf-ease); }
+
+@media (prefers-reduced-motion: reduce) {
+  details.cf-details::details-content, details.cf-rules::details-content, .cf-seedbar i { transition: none; }
+}
