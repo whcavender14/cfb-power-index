@@ -7,7 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "node scripts/validate_site_data.mjs && tsc -b && vite build && node scripts/check_budget.mjs && node scripts/prerender_routes.mjs",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node --experimental-strip-types --test tests/web-data.test.mjs tests/betting.test.mjs tests/export.test.mjs tests/playoff.test.mjs tests/site-data.test.mjs",
+    "test": "node --experimental-strip-types --test tests/web-data.test.mjs tests/betting.test.mjs tests/export.test.mjs tests/playoff.test.mjs tests/site-data.test.mjs tests/current-bracket.test.mjs",
     "logos": "node scripts/sync_logos.mjs",
     "export:data": "CFB_EXPORT_BETTING=true Rscript scripts/03_export_public_data.R",
     "validate:data": "node scripts/validate_site_data.mjs"
