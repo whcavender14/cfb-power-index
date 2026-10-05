@@ -46,10 +46,16 @@ export function layoutChart(W: number, chosen: Conference[], all: Conference[], 
   return { W, H, points: series.flatMap(s => s.pts.map(p => ({ ...p, size }))), plot: { x0, x1, y0, y1 }, series, yTicks, maxN, narrow, size, Y }
 }
 
+/** Compact toggle labels so all eleven fit on one bar below ~1100px. */
+const SHORT: Record<string, string> = { 'American Athletic': 'AAC', 'Conference USA': 'C-USA', 'Mid-American': 'MAC', 'Mountain West': 'MWC', 'FBS Independents': 'Ind.' }
+export const confShort = (c: Conference) => c.is_conference ? SHORT[c.name] ?? c.name : 'Ind.'
+
 const signed = (v: number) => v > 0 ? `+${v}` : v < 0 ? `−${-v}` : '0'
 
-export function ConferenceSvg({ L, dir }: { L: ChartLayout; dir: Map<string, TeamMeta> }) {
+/** `hits`: team ids matching the chart's team finder (null = no search). Everything else dims; hits pop with a ring. */
+export function ConferenceSvg({ L, dir, hits }: { L: ChartLayout; dir: Map<string, TeamMeta>; hits: Set<string> | null }) {
   const { W, H, plot, series, yTicks, maxN, narrow, size, Y } = L
+  const hitsKey = hits ? [...hits].join(',') : ''
   const every = narrow ? (maxN > 14 ? 4 : 2) : maxN > 20 ? 2 : 1
   const label = `Line chart of CFPi+ power rating by rank within each selected conference: ${series.map(s => s.c.is_conference ? s.c.name : 'Independents').join(', ')}.`
   return <svg width={W} height={H} role="img" aria-label={label} className="cf-cc-svg">
@@ -64,12 +70,20 @@ export function ConferenceSvg({ L, dir }: { L: ChartLayout; dir: Map<string, Tea
     <text x={(plot.x0 + plot.x1) / 2} y={H - 8} textAnchor="middle" className="cf-cc-axis">Rank within conference</text>
     <text transform={`translate(12 ${(plot.y0 + plot.y1) / 2}) rotate(-90)`} textAnchor="middle" className="cf-cc-axis">CFPi+ power rating</text>
     {series.filter(s => s.c.is_conference && s.pts.length > 1).map(s =>
-      <path key={s.c.slug} pathLength={1} className="cf-hist-line" style={{ stroke: s.color, strokeWidth: 2.5 }}
+      <path key={s.c.slug} pathLength={1} className="cf-hist-line" style={{ stroke: s.color, strokeWidth: 2.5, opacity: hits ? 0.25 : 1 }}
         d={s.pts.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join('')} />)}
-    {series.flatMap(s => s.pts.map(p => {
-      const t = dir.get(p.id), frac = (p.x - plot.x0) / Math.max(1, plot.x1 - plot.x0)
-      return <image key={p.id} className="cf-hist-dot" href={`${import.meta.env.BASE_URL}logos/sm/${p.id}.png`} width={size} height={size} x={p.x - size / 2} y={p.y - size / 2}
-        preserveAspectRatio="xMidYMid meet" aria-label={t?.team} style={{ animationDelay: `${200 + Math.round(frac * 900)}ms` }} />
-    }))}
+    {series.flatMap(s => s.pts).sort((a, b) => Number(hits?.has(a.id) ?? false) - Number(hits?.has(b.id) ?? false)).map(p => {
+      const t = dir.get(p.id), frac = (p.x - plot.x0) / Math.max(1, plot.x1 - plot.x0), hit = !!hits?.has(p.id)
+      const few = hits !== null && hits.size <= 4
+      return <g key={p.id}>
+        {hit && <>
+          <circle key={`ping-${hitsKey}`} className="cf-cc-ping" cx={p.x} cy={p.y} r={size * 0.95} />
+          <circle className="cf-cc-halo" cx={p.x} cy={p.y} r={size * 0.95} />
+        </>}
+        <image className={`cf-hist-dot${hits ? (hit ? ' is-hit' : ' is-dim') : ''}`} href={`${import.meta.env.BASE_URL}logos/sm/${p.id}.png`} width={size} height={size} x={p.x - size / 2} y={p.y - size / 2}
+          preserveAspectRatio="xMidYMid meet" aria-label={t?.team} style={{ animationDelay: `${200 + Math.round(frac * 900)}ms` }} />
+        {hit && few && t && <text className="cf-cc-hitlabel" x={p.x + (p.x > W - 150 ? -size : size)} y={p.y - size} textAnchor={p.x > W - 150 ? 'end' : 'start'}>{t.team}</text>}
+      </g>
+    })}
   </svg>
 }

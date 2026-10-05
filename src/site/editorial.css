@@ -346,3 +346,27 @@ details.cf-details:not([open])::details-content, details.cf-rules:not([open])::d
 .cf-cc-svg image { pointer-events: none; }
 .cf-cc-swatch { display: inline-block; width: 14px; height: 4px; margin-right: 7px; vertical-align: middle; box-shadow: 0 0 0 1px rgb(255 255 255 / .35); }
 .cf-cc-swatch.is-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* Conference toggles: one bar. Full names while they fit, short names below 1100px, scroll on phones. */
+.cf-cc-toggles { display: flex; gap: 4px; margin: 0 0 var(--s3); overflow-x: auto; scrollbar-width: none; }
+.cf-cc-toggles::-webkit-scrollbar { display: none; }
+.cf-cc-toggle { flex: 1 1 auto; justify-content: center; padding: 0 8px; gap: 0; white-space: nowrap; font-size: .8125rem; }
+.cf-cc-short { display: none; }
+@media (max-width: 1099px) { .cf-cc-full { display: none; } .cf-cc-short { display: inline; } }
+.cf-cc-tools { display: inline-flex; align-items: center; gap: var(--s3); margin-left: auto; }
+.cf-cc-tools .cf-search { min-width: 14rem; }
+@media (max-width: 559px) { .cf-cc-tools { width: 100%; } .cf-cc-tools .cf-search { flex: 1; min-width: 0; } }
+
+/* Team finder on the conference chart: everything else dims, matches pop with a halo and a single ping. */
+.cf-cc-svg image { transition: opacity var(--m-quick) var(--cf-ease), transform var(--m-fast) var(--cf-ease); transform-box: fill-box; transform-origin: center; }
+.cf-cc-svg .cf-hist-line { transition: opacity var(--m-fast) var(--cf-ease); }
+[data-in] .cf-hist-dot.is-dim, [data-in] .cf-hist-dot.is-hit { animation: none; }
+.cf-cc-svg image.is-dim { opacity: .14; }
+.cf-cc-svg image.is-hit { transform: scale(1.55); }
+.cf-cc-halo { fill: var(--cf-surface); fill-opacity: .9; stroke: var(--cf-accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: cf-cc-pop var(--m-fast) var(--cf-ease) both; }
+.cf-cc-ping { fill: none; stroke: var(--cf-accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: cf-cc-ping 900ms var(--cf-ease) 2 both; }
+.cf-cc-hitlabel { font-size: 12px; font-weight: 700; fill: var(--cf-ink); paint-order: stroke; stroke: var(--cf-surface); stroke-width: 4px; stroke-linejoin: round; }
+@keyframes cf-cc-pop { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes cf-cc-ping { from { transform: scale(.8); opacity: .8; } to { transform: scale(2.3); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cf-cc-ping { animation: none; opacity: 0; } .cf-cc-svg image, .cf-cc-svg .cf-hist-line { transition: none; } }
+@media (max-width: 899px) { .cf-cc-toggles { gap: 3px; } .cf-cc-toggle { padding: 0 5px; font-size: .75rem; } .cf-cc-swatch { width: 10px; margin-right: 4px; } .cf-cc-swatch.is-dot { width: 7px; } }

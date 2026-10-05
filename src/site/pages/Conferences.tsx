@@ -1,7 +1,8 @@
 import '../conferences.css'
 import { teamTheme, CONF_COLORS } from '../teamTheme'
 import { Fragment, useMemo, useState } from 'react'
-import { ConferenceSvg, confColor, layoutChart, useElementWidth } from '../ConferenceChart'
+import { ConferenceSvg, confColor, confShort, layoutChart, useElementWidth } from '../ConferenceChart'
+import { Search, X } from 'lucide-react'
 import ShareButton from '../ShareButton'
 import { DataGate, fmt, Freshness, InfoLabel, InView, Num, PageHead, Pct, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, useThemeName, type Sort } from '../components'
 import { kickoffText, projection } from '../games'
@@ -64,6 +65,7 @@ function ConferenceComparison({ meta, conferences, rows }: { meta: ConferencesDo
   const [picked, setPicked] = useState<string[]>(() => conferences.map(c => c.slug))
   const chosen = useMemo(() => conferences.filter(c => picked.includes(c.slug)), [conferences, picked])
   const dark = useThemeName() === 'dark'
+  const [find, setFind] = useState('')
   const [wrap, width] = useElementWidth<HTMLDivElement>()
   const chart = useMemo(() => width > 0 && chosen.length && dir.size ? layoutChart(width, chosen, conferences, rows, dark) : null, [width, chosen, conferences, rows, dark, dir])
   const [hot, setHot] = useState<string | null>(null)
@@ -84,6 +86,15 @@ function ConferenceComparison({ meta, conferences, rows }: { meta: ConferencesDo
     }
     return out
   }, [conferences, byId])
+  // Team finder: teams on the chart whose name, mascot or abbreviation matches (2+ characters); null = no search.
+  const hits = useMemo(() => {
+    const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/g, '').trim()
+    const n = norm(find)
+    if (n.length < 2 || !chart) return null
+    const out = new Set<string>()
+    for (const p of chart.points) { const t = dir.get(p.id); if (t && (norm(`${t.team} ${t.mascot ?? ''}`).includes(n) || norm(t.abbreviation ?? '') === n)) out.add(p.id) }
+    return out
+  }, [find, chart, dir])
   const toggle = (slug: string) => setPicked(p => p.includes(slug) ? p.filter(x => x !== slug) : [...p, slug])
   const games = useData<GamesDoc>('games.json')
   const totalGames = useMemo(() => { const n = new Map<string, number>(); for (const g of games.data?.games ?? []) for (const id of [g.home_id, g.away_id]) n.set(id, (n.get(id) ?? 0) + 1); return n }, [games.data])
@@ -93,19 +104,25 @@ function ConferenceComparison({ meta, conferences, rows }: { meta: ConferencesDo
   const rk = (v: number | null | undefined, r: number | null | undefined, signed = true, d = 1) => v == null ? '—' : <><Num value={v} signed={signed} digits={d} />{r != null && <span className="cf-muted" style={{ fontSize: '.75rem', marginLeft: 5 }}>({r})</span>}</>
   return <section className="cf-section" aria-labelledby="cc-h">
     <div className="cf-panel-head"><h2 id="cc-h">Conference Comparison</h2>
+      <span className="cf-cc-tools">
+      <label className="cf-search"><Search size={15} aria-hidden="true" />
+        <input type="search" placeholder="Find a team…" aria-label="Find a team on the chart" autoComplete="off" spellCheck={false} value={find} onChange={e => setFind(e.target.value)} onKeyDown={e => { if (e.key === 'Escape') setFind('') }} />
+        {find && <button type="button" aria-label="Clear search" onClick={() => setFind('')}><X size={14} aria-hidden="true" /></button>}
+      </label>
       <ShareButton label="Download PNG" disabled={!chosen.length} run={async () => {
         const [{ conferenceChartCanvas }, { savePng }] = await Promise.all([import('../confChart'), import('../../exportImage')])
         await savePng(await conferenceChartCanvas(meta, rows, chosen, dir), `cfpi-conference-comparison-${meta.season}-wk${String(meta.ratings_week ?? 0).padStart(2, '0')}.png`)
-      }} /></div>
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, margin: '0 0 12px' }} role="group" aria-label="Conferences to compare">
-      {conferences.map(c => <button key={c.slug} type="button" className="cf-btn" aria-pressed={picked.includes(c.slug)} onClick={() => toggle(c.slug)}
+      }} /></span></div>
+    <div className="cf-cc-toggles" role="group" aria-label="Conferences to compare">
+      {conferences.map(c => <button key={c.slug} type="button" className="cf-btn cf-cc-toggle" aria-pressed={picked.includes(c.slug)} onClick={() => toggle(c.slug)}
         style={picked.includes(c.slug) ? { background: 'var(--cf-ink)', color: 'var(--cf-bg)' } : undefined}>
-        <i className={`cf-cc-swatch${c.is_conference ? '' : ' is-dot'}`} style={{ background: confColor(conferences.indexOf(c), dark) }} aria-hidden="true" />{c.is_conference ? c.name : 'Independents'}</button>)}
+        <i className={`cf-cc-swatch${c.is_conference ? '' : ' is-dot'}`} style={{ background: confColor(conferences.indexOf(c), dark) }} aria-hidden="true" /><span className="cf-cc-full">{c.is_conference ? c.name : 'Independents'}</span><span className="cf-cc-short" aria-hidden="true">{confShort(c)}</span></button>)}
     </div>
     <div className="cf-panel" ref={wrap}>
+      {find.trim().length >= 2 && chart && hits && hits.size === 0 && <p className="cf-muted cf-small" role="status" style={{ margin: '4px 0 0' }}>No team matching “{find.trim()}” in the selected conferences.</p>}
       {chosen.length === 0 ? <p className="cf-muted" style={{ margin: 12 }}>Select at least one conference.</p>
         : chart ? <InView key={chosen.map(c => c.slug).join()} style={{ position: 'relative' }}>
-          <ConferenceSvg L={chart} dir={dir} />
+          <ConferenceSvg L={chart} dir={dir} hits={hits} />
           {chart.points.map(p => { const t = dir.get(p.id); return t ? <Link key={p.id} to={`/teams/${t.slug}/`} aria-label={`${t.team}: open team page`}
             onMouseEnter={() => setHot(p.id)} onMouseLeave={() => setHot(h => h === p.id ? null : h)} onFocus={() => setHot(p.id)} onBlur={() => setHot(h => h === p.id ? null : h)}
             style={{ position: 'absolute', left: `${100 * p.x / chart.W}%`, top: `${100 * p.y / chart.H}%`, width: `${100 * p.size / chart.W}%`, aspectRatio: '1', transform: 'translate(-50%, -50%)', outline: 'none' }} /> : null })}
