@@ -452,7 +452,7 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
   ctx.textAlign = 'center'
   ctx.fillText(fit(ctx, champion.team, cw - 32), cx, chY + 118)
   spacing(ctx, '0px')
-  label(ctx, current ? `NO. ${champion.seed} SEED` : `NO. ${champion.seed} SEED · ${pct1(champion.title).toUpperCase()} TITLE ODDS`, cx, chY + 143, { size: 11, weight: 500, color: '#d1d1d6', track: '1.6px', align: 'center' })
+  label(ctx, `${pct1(champion.title).toUpperCase()} TITLE ODDS`, cx, chY + 143, { size: 11, weight: 500, color: '#d1d1d6', track: '1.6px', align: 'center' })
 
   // Title odds across all simulations, to keep the "most likely path" honest.
   const toY = finBox.y + finRow * 2 + 34

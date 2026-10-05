@@ -50,7 +50,7 @@ function Bracket({ b, current }: { b: SimBracket; current: boolean }) {
           <span className="cf-brk-kicker">Champion</span>
           <TeamLogo id={b.champion.team_id} name={b.champion.team_id} size={44} />
           <strong><TeamLink id={b.champion.team_id} logo={false} /></strong>
-          <span className="cf-small">{current ? `No. ${b.champion.seed} seed` : `No. ${b.champion.seed} seed · ${pctText(b.champion.odds.p_champ)} title odds`}</span>
+          <span className="cf-small">{pctText(b.champion.odds.p_champ)} title odds</span>
         </div>
         <h3 className="cf-brk-head">National championship</h3>
         <BGame g={fin} champion={b.champion} />
