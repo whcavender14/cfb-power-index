@@ -5,7 +5,7 @@
 .cf-mu-team-text { display: grid; gap: 2px; min-width: 0; }
 .cf-mu-team.is-home .cf-mu-team-text { justify-items: end; }
 .cf-mu-name { font-family: var(--cf-font-display); font-size: 1.5rem; line-height: 1.1; letter-spacing: -.02em; }
-.cf-mu-flag { justify-self: start; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; background: var(--cf-fill); color: var(--cf-ink-2); }
+.cf-mu-flag { justify-self: start; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; background: var(--cf-fill); color: var(--cf-ink-2); }
 .cf-mu-team.is-home .cf-mu-flag { justify-self: end; }
 .cf-mu-score { margin-left: auto; font-family: var(--cf-font-display); font-size: 2.25rem; font-weight: 700; }
 .cf-mu-team.is-home .cf-mu-score { margin-left: 0; margin-right: auto; }
@@ -59,14 +59,14 @@
 .cf-mu-star:first-child { padding-top: 0; }
 .cf-mu-fc { margin-top: var(--s4); }
 .cf-mu-tiles { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); align-items: stretch; }
-.cf-mu-meter { display: block; height: 6px; margin-top: 4px; border-radius: 3px; background: var(--cf-fill); overflow: hidden; }
-.cf-mu-meter i { display: block; height: 100%; background: var(--cf-ink-2); border-radius: 3px; }
+.cf-mu-meter { display: block; height: 6px; margin-top: 4px; border-radius: 0; background: var(--cf-fill); overflow: hidden; }
+.cf-mu-meter i { display: block; height: 100%; background: var(--cf-ink-2); border-radius: 0; }
 .cf-mu-fc-note { margin: var(--s3) 0 0; }
 .cf-mu-row { display: grid; grid-template-columns: 1fr minmax(8rem, 1.2fr) 1fr; align-items: center; gap: var(--s3); min-height: 36px; border-bottom: 1px solid var(--cf-line); font-size: .875rem; padding-inline: var(--s2); margin-inline: calc(-1 * var(--s2)); }
-.cf-mu-row.is-better-away { background: linear-gradient(to right, color-mix(in srgb, var(--cf-up) 24%, transparent), transparent 32%); }
-.cf-mu-row.is-better-home { background: linear-gradient(to left, color-mix(in srgb, var(--cf-up) 24%, transparent), transparent 32%); }
+.cf-mu-row.is-better-away { background: none; box-shadow: inset 3px 0 0 var(--cf-up); }
+.cf-mu-row.is-better-home { background: none; box-shadow: inset -3px 0 0 var(--cf-up); }
 .cf-mu-a.is-better::before, .cf-mu-h.is-better::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cf-up); align-self: center; display: none; }
-@media (max-width: 759px) { .cf-mu-row.is-better-away { background: linear-gradient(to right, color-mix(in srgb, var(--cf-up) 26%, transparent), transparent 38%); } .cf-mu-row.is-better-home { background: linear-gradient(to left, color-mix(in srgb, var(--cf-up) 26%, transparent), transparent 38%); } }
+/* Phones use the same inset side bar as desktop to mark the better unit. */
 /* Finished-game recap */
 .cf-recap-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); border-top: 3px solid var(--cf-accent); }
 .cf-recap-tiles > div { display: grid; gap: 3px; align-content: start; padding: var(--s3) var(--s4) var(--s2) 0; }
@@ -75,12 +75,12 @@
 .cf-recap-tiles b { font-size: 1.1875rem; font-weight: 650; line-height: 1.2; }
 .cf-recap-tiles small { font-size: .8125rem; color: var(--cf-muted); }
 .cf-recap-axis { margin: var(--s5) 0 0; }
-.cf-recap-track { position: relative; height: 34px; border-radius: 6px; background: var(--cf-fill-2); }
+.cf-recap-track { position: relative; height: 34px; border-radius: 0; background: var(--cf-fill-2); }
 .cf-recap-zero { position: absolute; left: 50%; top: -4px; bottom: -4px; width: 1px; background: var(--cf-line-strong); }
-.cf-recap-fill { position: absolute; top: 13px; height: 8px; border-radius: 2px; background: color-mix(in srgb, var(--cf-accent) 45%, transparent); }
-.cf-recap-pin { position: absolute; top: 5px; width: 6px; height: 24px; margin-left: -3px; border-radius: 3px; }
+.cf-recap-fill { position: absolute; top: 13px; height: 8px; border-radius: 0; background: color-mix(in srgb, var(--cf-accent) 45%, transparent); }
+.cf-recap-pin { position: absolute; top: 5px; width: 6px; height: 24px; margin-left: -3px; border-radius: 1px; }
 .cf-recap-pin.is-exp, .cf-recap-key.is-exp { background: var(--cf-muted); } .cf-recap-pin.is-act, .cf-recap-key.is-act { background: var(--cf-accent); }
-.cf-recap-key { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin: 0 4px 0 12px; vertical-align: -1px; }
+.cf-recap-key { display: inline-block; width: 10px; height: 10px; border-radius: 0; margin: 0 4px 0 12px; vertical-align: -1px; }
 .cf-recap-axis figcaption { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); margin-top: var(--s2); font-size: .8125rem; color: var(--cf-muted); }
 .cf-recap-axis figcaption span { display: inline-flex; align-items: center; gap: 6px; }
 .cf-recap-playerwrap { margin-top: var(--s4); }

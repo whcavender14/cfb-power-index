@@ -261,3 +261,10 @@ html { background: var(--cf-mast); }                 /* no white band below a sh
 :root .rc-tabs a { padding: 8px 14px 7px; border-bottom-width: 3px; font-family: var(--cf-font-cond); font-size: .9375rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; color: var(--cf-muted); }
 :root .rc-tabs a.is-on { color: var(--cf-ink); }
 @media (max-width: 759px) { :root .rc-tabs { overflow-x: auto; scrollbar-width: none; } :root .rc-tabs a { padding-inline: 10px; } }
+
+/* Conference list header (a grid, not a table): same caps label row as table headers. */
+:root .cf-cl-head { font-family: var(--cf-font-cond); font-size: .8125rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--cf-ink); border-bottom: 2px solid var(--cf-rule); }
+
+/* Player popup (player.css loads later, hence :root): square close button, caps tabs like the rest of the site. */
+:root .cf-pm-close { border-radius: 2px; }
+:root .cf-pm-tabs button { font-family: var(--cf-font-cond); font-size: .9375rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
