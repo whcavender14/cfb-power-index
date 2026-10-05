@@ -69,7 +69,13 @@ test('rejects conference win odds that do not sum to the expected wins', () => {
 })
 
 test('rejects a playoff swing that does not average back to the published odds', () => {
-  assert.ok(broken('index.json', d => { const g = Object.values(d.top_swing)[0]; const side = g.home ?? g.away; side.win = Math.min(1, side.win + 0.3) }).some(e => e.includes('top_swing')))
+  assert.ok(broken('index.json', d => {
+    // Use the side that wins in the most seasons (always >= half) and move its win odds away from the clamp,
+    // so the shift in the average (0.3 * n_win / n >= 0.15) is far above tolerance whatever the refreshed data looks like.
+    const sides = Object.values(d.top_swing).flatMap(g => [g.home, g.away]).filter(Boolean)
+    const side = sides.reduce((a, b) => (b.n_win > a.n_win ? b : a))
+    side.win = side.win > 0.5 ? side.win - 0.3 : side.win + 0.3
+  }).some(e => e.includes('top_swing')))
 })
 
 // /players/ leaderboards
