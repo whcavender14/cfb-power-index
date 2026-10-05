@@ -307,12 +307,3 @@ details.cf-details:not([open])::details-content, details.cf-rules:not([open])::d
 @media (prefers-reduced-motion: reduce) {
   details.cf-details::details-content, details.cf-rules::details-content, .cf-seedbar i { transition: none; }
 }
-
-/* What If? page pick summary: no frame and no boxed chips. Picks read as a plain list of "A over B ×" items;
-   the small-sample warning keeps an amber side rule instead of a tinted box. (The team page's What If panel
-   keeps its light box: it sits on the team colour.) */
-.cf-whatif-side .cf-whatif-status { padding: 0; background: none; }
-.cf-whatif-side .cf-whatif-status.is-warn { background: none; padding-left: var(--s3); box-shadow: inset 3px 0 0 #d98a00; }
-.cf-whatif-side .cf-chips { gap: var(--s1) var(--s4); }
-.cf-whatif-side .cf-chip { padding: 0; box-shadow: none; background: none; }
-.cf-whatif-side .cf-chip button { width: 24px; height: 24px; }
