@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, createElement, useCallback, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { ArrowDown, ArrowUp, ChevronDown, ChevronUp, Minus } from 'lucide-react'
 import { load, type Meta, type TeamMeta } from './data'
 import { Link } from './router'
@@ -137,6 +137,28 @@ export function useThemeName(): 'light' | 'dark' {
     return () => obs.disconnect()
   }, [])
   return theme
+}
+
+/** Bars and lines that grow to their value the first time they scroll into view (CSS in editorial.css keys off
+ *  `data-grow` / `data-in`). The attributes are added here, never rendered, so server-rendered and no-script pages stay
+ *  fully drawn. Skipped entirely for reduced motion or when IntersectionObserver is missing. Remount (key) to replay. */
+const GROW_BARS = '.cf-ol-track i, .cf-bar i, .cf-eff-bar i, .cf-mu-meter i, .cf-cl-avg u, .cf-strength-track i, .cf-dist-col i'
+export function useGrowOnView(ref: React.RefObject<HTMLElement | null>) {
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return
+    el.querySelectorAll<HTMLElement>(GROW_BARS).forEach((b, i) => b.style.setProperty('--i', String(Math.min(i, 10))))
+    el.removeAttribute('data-in'); el.setAttribute('data-grow', '')
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { el.setAttribute('data-in', ''); io.disconnect() } }, { rootMargin: '0px 0px -12% 0px' })
+    io.observe(el)
+    return () => { io.disconnect(); el.removeAttribute('data-grow'); el.removeAttribute('data-in') }
+  }, [ref])
+}
+export function InView({ as = 'div', children, ...rest }: { as?: 'div' | 'ol' | 'dl' | 'figure'; children: ReactNode } & React.HTMLAttributes<HTMLElement>) {
+  const ref = useRef<HTMLElement>(null)
+  useGrowOnView(ref)
+  return createElement(as, { ref, ...rest }, children)
 }
 
 /** Re-plays a short settle on its contents whenever `on` changes (never on first render), so a What If? pick

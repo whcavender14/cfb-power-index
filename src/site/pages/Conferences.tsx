@@ -3,7 +3,7 @@ import { teamTheme, CONF_COLORS } from '../teamTheme'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import type { ChartPoint } from '../confChart'
 import ShareButton from '../ShareButton'
-import { DataGate, fmt, Freshness, InfoLabel, Num, PageHead, Pct, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, type Sort } from '../components'
+import { DataGate, fmt, Freshness, InfoLabel, InView, Num, PageHead, Pct, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, type Sort } from '../components'
 import { kickoffText, projection } from '../games'
 import type { Conference, ConferencesDoc, Game, ConfStanding, GamesDoc, IndexDoc, TeamRow } from '../data'
 import { Link, useQueryParam } from '../router'
@@ -29,7 +29,7 @@ export function ConferenceList() {
       const avgs = list.map(c => c.avg_power ?? 0), lo = Math.min(...avgs), span = Math.max(1, Math.max(...avgs) - lo)
       return <>
         <Freshness meta={meta} sims />
-        <div className="cf-panel cf-cl" style={{ marginTop: 12 }} role="table" aria-label="Conferences by average CFPi+ rating">
+        <InView className="cf-panel cf-cl" style={{ marginTop: 12 }} role="table" aria-label="Conferences by average CFPi+ rating">
           <div className="cf-cl-row cf-cl-head" role="row">
             <span role="columnheader" /><span role="columnheader">Conference</span><span role="columnheader">Avg CFPi+</span>
             <span role="columnheader" className="cf-cl-hide cf-cl-r">Median</span><span role="columnheader" className="cf-cl-hide cf-cl-r">Top 25</span>
@@ -49,7 +49,7 @@ export function ConferenceList() {
               <span role="cell" className="cf-cl-hide">{best && <TeamLink id={best.team_id} size={20} sub={`No. ${best.rank}`} />}</span>
             </div>
           })}
-        </div>
+        </InView>
         {index.data && <ConferenceComparison meta={meta} conferences={list} rows={index.data.teams} />}
       </>
     }}</DataGate>
@@ -146,7 +146,7 @@ function StrengthChart({ rows, fbsMin, fbsMax, median }: { rows: TeamRow[]; fbsM
   const pos = (v: number) => ((v - lo) / (hi - lo)) * 100
   const ticks: number[] = []; for (let t = Math.ceil(lo / 10) * 10; t <= hi; t += 10) ticks.push(t)
   const teams = useTeams()
-  return <figure className="cf-strength">
+  return <InView as="figure" className="cf-strength">
     <div className="cf-strength-rows">
       {rows.map(r => <div key={r.team_id} className="cf-strength-row">
         <span className="cf-strength-name">{teams.get(r.team_id)?.team}</span>
@@ -162,7 +162,7 @@ function StrengthChart({ rows, fbsMin, fbsMax, median }: { rows: TeamRow[]; fbsM
       <span className="cf-strength-ticks">{ticks.map(t => <em key={t} style={{ left: `${pos(t)}%` }}>{t > 0 ? `+${t}` : t < 0 ? `−${-t}` : '0'}</em>)}</span><span />
     </div>
     <figcaption className="cf-small cf-muted">Bars run from 0 (an average FBS team) to each rating; the scale spans every FBS team (weakest {fbsMin.toFixed(1).replace('-', '−')}, strongest +{fbsMax.toFixed(1)}). The dashed line is the FBS median.</figcaption>
-  </figure>
+  </InView>
 }
 
 const STANDINGS_INFO = 'Each cell is the share of the simulated seasons in which the team wins at least that many conference games (regular season). ✓ marks the win total the team has already secured; ✗ a total it can no longer reach. A blank cell is under 1% or already certain. Avg. is the expected final conference wins.'

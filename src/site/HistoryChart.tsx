@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
-import { fmtSigned } from './components'
+import { fmtSigned, useGrowOnView } from './components'
 import type { HistoryPoint } from './data'
 
 // Line chart of CFPi+ ratings over the season. Values come straight from history.json; a week the site has no
@@ -31,6 +31,7 @@ function niceTicks(lo: number, hi: number): number[] {
 
 export default function HistoryChart({ points, series, height = 300, label }: { points: HistoryPoint[]; series: ChartSeries[]; height?: number; label: string }) {
   const [wrap, width] = useWidth<HTMLDivElement>()
+  useGrowOnView(wrap)
   const [hover, setHover] = useState<number | null>(null)
   const narrow = width < 560
   const pad = narrow ? PAD_NARROW : PAD
@@ -95,7 +96,7 @@ export default function HistoryChart({ points, series, height = 300, label }: { 
         })
         if (cur) segs.push(cur)
         return <g key={s.id} className={`cf-series-${s.slot}`}>
-          {segs.map((d, i) => <path key={i} d={d} className="cf-hist-line" />)}
+          {segs.map((d, i) => <path key={i} d={d} pathLength={1} className="cf-hist-line" />)}
           {slots.map((sl, k) => {
             const v = sl.point === null ? null : s.power[sl.point]
             if (v === null) return null

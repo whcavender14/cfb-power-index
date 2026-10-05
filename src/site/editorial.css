@@ -318,7 +318,21 @@ details.cf-details:not([open])::details-content, details.cf-rules:not([open])::d
    in the same file overrode that, so phones showed the diagram squeezed on top of the per-round list. */
 @media (max-width: 1099px) { .cf-brk { display: none; } }
 
-/* Season Outlook bars (team page): each grows from zero to its value when the page opens, top to bottom, and replays
-   when you move to another team. Transform-only, so it never reflows; the global reduced-motion rule collapses it. */
-.cf-ol-track i { transform-origin: left; animation: cf-ol-grow 900ms var(--cf-ease) calc(200ms + var(--i, 0) * 90ms) both; }
-@keyframes cf-ol-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+/* Grow-in on scroll (see useGrowOnView / InView in components.tsx). Bars, columns and chart lines start empty and play
+   once, top to bottom, the first time their section scrolls into view. The attributes are set by script only, so
+   server-rendered and no-script pages show everything drawn. Transform/opacity/dash only: nothing reflows. */
+:is(.cf-ol-track i, .cf-bar i, .cf-eff-bar i, .cf-mu-meter i, .cf-cl-avg u, .cf-strength-track i) { transform-origin: left; }
+.cf-dist-col i { transform-origin: bottom; }
+[data-grow]:not([data-in]) :is(.cf-ol-track i, .cf-bar i, .cf-eff-bar i, .cf-mu-meter i, .cf-cl-avg u, .cf-strength-track i) { transform: scaleX(0); }
+[data-grow]:not([data-in]) .cf-dist-col i { transform: scaleY(0); }
+[data-grow] .cf-hist-line { stroke-dasharray: 1 1; }
+[data-grow]:not([data-in]) .cf-hist-line { stroke-dashoffset: 1; }
+[data-grow]:not([data-in]) .cf-hist-dot { opacity: 0; }
+[data-in] :is(.cf-ol-track i, .cf-bar i, .cf-eff-bar i, .cf-mu-meter i, .cf-cl-avg u, .cf-strength-track i) { animation: cf-grow-x 900ms var(--cf-ease) calc(80ms + var(--i, 0) * 70ms) both; }
+[data-in] .cf-dist-col i { animation: cf-grow-y 800ms var(--cf-ease) calc(80ms + var(--i, 0) * 60ms) both; }
+[data-in] .cf-hist-line { animation: cf-draw 1400ms var(--cf-ease) 80ms both; }
+[data-in] .cf-hist-dot { animation: cf-fade 300ms var(--cf-ease) 900ms both; }
+@keyframes cf-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes cf-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes cf-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { [data-in] :is(.cf-ol-track i, .cf-bar i, .cf-eff-bar i, .cf-mu-meter i, .cf-cl-avg u, .cf-strength-track i, .cf-dist-col i, .cf-hist-line, .cf-hist-dot) { animation: none; } }

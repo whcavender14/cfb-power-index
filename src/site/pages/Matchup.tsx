@@ -1,7 +1,7 @@
 import '../matchup.css'
 import { useState, type ReactNode } from 'react'
 import { PlayerLink } from '../player'
-import { DataGate, fmt, fmtSigned, Info, Missing, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
+import { DataGate, fmt, fmtSigned, Info, InView, Missing, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import type { EfficiencyDoc, Efficiency, Game, GamesDoc, IndexDoc, KeyPlayer, TeamRow, UsageDoc } from '../data'
 import { kickoffText, QUALITY_INFO, useLines } from '../games'
 import { Link } from '../router'
@@ -144,11 +144,11 @@ export default function Matchup({ id }: { id: string }) {
             <strong className="cf-mu-tile-v cf-num">{fmt(line.market_total)}</strong>
             <span className="cf-mu-tile-s">O/U</span>
           </div>}
-          {g.quality != null && <div className="cf-mu-tile">
+          {g.quality != null && <InView className="cf-mu-tile">
             <span className="cf-mu-tile-k">Watchability <Info text={QUALITY_INFO} label="About watchability" /></span>
             <strong className="cf-mu-tile-v"><span className="cf-num">{g.quality}</span><small> / 100</small></strong>
             <span className="cf-mu-meter" aria-hidden="true"><i style={{ width: `${g.quality}%` }} /></span>
-          </div>}
+          </InView>}
         </div>}
         {!line && <p className="cf-small cf-muted cf-mu-fc-note">No Vegas line available: lines are pulled only for games that have not kicked off when the data updates.</p>}
       </section>}

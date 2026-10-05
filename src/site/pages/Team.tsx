@@ -5,7 +5,7 @@ import { lazy, Suspense, useEffect, useMemo, type ReactNode } from 'react'
 const DepthChartSection = lazy(() => import('../DepthChart'))
 const RecruitingCard = lazy(() => import('../RecruitingCard'))
 import { RESUME_INFO } from './Resume'
-import { Bump, DataGate, Freshness, Info, Missing, Movement, Num, Pct, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
+import { Bump, DataGate, Freshness, Info, InView, Missing, Movement, Num, Pct, pctText, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import NotFound from './NotFound'
 import { PlayerLink } from '../player'
 import type { EfficiencyDoc, Game, HistoryDoc, Leader, Leaders, NotableGame, PlayoffTeam, RecordCount, ScenarioDoc, TeamDoc, TeamMeta } from '../data'
@@ -161,13 +161,13 @@ function RecordDist({ rows, n, current }: { rows: RecordCount[]; n: number; curr
   const max = Math.max(...bars.map(b => b.count))
   let cum = 0
   return <>
-    <div className="cf-dist-bars cf-rec-bars" role="img" aria-label={bars.map(b => `${b.label}: ${pctText(b.count / n, 1)}`).join(', ')}>
+    <InView key={rows.map(r => r.count).join(',')} className="cf-dist-bars cf-rec-bars" role="img" aria-label={bars.map(b => `${b.label}: ${pctText(b.count / n, 1)}`).join(', ')}>
       {bars.map(b => <span key={b.label} className="cf-dist-col" title={`${b.label}: ${b.count.toLocaleString()} of ${n.toLocaleString()} simulations`}>
         <span className="cf-dist-val">{b.count / n >= 0.005 ? `${Math.round((b.count / n) * 100)}%` : '<1%'}</span>
         <i style={{ height: `${(b.count / max) * 100}%` }} />
         <b>{b.label.replace(' or worse', '')}{b.label.endsWith('or worse') ? <small>or worse</small> : null}</b>
       </span>)}
-    </div>
+    </InView>
     <details className="cf-details"><summary>All {sorted.length} final records ({n.toLocaleString()} simulations)</summary>
       <div className="cf-table-wrap"><table className="cf-table cf-table-compact">
         <thead><tr><th scope="col" className="cf-th-start">Final Record</th><th scope="col" className="cf-th-end">Simulations</th><th scope="col" className="cf-th-end">Share</th><th scope="col" className="cf-th-end">This or Better</th></tr></thead>
@@ -222,7 +222,7 @@ function TeamStats({ id }: { id: string }) {
     <div className="cf-stats">{[['scoring', 'offense'], ['defense', 'efficiency']].map(ids => <div key={ids[0]} className="cf-stats-col">
       {groups.filter(g => ids.includes(g.id)).map(g => <div key={g.id} className="cf-eff-group">
         <h3 className="cf-h3">{g.title}{g.note && <span className="cf-eff-note"> · {g.note}</span>}{g.raw && <span className="cf-tag">{m.adjusted ? 'Opponent-adjusted' : 'Raw, not opponent-adjusted'}</span>}</h3>
-        <dl className="cf-eff-rows">{g.defs.map(d => <StatRow key={d.key} d={d} e={e} total={total} />)}</dl>
+        <InView as="dl" key={`${g.id}:${g.defs.map(d => statValue(e, d.key)).join(',')}`} className="cf-eff-rows">{g.defs.map(d => <StatRow key={d.key} d={d} e={e} total={total} />)}</InView>
       </div>)}
     </div>)}</div>
     <p className="cf-small cf-muted cf-eff-foot">
@@ -286,8 +286,8 @@ export default function Team({ slug }: { slug: string }) {
                 <div><b className="cf-num"><Num value={playoff.proj_wins} /></b><span>Projected wins <Info text="Mean regular-season wins across the simulated seasons (conference title games are not simulated; bowls and playoff games are excluded)." label="About projected wins" /></span></div>
                 <div><b className="cf-num">{team.conference === 'FBS Independents' ? <Missing why="Independent: no conference title" /> : <Pct value={playoff.p_conf} />}</b><span>Conference title</span></div>
               </div>
-              <ol className="cf-ol-ladder" aria-label="Playoff path odds">{([['Make playoff', playoff.p_playoff], ['First-round bye', playoff.p_bye], ['Reach semifinal', playoff.p_sf], ['Win title', playoff.p_champ]] as const).map(([label, v], i) =>
-                <li key={`${team.team_id}:${label}`} style={{ '--i': i } as React.CSSProperties}><span>{label}</span><span className="cf-ol-track" aria-hidden="true"><i style={{ width: `${Math.max(0, Math.min(1, v ?? 0)) * 100}%` }} /></span><b className="cf-num"><Pct value={v} /></b></li>)}</ol>
+              <InView as="ol" key={team.team_id} className="cf-ol-ladder" aria-label="Playoff path odds">{([['Make playoff', playoff.p_playoff], ['First-round bye', playoff.p_bye], ['Reach semifinal', playoff.p_sf], ['Win title', playoff.p_champ]] as const).map(([label, v]) =>
+                <li key={`${team.team_id}:${label}`} ><span>{label}</span><span className="cf-ol-track" aria-hidden="true"><i style={{ width: `${Math.max(0, Math.min(1, v ?? 0)) * 100}%` }} /></span><b className="cf-num"><Pct value={v} /></b></li>)}</InView>
             </div>
             {record_dist && meta.sim_count && <figure className="cf-dist">
               <figcaption className="cf-h3">Final Record <span className="cf-muted cf-small">(share of {meta.sim_count.toLocaleString()} simulations)</span></figcaption>
@@ -307,10 +307,10 @@ export default function Team({ slug }: { slug: string }) {
               <div><b><Num value={resume.sor} signed digits={2} /></b><span>Strength of record <Info text={SOR_INFO} label="About strength of record" /></span><small>{resume.sor_rank ? `No. ${resume.sor_rank} of FBS` : ' '}</small></div>
             </div>
             <div className="cf-res-sec"><h3 className="cf-h3">Schedule strength <Info text={SOS_INFO} label="About schedule strength" /></h3>
-              <dl className="cf-res-sos">{([['Played', resume.sos_played, resume.sos_played_rank], ['Full season', resume.sos_all, resume.sos_all_rank], ['Remaining', resume.sos_remaining, resume.sos_remaining_rank]] as const).map(([label, v, r]) =>
+              <InView as="dl" key={team.team_id} className="cf-res-sos">{([['Played', resume.sos_played, resume.sos_played_rank], ['Full season', resume.sos_all, resume.sos_all_rank], ['Remaining', resume.sos_remaining, resume.sos_remaining_rank]] as const).map(([label, v, r]) =>
                 <div key={label}><dt>{label}</dt><dd className="cf-num"><Num value={v} signed why="No games remaining" /></dd>
                   <span className="cf-bar" aria-hidden="true"><i style={{ width: `${r ? Math.max(4, 100 - (r - 1) / 1.36) : 0}%` }} /></span>
-                  <span className="cf-small cf-muted cf-res-rk">{r ? `No. ${r}` : '—'}</span></div>)}</dl>
+                  <span className="cf-small cf-muted cf-res-rk">{r ? `No. ${r}` : '—'}</span></div>)}</InView>
             </div>
             <div className="cf-res-sec"><h3 className="cf-h3">Results so far</h3>
               {(() => { const done = schedule.filter(g => g.status === 'final' && g.home_points != null && g.away_points != null)
