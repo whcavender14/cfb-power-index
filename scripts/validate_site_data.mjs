@@ -1,7 +1,7 @@
 // Fails the build (exit 1) if the CFPi+ page datasets in public/data/v2 are missing or inconsistent.
 // Runs first in `pnpm build` and in `pnpm test` (tests/site-data.test.mjs). Contract: docs/website/DATA_CONTRACT_V2.md.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const root = fileURLToPath(new URL('../public/data/v2/', import.meta.url))
 
@@ -264,10 +264,194 @@ export function validateSiteData(dir = root) {
     if (!dirIds.has(c.team_id)) fail(`changes.json: unknown team ${c.team_id}`)
     for (const g of c.games ?? []) if (typeof g.text !== 'string' || !g.text) fail(`changes.json ${c.team_id}: game without text`)
   }
+
+  // /players/ leaderboards (players/leaders/<category>.json; R/publish/player_leaders.R): same export, ratings week,
+  // well-formed rows, qualifier flags that follow from the published counts, and a profile file for every player.
+  const LEADER_CATS = ['passing', 'rushing', 'receiving', 'defense', 'kicking', 'punting']
+  const SIGNED = new Set(['passing_yds', 'rushing_yds', 'receiving_yds', 'interceptions_yds', 'ppa_avg', 'ppa_total', 'rating'])   // the NCAA passer rating formula goes negative
+  for (const cat of LEADER_CATS) {
+    const name = `players/leaders/${cat}.json`, L = read(name)
+    if (!L) continue
+    if (L.meta?.schema_version !== 2 || L.meta?.exported_at !== meta.exported_at) fail(`${name}: meta must come from the same export as index.json`)
+    if (L.category !== cat || !Array.isArray(L.rows)) { fail(`${name}: category or rows`); continue }
+    if (L.through_week === null) { if (typeof L.unavailable !== 'string' || L.rows.length) fail(`${name}: an unavailable board must say why and list no players`); continue }
+    if (L.through_week !== meta.ratings_week) fail(`${name}: covers week ${L.through_week}, ratings week ${meta.ratings_week}`)
+    const cols = L.columns ?? [], at = k => cols.indexOf(k)
+    if (cols.slice(0, 7).join() !== 'athlete_id,player,team_id,position,class,q,rs' || at(L.rank_stat) < 0) { fail(`${name}: columns`); continue }
+    const ids = new Set(), qs = L.qualifier
+    L.rows.forEach((r, i) => {
+      const where = `${name} row ${i}`
+      if (!Array.isArray(r) || r.length !== cols.length) { fail(`${where}: expected ${cols.length} values`); return }
+      const [id, player, team, , cls, q] = r
+      if (typeof id !== 'string' || !/^\d+$/.test(id) || ids.has(id)) fail(`${where}: bad or duplicate athlete_id ${id}`)
+      ids.add(id)
+      if (typeof player !== 'string' || !player) fail(`${where}: player name`)
+      if (!dirIds.has(team)) fail(`${where}: team ${team} is not an FBS team`)
+      if (cls !== null && !(Number.isInteger(cls) && cls >= 1 && cls <= 6)) fail(`${where}: class ${cls}`)
+      if (![0, 1].includes(r[6]) || (r[6] && !(cls >= 1 && cls <= 4))) fail(`${where}: rs flag (0 or 1)`)
+      cols.slice(7).forEach((k, j) => { const v = r[j + 7]; if (v === null) return; if (!isNum(v) || (v < 0 && !SIGNED.has(k))) fail(`${where}: ${k} = ${JSON.stringify(v)}`) })
+      if (qs) {
+        const games = L.team_games?.[team] ?? 0
+        if (q !== (games > 0 && r[at(qs.stat)] >= qs.per_team_game * games)) fail(`${where}: qualified flag disagrees with ${qs.stat} and ${games} team games`)
+      } else if (q !== null) fail(`${where}: no qualifier for ${cat}, so q must be null`)
+      if (i && r[at(L.rank_stat)] > L.rows[i - 1][at(L.rank_stat)]) fail(`${name}: not sorted by ${L.rank_stat}`)
+      if (!existsSync(`${dir}player/${id}.json`)) fail(`${where}: no player/${id}.json for the player modal`)
+    })
+    if (L.ppa && !L.ppa.available && at('ppa_avg') >= 0 && L.rows.some(r => r[at('ppa_avg')] !== null || r[at('ppa_total')] !== null)) fail(`${name}: PPA published although the pull does not line up (${L.ppa.reason})`)
+  }
+
+  // Recruiting (recruiting/*.json; R/publish/recruiting.R): CFBD rows as published, and every count, rank and share
+  // that R derived from them agrees with the rows.
+  const dash = existsSync(`${dir}recruiting/dashboard.json`) ? read('recruiting/dashboard.json') : null
+  if (dash) {
+    const cards = read('recruiting/cards.json')
+    for (const [n, d] of [['dashboard', dash], ['cards', cards]]) if (d && (d.meta?.schema_version !== 2 || d.meta?.exported_at !== meta.exported_at)) fail(`recruiting/${n}.json: meta must come from the same export as index.json`)
+    if (dash.open_class !== meta.season + 1) fail(`recruiting/dashboard.json: open class ${dash.open_class}, expected ${meta.season + 1}`)
+    const classes = {}
+    const HS = 'id,profile_id,ranking,name,position,stars,rating,school,state,height,weight,team_id,committed_other'
+    const CL = 'team_id,rank,points,commits,five,four,three,avg_rating'
+    for (const y of dash.classes ?? []) {
+      const hs = read(`recruiting/hs_${y}.json`), cl = read(`recruiting/teams_${y}.json`)
+      if (!hs || !cl) continue
+      for (const [n, d] of [[`hs_${y}`, hs], [`teams_${y}`, cl]]) if (d.meta?.exported_at !== meta.exported_at || d.year !== y) fail(`recruiting/${n}.json: export stamp or year`)
+      if (hs.columns?.join() !== HS || cl.columns?.join() !== CL) { fail(`recruiting/*_${y}.json: columns`); continue }
+      if (hs.open !== (y > meta.season)) fail(`recruiting/hs_${y}.json: open flag`)
+      const ids = new Set(), byTeam = new Map()
+      let lastRank = 0, unranked = false
+      hs.rows.forEach((r, i) => {
+        const [id, prof, rank, name, , st, rt, , , , , team] = r, where = `recruiting/hs_${y}.json row ${i}`
+        if (typeof id !== 'string' || ids.has(id) || typeof name !== 'string') fail(`${where}: id or name`)
+        ids.add(id)
+        if (st !== null && !(Number.isInteger(st) && st >= 1 && st <= 5)) fail(`${where}: stars ${st}`)
+        if (rt !== null && !(isNum(rt) && rt > 0 && rt <= 1)) fail(`${where}: rating ${rt}`)
+        if (rank === null) unranked = true
+        else if (!Number.isInteger(rank) || rank < lastRank || unranked) fail(`${where}: not in national-rank order`)
+        else lastRank = rank
+        if (prof !== null && !existsSync(`${dir}player/${prof}.json`)) fail(`${where}: no player/${prof}.json`)
+        if (team !== null) { if (!dirIds.has(team)) fail(`${where}: team ${team} is not FBS`); const t = byTeam.get(team) ?? [0, 0, 0, 0]; t[0]++; if (st === 5) t[1]++; if (st === 4) t[2]++; if (st === 3) t[3]++; byTeam.set(team, t) }
+      })
+      const seen = new Set(), ranks = []
+      for (const r of cl.rows) {
+        const [team, rank, , commits, five, four, three] = r
+        if (!dirIds.has(team) || seen.has(team)) fail(`recruiting/teams_${y}.json: bad or duplicate team ${team}`)
+        seen.add(team)
+        const t = byTeam.get(team) ?? [0, 0, 0, 0]
+        if (commits !== t[0] || five !== t[1] || four !== t[2] || three !== t[3]) fail(`recruiting/teams_${y}.json ${team}: counts ${[commits, five, four, three]} differ from hs_${y}.json ${t}`)
+        if (rank !== null) ranks.push(rank)
+      }
+      if (ranks.some((v, i) => i && v < ranks[i - 1])) fail(`recruiting/teams_${y}.json: ranked classes out of order`)
+      if (cl.ranked !== ranks.length > 0) fail(`recruiting/teams_${y}.json: ranked flag`)
+      if (y > meta.season && cl.ranked) fail(`recruiting/teams_${y}.json: the open class cannot be ranked yet`)
+      classes[y] = new Map(cl.rows.map(r => [r[0], r]))
+    }
+    for (const c of cards?.teams ?? []) {
+      const where = `recruiting/cards.json ${c.team_id}`
+      if (!dirIds.has(c.team_id)) fail(`${where}: not FBS`)
+      const rk = c.classes.map(k => { if (k.rank !== (classes[k.year]?.get(c.team_id)?.[1] ?? null)) fail(`${where}: ${k.year} rank differs from teams_${k.year}.json`); return k.rank })
+      const avg = rk.length === 4 && rk.every(v => v !== null) ? rk.reduce((a, b) => a + b, 0) / 4 : null
+      // published to one decimal by R, which rounds halves to even
+      if (avg === null ? c.avg_rank_4yr !== null : !(Math.abs(c.avg_rank_4yr - avg) <= 0.05 + 1e-9)) fail(`${where}: 4-year average ${c.avg_rank_4yr}, expected ${avg}`)
+      const b = c.blue_chip
+      if (b.blue > b.rated || (b.rated ? Math.abs(b.share - b.blue / b.rated) > 1e-4 : b.share !== null)) fail(`${where}: blue-chip share`)
+      const o = classes[c.open_class.year]?.get(c.team_id)
+      if ((o?.[3] ?? 0) !== c.open_class.commits) fail(`${where}: open-class commits differ from teams_${c.open_class.year}.json`)
+    }
+    // Transfer portal: rows as published, match counts, and the derived Star Churn table recomputed from the rows.
+    const PC = 'name,position,origin_id,origin_other,dest_id,dest_other,date,stars,rating,eligibility,match,athlete_id,profile'
+    const TC = 'team_id,rank,in,out,churn,in_stars,out_stars,star2_in,star2_out,star_churn'
+    const MATCH = ['destination', 'origin', 'ambiguous', 'conflict', 'unmatched']
+    const portalTeams = {}
+    for (const y of dash.portal_years ?? []) {
+      const P = read(`recruiting/portal_${y}.json`), where = `recruiting/portal_${y}.json`
+      if (!P) continue
+      if (P.meta?.exported_at !== meta.exported_at || P.year !== y) fail(`${where}: export stamp or year`)
+      if (P.columns?.join() !== PC || P.team_columns?.join() !== TC) { fail(`${where}: columns`); continue }
+      const mc = Object.fromEntries(MATCH.map(k => [k, 0])), agg = new Map()
+      const add = (t, k, v) => { const a = agg.get(t) ?? { in: 0, out: 0, in_stars: 0, out_stars: 0, in_sq: 0, out_sq: 0 }; a[k] += v; agg.set(t, a) }
+      P.rows.forEach((r, i) => {
+        const [name, , o, , d, , , st, rt, elig, match, aid, prof] = r
+        if (typeof name !== 'string' || !name) fail(`${where} row ${i}: name`)
+        if ((o !== null && !dirIds.has(o)) || (d !== null && !dirIds.has(d)) || (o === null && d === null)) fail(`${where} row ${i}: needs an FBS program on one side`)
+        if (st !== null && !(Number.isInteger(st) && st >= 1 && st <= 5)) fail(`${where} row ${i}: stars ${st}`)
+        if (rt !== null && !(isNum(rt) && rt > 0 && rt <= 1)) fail(`${where} row ${i}: rating ${rt}`)
+        if (!MATCH.includes(match)) { fail(`${where} row ${i}: match ${match}`); return }
+        mc[match]++
+        if ((match === 'destination' || match === 'origin') !== (typeof aid === 'string' && /^\d+$/.test(aid))) fail(`${where} row ${i}: athlete_id must be set exactly for matched rows`)
+        if (prof && !existsSync(`${dir}player/${aid}.json`)) fail(`${where} row ${i}: no player/${aid}.json`)
+        if (elig === 'Withdrawn') return
+        for (const [t, side] of [[d, 'in'], [o, 'out']]) if (t !== null) { add(t, side, 1); if (st !== null) { add(t, `${side}_stars`, 1); add(t, `${side}_sq`, st * st) } }
+      })
+      if (MATCH.some(k => P.match?.[k] !== mc[k]) || P.fbs_rows !== P.rows.length || P.rows_total < P.fbs_rows) fail(`${where}: match counts or row totals`)
+      const tm = new Map()
+      P.teams.forEach((r, i) => {
+        const [t, rank, ...v] = r, a = agg.get(t)
+        if (rank !== i + 1) fail(`${where}: team ranks must be 1..N in order`)
+        if (!a) { fail(`${where}: team ${t} has no transfers`); return }
+        const s2i = a.in_stars ? a.in_sq / a.in_stars : null, s2o = a.out_stars ? a.out_sq / a.out_stars : null
+        const want = [a.in, a.out, a.in - a.out, a.in_stars, a.out_stars, s2i, s2o, s2i !== null && s2o !== null ? s2i - s2o : null]
+        if (want.some((w, k) => (w === null) !== (v[k] === null) || (w !== null && Math.abs(w - v[k]) > 0.02))) fail(`${where} ${t}: team totals differ from the rows`)
+        if (i) { const q = P.teams[i - 1], sc = x => x === null ? -Infinity : x   // Star Churn (nulls last), then Churn, then team id
+          const ka = [-sc(q[9]), -q[4], Number(q[0])], kb = [-sc(r[9]), -r[4], Number(r[0])], c = ka.findIndex((z, j) => z !== kb[j])
+          if (c >= 0 && ka[c] > kb[c]) fail(`${where}: not ordered by Star Churn, then Churn, then team id`) }
+        tm.set(t, r)
+      })
+      if (tm.size !== agg.size) fail(`${where}: ${agg.size} teams have transfers, ${tm.size} listed`)
+      portalTeams[y] = tm
+    }
+    const lastPortal = Math.max(...(dash.portal_years ?? []))
+    for (const c of cards?.teams ?? []) if (c.portal) { const r = portalTeams[c.portal.year]?.get(c.team_id); if (c.portal.year !== lastPortal || !r || r[1] !== c.portal.rank || r[2] !== c.portal.in || r[3] !== c.portal.out) fail(`recruiting/cards.json ${c.team_id}: portal tile differs from portal_${c.portal.year}.json`) }
+    const open = classes[dash.open_class]
+    if (open) dash.open_top.forEach((t, i) => { const r = [...open.values()][i]; if (!r || r[0] !== t.team_id || r[3] !== t.commits) fail(`recruiting/dashboard.json: open_top ${i} is not row ${i} of teams_${dash.open_class}.json`) })
+  }
+
+  // CFPi+ Player Ratings beta (players/ratings; scripts/export_player_ratings.R): well-formed, flags that follow the
+  // published rules, TE kept out of the lists, every list row identical to the team file, counts that add up.
+  const topR = existsSync(`${dir}players/ratings/top.json`) ? read('players/ratings/top.json') : null
+  if (topR) {
+    const RC = 'athlete_id,name,team_id,position,group,class,ovr,band,provisional,estimated,profile,rs'
+    const GROUPS = ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P']
+    const rowOk = (r, where) => {
+      const [id, name, team, , group, cls, ovr, band, prov, est, prof] = r
+      if (typeof id !== 'string' || !/^\d+$/.test(id) || typeof name !== 'string' || !dirIds.has(team)) fail(`${where}: id, name or team`)
+      if (!GROUPS.includes(group) || (cls !== null && !(Number.isInteger(cls) && cls >= 1 && cls <= 6))) fail(`${where}: group or class`)
+      if (!Number.isInteger(ovr) || ovr < 30 || ovr > 99 || !Number.isInteger(band) || band < 0) fail(`${where}: ovr ${ovr} ± ${band}`)
+      if (typeof prov !== 'boolean' || est !== ['OL', 'K', 'P'].includes(group) || (group === 'OL' && !prov)) fail(`${where}: Provisional / Estimated flags`)
+      if (prof !== existsSync(`${dir}player/${id}.json`)) fail(`${where}: profile flag`)
+      if (typeof r[11] !== 'boolean' || (r[11] && !(cls >= 1 && cls <= 4))) fail(`${where}: rs flag`)
+    }
+    if (topR.meta?.exported_at !== meta.exported_at || topR.columns?.join() !== RC || topR.method?.version !== 'v1') fail('players/ratings/top.json: stamp, columns or version')
+    const teamRows = new Map(); let rated = 0, prov = 0, est = 0
+    for (const f of readdirSync(`${dir}players/ratings/team/`)) {
+      const T = read(`players/ratings/team/${f}`), where = `players/ratings/team/${f}`
+      if (!T) continue
+      if (T.meta?.exported_at !== meta.exported_at || T.team_id !== f.slice(0, -5) || T.columns?.join() !== RC) fail(`${where}: stamp, team or columns`)
+      T.rows.forEach((r, i) => { rowOk(r, `${where} row ${i}`); if (r[2] !== T.team_id || teamRows.has(r[0])) fail(`${where} row ${i}: wrong team or listed twice`); teamRows.set(r[0], r); rated++; prov += r[8]; est += r[9] })
+    }
+    const c = topR.method.counts
+    if (c.rated !== rated || c.provisional !== prov || c.estimated !== est) fail(`players/ratings/top.json: counts ${JSON.stringify(c)} differ from the team files (${rated}, ${prov}, ${est})`)
+    topR.rows.forEach((r, i) => {
+      rowOk(r, `players/ratings/top.json row ${i}`)
+      if (r[4] === 'TE') fail(`players/ratings/top.json row ${i}: tight ends are left out of the lists`)
+      if (i && r[6] > topR.rows[i - 1][6]) fail('players/ratings/top.json: not ordered by rating')
+      if (JSON.stringify(teamRows.get(r[0])) !== JSON.stringify(r)) fail(`players/ratings/top.json row ${i}: differs from the team file`)
+    })
+  }
+
+  // Player search index and profiles: one index row per profile file, each file named by its athlete id.
+  const players = existsSync(`${dir}players.json`) ? read('players.json') : null
+  if (players) {
+    const files = new Set(readdirSync(`${dir}player/`).filter(f => f.endsWith('.json')).map(f => f.slice(0, -5)))
+    const rowsIdx = players.players ?? []
+    if (rowsIdx.length !== files.size || rowsIdx.some(p => !files.has(String(p[0])))) fail(`players.json: ${rowsIdx.length} rows for ${files.size} player files`)
+    for (const id of files) {
+      const p = read(`player/${id}.json`)
+      if (p && (p.player?.athlete_id !== id || p.meta?.schema_version !== 2)) fail(`player/${id}.json: athlete_id or schema_version`)
+    }
+  }
   return errors
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {   // (a plain file:// string never matches a path with spaces)
   const errors = validateSiteData()
   if (errors.length) {
     console.error(`Site data validation failed (${errors.length} problem${errors.length === 1 ? '' : 's'}):`)

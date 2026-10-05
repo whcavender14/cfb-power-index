@@ -11,7 +11,12 @@ CFBD API ─► R pipeline (scripts/run_weekly_pipeline.R)
           ► export (scripts/03_export_public_data.R)
             ├─ v1 files (legacy views)                               → public/data/{ratings,simulations,betting}.json
             ├─ player stats pull (display only)                      → output/state/player_stats_*.rds
-            └─ R/publish/export_site_data.R                          → public/data/v2/*.json (+ week archives)
+            ├─ player PPA + success pull (display only, httr2)       → output/state/player_ppa_*.rds
+            ├─ R/publish/export_site_data.R                          → public/data/v2/*.json (+ week archives)
+            ├─ scripts/export_player_leaders.R (no API calls)         → public/data/v2/players/leaders/*.json
+            ├─ scripts/export_player_ratings.R (CFPi+ ratings beta)   → public/data/v2/players/ratings/*.json
+            ├─ scripts/export_player_profiles.R (cached history)      → public/data/v2/player/*.json, players.json
+            └─ scripts/export_recruiting.R (3 calls; cached history)  → public/data/v2/recruiting/*.json (classes, portal)
           ► validate (scripts/validate_site_data.mjs) ► type-check ► vite build (route-split)
           ► budget (scripts/check_budget.mjs) ► prerender every route (scripts/prerender_routes.mjs) ► Pages
 ```
@@ -23,6 +28,7 @@ CFBD API ─► R pipeline (scripts/run_weekly_pipeline.R)
 | Derived metrics (formulas, inputs, caveats) | `DERIVED_METRICS.md` |
 | Weekly update and what to do when it fails | `RUNBOOK.md` |
 | Player data sourcing | `PLAYER_DATA.md` |
+| Player features (leaderboards, recruiting, transfers, ratings): spec, decisions, Stage 0 audit | `PLAYER_FEATURES_SPEC.md`, `PLAYER_FEATURES_DECISIONS.md`, `PLAYER_FEATURES_STAGE0.md` |
 | Performance budget and before/after | `PERFORMANCE.md` |
 | Accessibility checks and conventions | `ACCESSIBILITY.md` |
 | What the site cannot show, and why | `LIMITATIONS.md` |

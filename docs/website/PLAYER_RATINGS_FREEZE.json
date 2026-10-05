@@ -1,0 +1,26 @@
+{
+  "frozen_at_utc": "2026-10-05T14:16:50Z",
+  "note": "Taken before any predictive validation metric was computed. Changes to these files after the holdout run are a new specification.",
+  "sha256": {
+    "R/ratings/ratings_spec.R": "2930cd3ef124edc4a4be89d176e5ff2831f27df0f58b514caa17aa0b165ddf86",
+    "R/ratings/ratings_core.R": "6132e4e285f5c0abb94f32092c1065f8565cf4507911bc628a651bdaa6bef03e",
+    "R/ratings/ratings_eval.R": "5c2e70ea3a03dd29ad9c86fb95e4bf63a460f5e3a81ca8bb00e84236e712ab85",
+    "R/ratings/ratings_knots.rds": "cc4890262a7ec94b87b1c52561f5c93bf43e21dfa04f1c6f1ea5eaef7d46077e",
+    "docs/website/PLAYER_RATINGS_PREDECLARATION.md": "2f7de1e43c94fb1ed64d739b0e7528d56fd703d3f1c2cb42cfb3981bbe7c1521",
+    "scripts/ratings/00_pull_history.R": "4e660539ac3bd6a4ff54ef3d5af67ec547f03abd3174ea0e4708dac1a7726aa9",
+    "scripts/ratings/01_calibrate_scale.R": "882ea0d8b752125fb0ffcb4e1cc2961301bbe0d143634acc59dd9dc2a9ecd86b"
+  },
+  "amendments": [
+    {
+      "id": "A1",
+      "date": "2026-10-05",
+      "after_holdout": true,
+      "kind": "operational, math unchanged",
+      "change": "roster_pool() takes an optional roster table and build_ratings() an optional pool, so next season's roster can be rated with evidence through the last completed season (the validated use).",
+      "verification": "build_ratings() output for seasons 2021, 2023 and 2025 (45,905 ratings: mu, sd_z, flags) identical before and after.",
+      "sha256": {
+        "R/ratings/ratings_core.R": "148e4690a117a67ec4b8666623322862d55351c16439d3d22d2606a58e07cf15"
+      }
+    }
+  ]
+}

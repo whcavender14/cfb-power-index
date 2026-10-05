@@ -1,3 +1,6 @@
 /* Teams page only. */
 .cf-team-sublink { display: block; color: var(--cf-muted); text-decoration: none; width: fit-content; }
 .cf-team-sublink:hover { color: var(--cf-accent); text-decoration: underline; }
+/* Team names in the Teams table read as plain text (black); they still turn accent-colored on hover. */
+.cf-teams-table a.cf-team-name { color: var(--cf-ink); }
+.cf-teams-table a.cf-team-name:hover { color: var(--cf-accent); }

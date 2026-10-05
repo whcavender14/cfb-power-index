@@ -1,6 +1,8 @@
 # Writes public/data/v2/player/<athlete_id>.json (the player detail modal) for every player the site lists
-# (statistical leaders and players by usage), from the committed site data and CFBD pulls (R/publish/player_profiles.R).
-# The first run pulls and caches past seasons (~5 minutes); later runs pull only the current season.
+# (statistical leaders, players by usage, depth-chart starters and the /players/ leaderboards), from the committed site
+# data and CFBD pulls (R/publish/player_profiles.R). Runs weekly from scripts/03_export_public_data.R (skip with
+# CFB_PLAYER_PROFILES=false). Past seasons, completed weeks, past recruiting classes and past portal years come from
+# data/reference/player_cache; a weekly run makes about 2 CFBD calls (game info and the new week). The roster comes from export_site_data.R's pull when it is there.
 #   Rscript scripts/export_player_profiles.R
 suppressPackageStartupMessages(library(jsonlite))
 if (!exists("PATHS")) source(file.path(Sys.getenv("CFB_PROJECT_ROOT", "."), "config", "paths.R"))
@@ -12,7 +14,7 @@ teams <- fromJSON(file.path(v2, "teams.json"))$teams
 season <- index$meta$season; week <- index$meta$ratings_week
 dir.create(PATHS$state, recursive = TRUE, showWarnings = FALSE)
 
-# Players the site shows: leaders in team files, players in usage files.
+# Players the site shows: leaders in team files, players in usage files, /players/ leaderboards.
 ids <- character()
 for (f in list.files(file.path(v2, "team"), full.names = TRUE)) {
   l <- fromJSON(f, simplifyVector = FALSE)$leaders
@@ -23,7 +25,14 @@ for (f in list.files(file.path(v2, "usage"), full.names = TRUE)) {
   for (side in list(u$offense, u$defense)) for (g in side) ids <- c(ids, vapply(g, function(p) as.character(p$athlete_id), ""))
   ids <- c(ids, vapply(u$key_players, function(p) as.character(p$athlete_id), ""))
 }
-roster <- pull_rosters(season)
+# Highest-rated players (players/ratings/top.json), so the Ratings view can open their cards.
+top_file <- file.path(v2, "players", "ratings", "top.json")
+if (file.exists(top_file)) ids <- c(ids, vapply(fromJSON(top_file, simplifyVector = FALSE)$rows, function(r) as.character(r[[1]]), ""))
+for (f in list.files(file.path(v2, "players", "leaders"), pattern = "\\.json$", full.names = TRUE)) {
+  ids <- c(ids, vapply(fromJSON(f, simplifyVector = FALSE)$rows, function(r) as.character(r[[1]]), ""))
+}
+roster_file <- file.path(PATHS$state, sprintf("rosters_%d.rds", season))
+roster <- if (file.exists(roster_file)) readRDS(roster_file) else pull_rosters(season)
 # Depth-chart (TWO-DEEP) starters carry names only: match them to the team roster by name to get an athlete id.
 name_key <- function(x) gsub("[^a-z]", "", tolower(x))
 depth_id <- function(name, school) {
@@ -46,7 +55,10 @@ cat(sprintf("players listed on the site: %d\n", length(ids)))
 all_games <- career_games(season, week)
 games <- all_games[all_games$athlete_id %in% ids, , drop = FALSE]
 recruits <- pull_recruits(PROFILE_FIRST_SEASON - 3L, season)
-portal <- pull_portal(PROFILE_FIRST_SEASON + 1L, season)
+# Transfers: portal rows matched to athlete ids by roster and box-score name matching (R/publish/transfers.R).
+source(file.path(PATHS$root, "R", "publish", "transfers.R"))
+portal <- pull_portal(PORTAL_FIRST, season)
+if (!is.null(portal)) portal <- match_portal(portal, roster_years((PORTAL_FIRST - 1L):season, season), unique(all_games[, c("season", "team", "athlete_id", "athlete_name")]))
 
 # CFBD school name -> team id, from every game row we have (covers FCS and past opponents too).
 name_ids <- c(setNames(games$team_id, games$team), setNames(teams$team_id, teams$team))
@@ -54,7 +66,8 @@ name_ids <- name_ids[!duplicated(names(name_ids))]
 team_id_of <- function(x) if (is.null(x) || is.na(x) || !x %in% names(name_ids)) NA_character_ else unname(name_ids[[x]])
 
 out_dir <- file.path(v2, "player")
-unlink(out_dir, recursive = TRUE); dir.create(out_dir)
+dir.create(out_dir, showWarnings = FALSE)   # overwritten in place (deleting the folder makes iCloud keep conflict copies)
+written <- character()
 by_id <- split(games, games$athlete_id)
 n <- 0L
 for (id in ids) {
@@ -69,18 +82,17 @@ for (id in ids) {
     k <- which(recruits$athlete_id == id | recruits$id %in% rid)
     if (length(k)) rec <- recruits[k[order(-recruits$year[k])][1], ]
   }
-  p <- NULL
-  if (!is.null(portal)) {
-    nm <- tolower(if (!is.null(r)) paste(r$first_name, r$last_name) else g$athlete_name[1])
-    p <- portal[portal$key == nm & portal$origin %in% unique(g$team), , drop = FALSE]
-    p <- p[order(p$season), , drop = FALSE]
-  }
+  p <- if (!is.null(portal)) portal[portal$athlete_id %in% id, , drop = FALSE] else NULL
+  if (!is.null(p)) p <- p[order(p$season), , drop = FALSE]
   body <- player_profile(id, g, r, rec, p, team_id_of, season)
   write_json(list(meta = index$meta, source = "CollegeFootballData (box scores, roster, recruiting, transfer portal)",
                   through_week = week, player = body),
              file.path(out_dir, paste0(id, ".json")), auto_unbox = TRUE, na = "null", null = "null", digits = 6)
+  written <- c(written, paste0(id, ".json"))
   n <- n + 1L
 }
+stale <- setdiff(list.files(out_dir, pattern = "\\.json$"), written)   # players no longer listed
+if (length(stale)) invisible(file.remove(file.path(out_dir, stale)))
 cat(sprintf("player profiles: %d\n", n))
 
 # Depth-chart stat lines: each starter's current-season box-score totals (NULL when none; offensive linemen usually).

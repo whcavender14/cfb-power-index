@@ -79,3 +79,8 @@
 .cf-pm-themed .cf-pm-tabs button.is-on { color: var(--cf-accent); }
 .cf-pm-close { top: 18px; right: 18px; background: #fff; color: #0b1b33; box-shadow: 0 1px 4px rgb(0 0 0 / .25); }
 .cf-pm-close:hover { background: #eef2f7; }
+.cf-pm-ovr { margin-left: auto; display: grid; justify-items: end; gap: 2px; text-align: right; color: inherit; }
+.cf-pm-ovr-v b { font-size: 2.25rem; line-height: 1; font-weight: 750; letter-spacing: -.03em; }
+.cf-pm-ovr-v { display: inline-flex; align-items: baseline; gap: 2px; font-weight: 600; }
+.cf-pm-ovr a { color: inherit; }
+.cf-pm-ovr-k { font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; opacity: .85; display: inline-flex; align-items: center; gap: 4px; }

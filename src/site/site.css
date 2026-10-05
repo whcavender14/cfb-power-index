@@ -474,15 +474,12 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
    first rows, so headers stay in place there. Row headers (tbody th) are never sticky. */
 @media (max-width: 1199px) { .cf-table-wrap .cf-table th { position: static; } }
 .cf-table tbody th { position: static; }
-/* Team page: schedule with the what-if panel beside it */
-@media (min-width: 1100px) { .cf-sched-layout { grid-template-columns: minmax(0, 1fr) 20rem; grid-template-areas: "rem wi"; } .cf-sched-rem { grid-area: rem; } .cf-wi { grid-area: wi; position: sticky; top: 64px; align-self: start; } }
 .cf-wi { padding: var(--s3) var(--s4); border-radius: var(--cf-radius); background: var(--cf-fill-2); }
 .cf-wi .cf-panel-head { margin-bottom: var(--s2); }
 .cf-wi .cf-h3 { margin: 0 !important; }
 .cf-wi p { margin: 0 0 var(--s3); }
 .cf-wi .cf-whatif-status { margin: 0 0 var(--s3); padding: var(--s2) var(--s3); background: var(--cf-surface); font-size: .875rem; }
 .cf-wi .cf-whatif-status.is-warn { background: color-mix(in srgb, #ff9f0a 16%, var(--cf-surface)); }
-.cf-wi-chips .cf-chip { padding: 4px 10px; background: var(--cf-surface); }
 /* Team page: efficiency */
 .cf-span-all { grid-column: 1 / -1; }
 .cf-tag { font-family: var(--cf-font); font-size: .75rem; font-weight: 600; letter-spacing: .01em; padding: 2px 8px; border-radius: 999px; background: var(--cf-fill); color: var(--cf-ink-2); }
@@ -843,3 +840,7 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-themed .cf-teamhead .cf-big, .cf-themed .cf-teamhead .cf-kv dd, .cf-themed .cf-teamhead a { color: inherit; }
 /* A table inside a panel doesn't need its own card edge */
 .cf-panel .cf-table-wrap { background: none; box-shadow: none; border-radius: 0; }
+/* Player leaderboards: equal-width stat columns beside a wider Player column (wider still on phones). */
+.cf-players-table { table-layout: fixed; }
+.cf-players-table col:first-child { width: 14rem; }
+@media (max-width: 759px) { .cf-players-table col:first-child { width: 44%; } }

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ReactElement } from 'react'
-import { Menu, Moon, Sun, X } from 'lucide-react'
+import { ChevronDown, Menu, Moon, Sun, X } from 'lucide-react'
 import { Skeleton, TeamsContext, useData } from './components'
 import type { TeamsDoc } from './data'
 import { Link, Redirect, useLegacyHashRedirect, useLocation } from './router'
@@ -17,21 +17,29 @@ const ConferenceDetail = lazy(() => import('./pages/Conferences').then(m => ({ d
 const Resume = lazy(() => import('./pages/Resume'))
 const WhatIf = lazy(() => import('./pages/WhatIf'))
 const Model = lazy(() => import('./pages/Model'))
+const Players = lazy(() => import('./pages/Players'))
+const RatingsMethodology = lazy(() => import('./pages/PlayerRatings'))
+const RecruitingHome = lazy(() => import('./pages/Recruiting').then(m => ({ default: m.RecruitingHome })))
+const HighSchool = lazy(() => import('./pages/Recruiting').then(m => ({ default: m.HighSchool })))
+const Transfers = lazy(() => import('./pages/Transfers'))
 const LegacySimulations = lazy(() => import('./pages/Legacy').then(m => ({ default: m.LegacySimulations })))
 const LegacyBetting = lazy(() => import('./pages/Legacy').then(m => ({ default: m.LegacyBetting })))
 import NotFound from './pages/NotFound'
 import { PlayerProvider } from './player'
 import Search from './Search'
 
-const NAV = [
+// Items marked `more` sit under the header's More menu on desktop, so the bar fits on one line; the phone menu lists all.
+const NAV: { to: string; label: string; more?: boolean }[] = [
   { to: '/', label: 'Home' },
   { to: '/rankings/', label: 'Rankings' },
   { to: '/games/', label: 'Games' },
   { to: '/playoff/', label: 'Playoff' },
-  { to: '/whatif/', label: 'What If?' },
+  { to: '/whatif/', label: 'What If?', more: true },
   { to: '/teams/', label: 'Teams' },
-  { to: '/conferences/', label: 'Conferences' },
-  { to: '/model/', label: 'Model' },
+  { to: '/players/', label: 'Players' },
+  { to: '/recruiting/', label: 'Recruiting' },
+  { to: '/conferences/', label: 'Conferences', more: true },
+  { to: '/model/', label: 'Model', more: true },
 ]
 
 function route(path: string) {
@@ -50,6 +58,11 @@ function route(path: string) {
     '/games/quality/': [<GameQuality />, 'Game Quality'],
     '/playoff/': [<Playoff />, 'Playoff'],
     '/teams/': [<Teams />, 'Teams'],
+    '/players/': [<Players />, 'Players'],
+    '/players/ratings/': [<RatingsMethodology />, 'CFPi+ Player Ratings'],
+    '/recruiting/': [<RecruitingHome />, 'Recruiting'],
+    '/recruiting/high-school/': [<HighSchool />, 'High School Recruiting'],
+    '/recruiting/transfers/': [<Transfers />, 'Transfers'],
     '/conferences/': [<ConferenceList />, 'Conferences'],
     // History (rating comparison) was retired in Round 18; old links land on Home. Team pages keep their own chart.
     '/compare/': [<Redirect to="/" />, 'College Football Power Ratings'],
@@ -78,6 +91,28 @@ function useTheme(): [Theme, () => void] {
   return [theme, () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))]
 }
 
+function MoreMenu({ items, isActive, path }: { items: typeof NAV; isActive: (to: string) => boolean; path: string }) {
+  const [open, setOpen] = useState(false)
+  const box = useRef<HTMLDivElement>(null)
+  useEffect(() => { setOpen(false) }, [path])
+  useEffect(() => {
+    if (!open) return
+    const away = (e: MouseEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false) }
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', away); document.addEventListener('keydown', esc)
+    return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', esc) }
+  }, [open])
+  const active = items.some(n => isActive(n.to))
+  return <div ref={box} className="cf-nav-more-wrap">
+    <button type="button" className={`cf-nav-link cf-nav-more${active ? ' is-active' : ''}`} aria-expanded={open} aria-haspopup="true" onClick={() => setOpen(o => !o)}>
+      More <ChevronDown size={14} aria-hidden="true" />
+    </button>
+    {open && <div className="cf-hs-pop cf-nav-pop">
+      {items.map(n => <Link key={n.to} to={n.to} className="cf-hs-item" aria-current={isActive(n.to) ? 'page' : undefined}>{n.label}</Link>)}
+    </div>}
+  </div>
+}
+
 export default function Site() {
   const ready = useLegacyHashRedirect()
   const { path } = useLocation()
@@ -98,14 +133,14 @@ export default function Site() {
   }, [menuOpen])
 
   const isActive = (to: string) => to === '/' ? path === '/' : section.startsWith(to)
-  const links = (cls: string) => NAV.map(n => <Link key={n.to} to={n.to} className={cls} aria-current={isActive(n.to) ? 'page' : undefined}>{n.label}</Link>)
+  const links = (cls: string, items = NAV) => items.map(n => <Link key={n.to} to={n.to} className={cls} aria-current={isActive(n.to) ? 'page' : undefined}>{n.label}</Link>)
 
   return <TeamsContext.Provider value={directory}><PlayerProvider>
     <a href="#cf-main" className="cf-skip">Skip to content</a>
     <header className="cf-header">
       <div className="cf-wrap cf-header-row">
         <Link to="/" className="cf-brand" aria-label="CFPi+ home"><img src={`${import.meta.env.BASE_URL}brand/logo-on-dark.png`} alt="CFPi+ Cavender Football Power Index" style={{ display: 'block', height: 38, width: 'auto' }} /></Link>
-        <nav className="cf-nav" aria-label="Primary">{links('cf-nav-link')}</nav>
+        <nav className="cf-nav" aria-label="Primary">{links('cf-nav-link', NAV.filter(n => !n.more))}<MoreMenu items={NAV.filter(n => n.more)} isActive={isActive} path={path} /></nav>
         <div className="cf-header-actions">
           <Search />
           <button type="button" className="cf-icon-btn" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Switch to light appearance' : 'Switch to dark appearance'}>

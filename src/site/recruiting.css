@@ -1,0 +1,36 @@
+/* Recruiting section (Overview, High School, Transfers): flat, editorial sports-site layout. Loaded with the page. */
+.rc-tabs { display: flex; gap: var(--s5); margin-top: var(--s3); border-bottom: 1px solid var(--cf-line); }
+.rc-tabs a { padding: 8px 2px; margin-bottom: -1px; border-bottom: 3px solid transparent; color: var(--cf-ink-2); font-size: .9375rem; font-weight: 600; letter-spacing: -.01em; }
+.rc-tabs a:hover { color: var(--cf-ink); text-decoration: none; border-bottom-color: var(--cf-line-strong); }
+.rc-tabs a.is-on { color: var(--cf-ink); border-bottom-color: var(--cf-accent); }
+
+.rc-snap { display: grid; grid-template-columns: repeat(2, 1fr); margin-top: var(--s4); background: var(--cf-surface); border-top: 3px solid var(--cf-ink); border-bottom: 1px solid var(--cf-line); }
+@media (min-width: 860px) { .rc-snap { grid-template-columns: repeat(4, 1fr); } }
+.rc-snap > div { padding: 12px 16px; border-bottom: 1px solid var(--cf-line); min-width: 0; }
+.rc-snap > div:nth-child(odd) { border-right: 1px solid var(--cf-line); }
+.rc-snap > div:nth-last-child(-n+2) { border-bottom: 0; }
+@media (min-width: 860px) { .rc-snap > div { border-bottom: 0; border-right: 1px solid var(--cf-line); } .rc-snap > div:last-child { border-right: 0; } }
+.rc-snap-k { display: block; font-size: .6875rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--cf-muted); }
+a.rc-snap-k:hover { color: var(--cf-accent); text-decoration: none; }
+.rc-snap .cf-team { margin: 6px 0 2px; font-weight: 650; }
+.rc-snap-v { font-size: 1.0625rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.rc-snap-s { font-size: .75rem; color: var(--cf-muted); }
+
+.rc-sec { margin-top: var(--s6); }
+.rc-sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; padding-bottom: 6px; border-bottom: 1px solid var(--cf-line-strong); position: relative; margin-bottom: var(--s3); }
+.rc-sec-h::after { content: ""; position: absolute; left: 0; bottom: -1px; width: 44px; height: 3px; background: var(--cf-accent); }
+.rc-sec-h h2 { font-size: 1.25rem; text-transform: uppercase; letter-spacing: .02em; font-weight: 800; }
+.rc-sec-h p { margin: 0; font-size: .8125rem; color: var(--cf-muted); flex-basis: 100%; order: 3; }
+.rc-sec-h > a { font-size: .8125rem; font-weight: 600; }
+.rc-grid { display: grid; gap: var(--s5) var(--s6); grid-template-columns: 1fr; }
+@media (min-width: 860px) { .rc-grid { grid-template-columns: 1fr 1fr; } }
+.rc-grid > * { min-width: 0; }
+.rc-wide { grid-column: 1 / -1; }
+.rc-blk h3 { margin: 0 0 4px; font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--cf-muted); display: flex; align-items: center; gap: 4px; }
+.rc-tbl { font-size: .8125rem; }
+.rc-tbl th, .rc-tbl td { padding: 4px 8px; }
+.rc-tbl th { font-size: .6875rem; text-transform: uppercase; letter-spacing: .04em; border-bottom: 2px solid var(--cf-line-strong); background: transparent; }
+.rc-tbl td { border-bottom: 1px solid var(--cf-line); }
+.rc-tbl td:first-child { font-weight: 700; color: var(--cf-muted); }
+.rc-tbl .cf-logo { flex: none; }
+.rc-note { margin: 6px 0 0; font-size: .75rem; color: var(--cf-muted); }
