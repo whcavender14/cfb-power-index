@@ -1,6 +1,6 @@
 import '../teams.css'
 import { ChevronDown, Search, X } from 'lucide-react'
-import { DataGate, Freshness, Num, PageHead, SortTh, sortRows, TeamLink, useData, useTeams, type Sort } from '../components'
+import { DataGate, Freshness, InView, Num, PageHead, SortTh, sortRows, TeamLink, useData, useTeams, type Sort } from '../components'
 import type { IndexDoc, TeamRow } from '../data'
 import { Link, useQueryParam } from '../router'
 
@@ -26,7 +26,7 @@ export default function Teams() {
   const sort: Sort = { key: sk, desc: sd !== 'asc' }
   const onSort = (s: Sort) => { setSk(s.key); setSd(s.desc ? 'desc' : 'asc') }
   return <>
-    <PageHead title="Teams" lede={<>Every FBS team, searchable and sortable by its CFPi+ power rating and its parts. For how conferences compare as groups, see <Link to="/conferences/">Conferences</Link>.</>} />
+    <PageHead title="Teams" />
     <DataGate source={index} label="Teams">{({ meta, teams }) => {
       const needle = q.trim().toLowerCase()
       const confs = [...new Set([...directory.values()].map(t => t.conference).filter(Boolean) as string[])].sort()
@@ -53,7 +53,7 @@ export default function Teams() {
           <p className="cf-muted cf-small cf-toolbar-end" style={{ margin: 0 }} role="status">{rows.length} of {teams.length} teams</p>
         </div>
         {rows.length === 0 ? <div className="cf-state"><p className="cf-state-title">No teams match</p></div> :
-        <div className="cf-table-wrap"><table className="cf-table cf-teams-table" style={{ tableLayout: 'fixed' }}>
+        <InView className="cf-table-wrap"><table className="cf-table cf-teams-table" style={{ tableLayout: 'fixed' }}>
           <colgroup><col style={{ width: 'min(64px, 12vw)' }} /><col style={{ width: 'min(190px, 38vw)' }} /><col style={{ width: 'min(72px, 20vw)' }} /><col />{[0, 1, 2, 3].map(i => <col key={i} style={{ width: 96 }} className="cf-hide-sm" />)}</colgroup>
           <thead><tr>
             <SortTh label="Rank" sortKey="rank" sort={sort} onSort={onSort} align="start" style={{ textAlign: 'center' }} />
@@ -75,7 +75,7 @@ export default function Teams() {
             <td className="cf-hide-sm" style={{ textAlign: 'center' }}><Num value={r.sos} signed />{r.sos_rank != null && <span className="cf-muted" style={{ fontSize: '.75rem', marginLeft: 5 }}>({r.sos_rank})</span>}</td>
             <td className="cf-hide-sm" style={{ textAlign: 'center' }}><Num value={r.sor} signed digits={2} />{r.sor_rank != null && <span className="cf-muted" style={{ fontSize: '.75rem', marginLeft: 5 }}>({r.sor_rank})</span>}</td>
           </tr>)}</tbody>
-        </table></div>}
+        </table></InView>}
         <p className="cf-small cf-muted">Rank, record, movement and playoff odds are on <Link to="/rankings/">Rankings</Link>.</p>
       </>
     }}</DataGate>

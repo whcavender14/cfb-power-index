@@ -22,7 +22,7 @@ export default function Transfers() {
   const [tabParam, setTab] = useQueryParam('tab', 'teams')
   const tab = (tabParam === 'team' || TABS.some(t => t.value === tabParam) ? tabParam : 'teams') as Tab
   return <>
-    <PageHead title="Transfers" lede="The transfer portal by year from CollegeFootballData, with 247Sports transfer ratings: who came and went for each FBS program, and a CFPi+ Star Churn ranking."><RecruitingTabs active="transfers" /></PageHead>
+    <PageHead title="Transfers"><RecruitingTabs active="transfers" /></PageHead>
     <DataGate source={dash} label="Portal years">{d => {
       const latest = d.portal_years[d.portal_years.length - 1]
       const year = d.portal_years.includes(Number(yearParam)) ? Number(yearParam) : latest

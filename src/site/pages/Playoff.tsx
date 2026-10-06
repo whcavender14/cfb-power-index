@@ -1,7 +1,7 @@
 import ShareButton from '../ShareButton'
-import { DataGate, Freshness, Info, Num, PageHead, Pct, pctText, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, type Sort } from '../components'
-import { ROUND_LABELS, simBracket, type BracketGame, type BracketTeam, type SimBracket } from '../bracket'
-import type { PlayoffDoc, PlayoffTeam } from '../data'
+import { DataGate, Freshness, Info, Num, PageHead, Pct, pctText, Segmented, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, type Sort } from '../components'
+import { currentBracket, ROUND_LABELS, simBracket, type BracketGame, type BracketTeam, type SimBracket } from '../bracket'
+import type { ConferencesDoc, PlayoffDoc, PlayoffTeam, ResumeDoc } from '../data'
 import { Link, useQueryParam } from '../router'
 
 const INFO: Record<string, string> = {
@@ -18,6 +18,7 @@ const INFO: Record<string, string> = {
 }
 const COLS: [keyof PlayoffTeam, string][] = [['p_playoff', 'Playoff'], ['p_auto', 'Auto Bid'], ['p_at_large', 'At-Large'], ['p_bye', 'Bye'], ['p_host', 'Host'], ['p_qf', 'QF'], ['p_sf', 'Semis'], ['p_final', 'Final'], ['p_champ', 'Title']]
 
+const CURRENT_INFO = 'The field if the playoff were set today. Teams are ranked by résumé (strength of record, as on the Résumé ranking page) and picked under the same 2026 rules as the projection, with each Power 4 conference’s current leader (best conference record) standing in for its champion. Nothing is simulated: records are today’s, and each game is won by the higher seed.'
 const BRACKET_INFO = 'The field is the single simulated season whose seeding is most consistent with all the simulations, so it follows the selection rules exactly. Each team’s record is its result in that simulated season. In each game, the team that reached the next round in more of the simulated seasons (whatever its seed) advances. One plausible path, not a forecast that every result will hold.'
 
 function BTeam({ t, won, champ }: { t: BracketTeam; won: boolean; champ?: boolean }) {
@@ -35,21 +36,21 @@ function BGame({ g, champion }: { g: BracketGame; champion: BracketTeam }) {
 }
 /** Desktop: the image's layout (first round, quarterfinals, semifinals | final | semifinals, quarterfinals, first round).
  *  Below 1100 px: collapsed by round, so nothing scrolls the page sideways. */
-function Bracket({ b }: { b: SimBracket }) {
+function Bracket({ b, current }: { b: SimBracket; current: boolean }) {
   const [fr, qf, sf, [fin]] = b.rounds
   const col = (label: string, games: BracketGame[], note?: string) => <div className="cf-brk-col">
     <h3 className="cf-brk-head">{label}{note && <small>{note}</small>}</h3>
     <div className="cf-brk-games">{games.map((g, i) => <BGame key={i} g={g} champion={b.champion} />)}</div>
   </div>
   return <>
-    <div className="cf-brk" role="group" aria-label="Projected bracket">
+    <div className="cf-brk" role="group" aria-label={current ? 'Current bracket' : 'Projected bracket'}>
       {col('First round', fr.slice(0, 2), 'Higher seed hosts')}{col('Quarterfinals', qf.slice(0, 2))}{col('Semifinals', sf.slice(0, 1))}
       <div className="cf-brk-col is-center">
         <div className="cf-brk-champ">
-          <span className="cf-brk-kicker">Projected champion</span>
+          <span className="cf-brk-kicker">Champion</span>
           <TeamLogo id={b.champion.team_id} name={b.champion.team_id} size={44} />
           <strong><TeamLink id={b.champion.team_id} logo={false} /></strong>
-          <span className="cf-small">No. {b.champion.seed} seed · {pctText(b.champion.odds.p_champ)} title odds</span>
+          <span className="cf-small">{pctText(b.champion.odds.p_champ)} title odds</span>
         </div>
         <h3 className="cf-brk-head">National championship</h3>
         <BGame g={fin} champion={b.champion} />
@@ -71,35 +72,46 @@ export default function Playoff() {
   const [sortKey, setSortKey] = useQueryParam('sort', 'p_playoff')
   const [dir, setDir] = useQueryParam('dir', '')
   const [scope, setScope] = useQueryParam('show', '')
+  const [view, setView] = useQueryParam('bracket', '')
+  const current = view === 'current'
+  const resume = useData<ResumeDoc>(current ? 'resume.json' : null)
+  const confs = useData<ConferencesDoc>(current ? 'conferences.json' : null)
   const natural = (k: string) => k !== 'mean_seed'
   const sort: Sort = { key: sortKey, desc: dir ? dir === 'desc' : natural(sortKey) }
   const onSort = (s: Sort) => { setSortKey(s.key); setDir(s.desc === natural(s.key) ? '' : s.desc ? 'desc' : 'asc') }
 
   return <>
-    <PageHead title="Playoff" lede={<>Odds for the 12-team College Football Playoff, from the simulated seasons. Each season is played out, ranked, seeded and bracketed with the rules below. Try <Link to="/whatif/">What If?</Link> to see how picks change them.</>} />
+    <PageHead title="Playoff" />
     <DataGate source={doc} label="Playoff odds">{({ meta, format, teams: rows, representative_field: field }) => {
       if (meta.sim_status !== 'available' || !rows.length) return <div className="cf-state" role="status"><p className="cf-state-title">Simulation results are unavailable for this update</p><p className="cf-muted">Ratings are still current. Playoff odds return with the next successful simulation.</p></div>
       const contenders = rows.filter(r => r.p_playoff > 0)
       const shown = scope === 'all' ? rows : contenders
       const key = (sort.key in INFO ? sort.key : 'p_playoff') as keyof PlayoffTeam
       const sorted = sortRows(shown, r => r[key] as number | null, sort.desc)
-      const bracket = simBracket(doc.data!)
+      const projected = simBracket(doc.data!)
+      const bracket = current ? (resume.data && confs.data ? currentBracket(doc.data!, resume.data, confs.data) : null) : projected
+      const loadingCurrent = current && !(resume.data && confs.data) && !resume.error && !confs.error
       const seedTeams = [...contenders].sort((a, b) => b.p_playoff - a.p_playoff).slice(0, 24)
       return <>
         <Freshness meta={meta} sims />
 
         <section className="cf-section" style={{ marginTop: "var(--s3)" }} aria-labelledby="po-field">
           <div className="cf-panel-head">
-            <h2 id="po-field">Projected bracket <Info text={BRACKET_INFO} label="How the bracket is built" /></h2>
-            {bracket && <ShareButton label="Predicted Bracket" run={async () => { await (await import('../bracketPng')).bracketPng(doc.data!, bracket, teams) }} />}
+            <h2 id="po-field">{current ? 'Current' : 'Projected'} bracket <Info text={current ? CURRENT_INFO : BRACKET_INFO} label="How the bracket is built" /></h2>
+            <span className="cf-bracket-controls">
+              <Segmented label="Bracket view" value={current ? 'current' : 'projected'} onChange={v => setView(v === 'current' ? 'current' : '')} options={[{ value: 'projected', label: 'Projected' }, { value: 'current', label: 'Current' }]} />
+            {bracket ? <ShareButton label={current ? 'Current Bracket' : 'Predicted Bracket'} run={async () => { await (await import('../bracketPng')).bracketPng(doc.data!, bracket, teams, current) }} /> : <ShareButton label={current ? 'Current Bracket' : 'Predicted Bracket'} run={async () => {}} disabled />}
+            </span>
           </div>
           {bracket ? <>
-            <div className="cf-panel cf-brk-panel"><Bracket b={bracket} /></div>
-            <p className="cf-small cf-muted cf-brk-note"><span className="cf-brk-seed is-bye">1</span> Seeds 1–4 have first-round byes. In each game, the team that reached the next round in more of the {meta.sim_count?.toLocaleString()} simulated seasons advances. This exact seeding occurred in {field!.sims_with_identical_field} of them.</p>
-          </> : <p className="cf-muted">No projected field is available.</p>}
+            <div className="cf-panel cf-brk-panel"><Bracket b={bracket} current={current} /></div>
+            {current
+              ? <p className="cf-small cf-muted cf-brk-note"><span className="cf-brk-seed is-bye">1</span> Seeds 1–4 have first-round byes. Ranked by résumé (strength of record) as of Week {meta.ratings_week}; the higher seed advances in every game. Conference leaders stand in for champions until the title games are played.</p>
+              : <p className="cf-small cf-muted cf-brk-note"><span className="cf-brk-seed is-bye">1</span> Seeds 1–4 have first-round byes. In each game, the team that reached the next round in more of the {meta.sim_count?.toLocaleString()} simulated seasons advances. This exact seeding occurred in {field!.sims_with_identical_field} of them.</p>}
+          </> : <p className="cf-muted">{loadingCurrent ? 'Loading the current field…' : current ? 'The current bracket is unavailable right now.' : 'No projected field is available.'}</p>}
           <details className="cf-rules">
-            <summary>Selection rules used by the simulation</summary>
-            <ul><li>{format.autobids}.</li><li>{format.ranking}.</li><li>{format.seeding}.</li></ul>
+            <summary>{current ? 'Selection rules used for the current bracket' : 'Selection rules used by the simulation'}</summary>
+            <ul><li>{format.autobids}.</li><li>{current ? 'Teams are ranked by résumé: strength of record so far this season' : format.ranking}.</li><li>{format.seeding}.</li></ul>
           </details>
         </section>
 

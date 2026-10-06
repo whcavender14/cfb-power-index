@@ -112,7 +112,7 @@ export default function Players() {
   const category = (CATS.some(x => x.value === cat) ? cat : 'passing') as Cat
   const board = useData<Board>(ratings ? null : `players/leaders/${category}.json`)
   return <>
-    <PageHead title="Players" lede="FBS statistical leaders for the season, from CollegeFootballData box scores, player PPA and success rates, and the CFPi+ Player Ratings beta (modelled, not official). Select a player to see the game log and career." />
+    <PageHead title="Players" />
     <div style={{ overflowX: 'auto', maxWidth: '100%', margin: '20px 0 20px' }}><Segmented label="Category" value={ratings ? 'ratings' : category} options={VIEWS} onChange={v => setCat(v)} /></div>
     {ratings ? <Suspense fallback={null}><RatingsView /></Suspense>
       : <DataGate source={board} label="Leaderboard">{d => d.category === category ? <Leaderboard board={d} /> : null}</DataGate>}

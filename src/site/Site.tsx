@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ReactElement } from 'react'
 import { ChevronDown, Menu, Moon, Sun, X } from 'lucide-react'
-import { TeamsContext, useData } from './components'
+import { Skeleton, TeamsContext, useData } from './components'
 import type { TeamsDoc } from './data'
 import { Link, Redirect, useLegacyHashRedirect, useLocation } from './router'
 import Home from './pages/Home'
@@ -70,7 +70,7 @@ function route(path: string) {
     // What changed now lives on Home; old links land on that section.
     '/changes/': [<Redirect to="/#changed" />, 'College Football Power Ratings'],
     '/changed/': [<Redirect to="/#changed" />, 'College Football Power Ratings'],
-    '/rankings/resume/': [<Resume />, 'Résumé ranking'],
+    '/rankings/resume/': [<Resume />, 'Résumé Ranking'],
     '/whatif/': [<WhatIf />, 'What If?'],
     '/model/': [<Model />, 'Model'],
     '/simulations/': [<LegacySimulations />, 'Season simulations'],
@@ -85,7 +85,7 @@ function useTheme(): [Theme, () => void] {
   const [theme, setTheme] = useState<Theme>(() => document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light')
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#050b17' : '#ffffff')
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#0a1830')
     try { localStorage.setItem('cfb-theme', theme) } catch { /* storage unavailable */ }
   }, [theme])
   return [theme, () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))]
@@ -103,12 +103,11 @@ function MoreMenu({ items, isActive, path }: { items: typeof NAV; isActive: (to:
     return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', esc) }
   }, [open])
   const active = items.some(n => isActive(n.to))
-  return <div ref={box} style={{ position: 'relative' }}>
-    <button type="button" className="cf-nav-link" aria-expanded={open} aria-haspopup="true" onClick={() => setOpen(o => !o)}
-      style={{ border: 0, background: active ? 'var(--cf-fill)' : 'transparent', color: active ? 'var(--cf-ink)' : undefined, fontWeight: active ? 600 : undefined, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+  return <div ref={box} className="cf-nav-more-wrap">
+    <button type="button" className={`cf-nav-link cf-nav-more${active ? ' is-active' : ''}`} aria-expanded={open} aria-haspopup="true" onClick={() => setOpen(o => !o)}>
       More <ChevronDown size={14} aria-hidden="true" />
     </button>
-    {open && <div className="cf-hs-pop" style={{ left: 0, right: 'auto', width: '11rem' }}>
+    {open && <div className="cf-hs-pop cf-nav-pop">
       {items.map(n => <Link key={n.to} to={n.to} className="cf-hs-item" aria-current={isActive(n.to) ? 'page' : undefined}>{n.label}</Link>)}
     </div>}
   </div>
@@ -140,7 +139,7 @@ export default function Site() {
     <a href="#cf-main" className="cf-skip">Skip to content</a>
     <header className="cf-header">
       <div className="cf-wrap cf-header-row">
-        <Link to="/" className="cf-brand" aria-label="CFPi+ home"><img src={`${import.meta.env.BASE_URL}brand/logo-on-${theme}.png`} alt="CFPi+ Cavender Football Power Index" style={{ display: 'block', height: 42, width: 'auto' }} /></Link>
+        <Link to="/" className="cf-brand" aria-label="CFPi+ home"><img src={`${import.meta.env.BASE_URL}brand/logo-on-dark.png`} alt="CFPi+ Cavender Football Power Index" style={{ display: 'block', height: 38, width: 'auto' }} /></Link>
         <nav className="cf-nav" aria-label="Primary">{links('cf-nav-link', NAV.filter(n => !n.more))}<MoreMenu items={NAV.filter(n => n.more)} isActive={isActive} path={path} /></nav>
         <div className="cf-header-actions">
           <Search />
@@ -158,7 +157,7 @@ export default function Site() {
     </header>
     {menuOpen && <div className="cf-scrim" onClick={() => setMenuOpen(false)} aria-hidden="true" />}
 
-    <main id="cf-main" className="cf-wrap cf-main" tabIndex={-1}>{ready ? <Suspense fallback={<div className="cf-state" role="status"><p className="cf-muted">Loading…</p></div>}>{page}</Suspense> : null}</main>
+    <main id="cf-main" className="cf-wrap cf-main" tabIndex={-1}>{ready ? <Suspense fallback={<Skeleton />}>{page}</Suspense> : null}</main>
 
     <footer className="cf-footer">
       <div className="cf-wrap cf-footer-row">

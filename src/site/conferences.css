@@ -6,7 +6,7 @@
 .cf-strength-row, .cf-strength-axis { display: grid; grid-template-columns: minmax(0, 8.5rem) 1fr 3.2rem; gap: var(--s2); align-items: center; font-size: .8125rem; }
 .cf-strength-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cf-strength-track, .cf-strength-ticks { position: relative; height: 14px; }
-.cf-strength-track i { position: absolute; top: 2px; bottom: 2px; border-radius: 3px; background: var(--cf-sky); }
+.cf-strength-track i { position: absolute; top: 2px; bottom: 2px; border-radius: 0; background: var(--cf-sky); }
 .cf-strength-track i.is-neg { background: var(--cf-faint); }
 .cf-strength-zero { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--cf-line-strong); }
 .cf-strength-med { position: absolute; top: -3px; bottom: -3px; width: 0; border-left: 1px dashed var(--cf-muted); }
@@ -29,8 +29,8 @@
 .cf-cl-row:hover { background: var(--cf-fill-2); }
 .cf-cl-sub { font-size: .75rem; color: var(--cf-muted); }
 .cf-cl-avg { display: grid; gap: 4px; }
-.cf-cl-avg i { height: 4px; border-radius: 2px; background: var(--cf-fill-2); overflow: hidden; }
-.cf-cl-avg u { display: block; height: 100%; border-radius: 2px; background: var(--cf-sky); }
+.cf-cl-avg i { height: 4px; border-radius: 0; background: var(--cf-fill-2); overflow: hidden; }
+.cf-cl-avg u { display: block; height: 100%; border-radius: 0; background: var(--cf-sky); }
 .cf-cl-hide { display: none; }
 .cf-cl-r { text-align: right; }
 /* Conference page: more room between panels and inside them */
@@ -43,21 +43,21 @@
 .cf-strength figcaption { margin-top: var(--s4); }
 /* Conference page hero: the logo leads */
 .cf-confhero { display: flex; align-items: center; gap: var(--s5); margin: var(--s2) 0 var(--s4); flex-wrap: wrap; }
-.cf-confhero-logo { flex: none; display: grid; place-items: center; width: 168px; height: 168px; border-radius: 24px; background: #fff; box-shadow: var(--cf-shadow), 0 0 0 1px var(--cf-line); }
+.cf-confhero-logo { flex: none; display: grid; place-items: center; width: 168px; height: 168px; border-radius: 2px; background: #fff; box-shadow: 0 0 0 1px var(--cf-line); }
 .cf-confhero-logo img { width: 136px; height: 136px; object-fit: contain; display: block; }
 .cf-confhero > div { flex: 1; min-width: 240px; }
 .cf-confhero h1 { font-size: clamp(2.25rem, 1.6rem + 3vw, 3.75rem); line-height: 1; letter-spacing: -.035em; margin: 0 0 var(--s3); }
 .cf-confhero .cf-lede { margin: 0; }
-@media (max-width: 560px) { .cf-confhero-logo { width: 120px; height: 120px; border-radius: 18px; } .cf-confhero-logo img { width: 96px; height: 96px; } }
-.cf-confhead .cf-confhero-logo { width: 128px; height: 128px; border-radius: 20px; box-shadow: 0 2px 10px rgb(0 0 0 / .2); }
+@media (max-width: 560px) { .cf-confhero-logo { width: 120px; height: 120px; border-radius: 2px; } .cf-confhero-logo img { width: 96px; height: 96px; } }
+.cf-confhead .cf-confhero-logo { width: 128px; height: 128px; border-radius: 2px; box-shadow: none; }
 .cf-themed .cf-confhead .cf-confhero-logo img { width: 104px; height: 104px; padding: 0; background: none; border-radius: 0; object-fit: contain; }
 .cf-confhead { grid-template-columns: auto 1fr; gap: var(--s5); padding: var(--s5); }
 .cf-confhead h1 { font-size: clamp(2.25rem, 1.6rem + 3vw, 3.75rem); line-height: 1; margin: 0 0 var(--s2); }
 .cf-confhead .cf-lede { margin: 0; }
 .cf-confhead .cf-teamhead-stats dd.cf-big { font-size: 1.75rem; }
-.cf-confhead .cf-confhero-logo { width: 208px; height: 208px; border-radius: 28px; }
+.cf-confhead .cf-confhero-logo { width: 208px; height: 208px; border-radius: 2px; }
 .cf-themed .cf-confhead .cf-confhero-logo img { width: 176px; height: 176px; }
-@media (max-width: 560px) { .cf-confhead .cf-confhero-logo { width: 128px; height: 128px; border-radius: 20px; } .cf-themed .cf-confhead .cf-confhero-logo img { width: 108px; height: 108px; } }
+@media (max-width: 560px) { .cf-confhead .cf-confhero-logo { width: 128px; height: 128px; border-radius: 2px; } .cf-themed .cf-confhead .cf-confhero-logo img { width: 108px; height: 108px; } }
 /* Record vs. other conferences */
 .cf-vs { margin-top: var(--s5); }
 .cf-vs .cf-panel-head { margin-bottom: var(--s4); }
@@ -68,16 +68,16 @@
 .cf-vs-id { display: flex; align-items: center; gap: var(--s3); min-width: 0; color: var(--cf-ink); text-decoration: none; font-weight: 600; font-size: .9375rem; }
 .cf-vs-id span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-vs-row:hover { background: var(--cf-accent-soft); }
-.cf-vs-id img { flex: none; width: 48px; height: 48px; object-fit: contain; background: #fff; border-radius: 10px; padding: 3px; box-shadow: 0 0 0 1px var(--cf-line); }
+.cf-vs-id img { flex: none; width: 48px; height: 48px; object-fit: contain; background: #fff; border-radius: 2px; padding: 3px; box-shadow: 0 0 0 1px var(--cf-line); }
 .cf-vs-rec { font-size: 1.25rem; font-weight: 700; text-align: right; letter-spacing: -.01em; }
-.cf-vs-bar { display: flex; height: 10px; border-radius: 3px; overflow: hidden; background: var(--cf-fill-2); }
+.cf-vs-bar { display: flex; height: 10px; border-radius: 0; overflow: hidden; background: var(--cf-fill-2); }
 .cf-vs-bar i.is-w { background: var(--cf-up); } .cf-vs-bar i.is-l { background: var(--cf-down); }
 .cf-vs-diff { text-align: right; white-space: nowrap; }
 @media (max-width: 560px) { .cf-vs-list li { grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2) var(--s3); } .cf-vs-bar { grid-column: 1 / -1; grid-row: 2; } .cf-vs-diff { display: none; } .cf-vs-id img { width: 40px; height: 40px; } }
 /* Conference vs. conference page */
 .cf-vshead-logos { display: flex; align-items: center; gap: var(--s3); }
 .cf-vshead-logos em { font-style: normal; font-weight: 650; font-size: 1.25rem; opacity: .8; }
-.cf-confhead.cf-vshead .cf-confhero-logo { width: 148px; height: 148px; border-radius: 22px; }
+.cf-confhead.cf-vshead .cf-confhero-logo { width: 148px; height: 148px; border-radius: 2px; }
 .cf-themed .cf-confhead.cf-vshead .cf-confhero-logo img { width: 124px; height: 124px; }
 .cf-vshead h1 { font-size: clamp(1.75rem, 1.2rem + 2.4vw, 3rem); }
 .cf-vsgames { margin-top: var(--s5); }
@@ -89,7 +89,7 @@
 .cf-vsg-team { min-width: 0; }
 .cf-themed .cf-vsg-team a.cf-team, .cf-vsg-team a.cf-team { color: var(--cf-ink); text-decoration: none; }
 .cf-vsg-at { text-align: center; font-size: .8125rem; }
-.cf-vsg-badge { justify-self: start; display: grid; place-items: center; width: 1.625rem; height: 1.625rem; border-radius: 6px; color: #fff; font-size: .75rem; background: var(--cf-up); }
+.cf-vsg-badge { justify-self: start; display: grid; place-items: center; width: 1.625rem; height: 1.625rem; border-radius: 2px; color: #fff; font-size: .75rem; background: var(--cf-up); }
 .is-l .cf-vsg-badge { background: var(--cf-down); }
 .cf-vsg-score { justify-self: start; font-weight: 650; font-size: 1.0625rem; }
 .cf-vsg-upcoming { grid-column: 5 / 7; justify-self: start; white-space: nowrap; font-size: .875rem; }
@@ -97,5 +97,5 @@
 .cf-themed .cf-vsg-more, .cf-vsg-more { text-align: right; font-size: .8125rem; color: var(--cf-muted); text-decoration: none; }
 .cf-vsg-more:hover { color: var(--cf-accent); text-decoration: underline; }
 @media (max-width: 720px) { .cf-vsg-list li { grid-template-columns: minmax(0, 1fr) 1.5rem minmax(0, 1fr) 1.625rem 3.5rem; gap: var(--s2); } .cf-vsg-when { grid-column: 1 / -1; grid-auto-flow: column; justify-content: start; gap: var(--s3); } .cf-vsg-more { display: none; } .cf-vsg-upcoming { grid-column: 1 / -1; text-align: left; } .cf-confhead.cf-vshead { grid-template-columns: minmax(0, 1fr); } }
-@media (min-width: 900px) { .cf-cl-row { grid-template-columns: 72px minmax(0, 1.2fr) minmax(0, 1.4fr) 5rem 5rem 7rem minmax(0, 1.2fr); } .cf-cl-hide { display: block; } }:root[data-theme="dark"] .cf-cl-n img { background: #fff; border-radius: 12px; padding: 4px; box-sizing: border-box; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cf-cl-n img { background: #fff; border-radius: 12px; padding: 4px; box-sizing: border-box; } }
+@media (min-width: 900px) { .cf-cl-row { grid-template-columns: 72px minmax(0, 1.2fr) minmax(0, 1.4fr) 5rem 5rem 7rem minmax(0, 1.2fr); } .cf-cl-hide { display: block; } }:root[data-theme="dark"] .cf-cl-n img { background: #fff; border-radius: 2px; padding: 4px; box-sizing: border-box; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cf-cl-n img { background: #fff; border-radius: 2px; padding: 4px; box-sizing: border-box; } }

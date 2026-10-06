@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react'
-import { X } from 'lucide-react'
-import { DataGate, Freshness, Info, PageHead, pctText, Select, TeamLink, TeamLogo, useData, useTeams } from '../components'
+import { Bump, DataGate, Freshness, Info, PageHead, pctText, Select, TeamLink, TeamLogo, useData, useTeams } from '../components'
 import type { Game, GamesDoc, PlayoffDoc, ScenarioDoc } from '../data'
 import { kickoffText } from '../games'
-import { Link, useQueryParam } from '../router'
+import { useQueryParam } from '../router'
 import { COUNTS_BELOW, decode, formatPicks, parsePicks, scenarioResults, WARN_BELOW, type Pick, type TeamResult } from '../scenario'
 import { Share } from '../ScenarioShare'
 
-const SHOW = 25
+// The odds table lists teams making the playoff in more than 2% of the matching seasons; "All teams" shows the rest.
+const MIN_PLAYOFF = 0.02
 
 function GamePicker({ g, pick, onPick }: { g: Game; pick: Pick | undefined; onPick: (side: 'home' | 'away' | null) => void }) {
   const side = (s: 'home' | 'away') => {
@@ -38,7 +38,7 @@ export default function WhatIf() {
   const setPicks = (p: Pick[]) => setParam(formatPicks(p))
 
   return <>
-    <PageHead title="What If?" lede={<>Pick winners of upcoming games. The page keeps only the simulated seasons in which those results happened and recomputes the odds from them. Nothing is re-simulated, and a pick does not change any team’s rating. For the unconditional odds, see <Link to="/playoff/">Playoff</Link>.</>} />
+    <PageHead title="What If?" />
     <DataGate source={scen} label="Scenario data">{() => <DataGate source={gamesDoc} label="Games">{({ meta, games }) => <DataGate source={playoff} label="Playoff odds">{po => {
       const d = decoded!
       const future = games.filter(g => g.status === 'scheduled' && d.games.has(g.game_id))
@@ -46,7 +46,7 @@ export default function WhatIf() {
       const valid = picks.filter(p => d.games.has(p.gameId))
       const ignored = picks.length - valid.length
       const { sims, res } = scenarioResults(d, valid)
-      const n = sims.length
+      const n = sims.length, share = (100 * n / d.n).toFixed(1)
       const base = new Map(po.teams.map(t => [t.team_id, t]))
       const weeks = [...new Set(future.map(g => g.week))].sort((a, b) => a - b)
       const week = weekParam ? Number(weekParam) : weeks[0]
@@ -55,7 +55,7 @@ export default function WhatIf() {
       const setPick = (g: Game, side: 'home' | 'away' | null) => setPicks([...valid.filter(p => p.gameId !== g.game_id), ...(side ? [{ gameId: g.game_id, side }] : [])])
       const involved = new Set(valid.flatMap(p => { const g = byId.get(p.gameId); return g ? [g.home_id, g.away_id] : [] }))
       const rows = [...res.values()].sort((a, b) => b.playoff - a.playoff || b.conf - a.conf || (base.get(b.team_id)?.p_playoff ?? 0) - (base.get(a.team_id)?.p_playoff ?? 0))
-      const list = all ? rows : rows.filter((r, i) => i < SHOW || involved.has(r.team_id))
+      const list = all ? rows : rows.filter(r => r.playoff / n > MIN_PLAYOFF)
       const f: TeamResult | undefined = res.get(focus) ?? rows[0]
       return <>
         <Freshness meta={meta} sims />
@@ -69,13 +69,11 @@ export default function WhatIf() {
           <ul className="cf-picklist">{shown.map(g => <GamePicker key={g.game_id} g={g} pick={pickOf(g.game_id)} onPick={s => setPick(g, s)} />)}</ul>
         </section>
         {valid.length > 0 && <a href="#wi-status" className="cf-whatif-jump" onClick={e => { e.preventDefault(); document.getElementById('wi-status')?.scrollIntoView() }}>
-          <span><strong className="cf-num">{n.toLocaleString()}</strong> of {d.n.toLocaleString()} seasons match</span><span>See odds ↓</span></a>}
+          <span><Bump on={n}><strong className="cf-num">{share}%</strong></Bump> of simulations have this outcome</span><span>See odds ↓</span></a>}
         <div className="cf-whatif-side" id="wi-status">
         <div className={`cf-whatif-status${n < WARN_BELOW ? ' is-warn' : ''}`} role="status">
-          <div className="cf-chips">{valid.map(p => { const g = byId.get(p.gameId)!; const w = p.side === 'home' ? g.home_team : g.away_team; const l = p.side === 'home' ? g.away_team : g.home_team
-            return <span key={p.gameId} className="cf-chip">{w} over {l} <span className="cf-muted">(Wk {g.week})</span><button type="button" aria-label={`Remove pick: ${w} over ${l}`} onClick={() => setPicks(valid.filter(x => x.gameId !== p.gameId))}><X size={13} /></button></span> })}
-            {valid.length > 0 && <button type="button" className="cf-btn" onClick={() => setPicks([])}>Clear all</button>}</div>
-          <p><strong className="cf-num">{n.toLocaleString()}</strong> of {d.n.toLocaleString()} simulated seasons match{valid.length === 0 ? ' (no picks: these are the published odds)' : ''}.
+          {valid.length > 0 && <div className="cf-chips"><button type="button" className="cf-btn" onClick={() => setPicks([])}>Clear all</button></div>}
+          <p><Bump on={n}><strong className="cf-num">{share}%</strong></Bump> of the simulations have this outcome.
             {n === 0 ? ' This combination never happened in the simulations, so there is nothing to show. Remove a pick.'
               : n < COUNTS_BELOW ? ` Too few seasons for percentages (fewer than ${COUNTS_BELOW}); counts are shown instead. Treat them as anecdotes.`
               : n < WARN_BELOW ? ` Fewer than ${WARN_BELOW} seasons: a 50% figure could be off by about 10 points either way. Read changes loosely.` : ''}
@@ -105,7 +103,7 @@ export default function WhatIf() {
           {f && <section className="cf-panel" aria-labelledby="wi-seed">
             <div className="cf-panel-head"><h2 id="wi-seed" className="cf-h2">Seed odds</h2>
               <Select label="Team" value={f.team_id} onChange={setFocus}>{[...res.values()].sort((a, b) => (directory.get(a.team_id)?.team ?? '').localeCompare(directory.get(b.team_id)?.team ?? '')).map(r => <option key={r.team_id} value={r.team_id}>{directory.get(r.team_id)?.team}</option>)}</Select></div>
-            <p className="cf-wi-lead"><TeamLink id={f.team_id} size={24} /> <span>makes the field in <Share k={f.playoff} n={n} /> of these seasons.</span></p>
+            <p className="cf-wi-lead"><TeamLink id={f.team_id} size={24} /> <span>makes the field in <Bump on={`${f.team_id}:${f.playoff / n}`}><Share k={f.playoff} n={n} /></Bump> of these seasons.</span></p>
             <div className="cf-seedbars" role="img" aria-label={f.seeds.map((c, i) => `Seed ${i + 1}: ${c} seasons`).join(', ')}>
               {f.seeds.map((c, i) => <span key={i} className="cf-seedbar"><span className="cf-dist-val">{c ? (n < COUNTS_BELOW ? c : pctText(c / n, 0)) : ''}</span><i style={{ height: `${Math.max(...f.seeds) ? (c / Math.max(...f.seeds)) * 100 : 0}%` }} /><b>{i + 1}</b></span>)}
             </div>

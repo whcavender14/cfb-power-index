@@ -35,7 +35,7 @@ const Block = ({ id, title, children, note }: { id?: string; title: React.ReactN
 export function RecruitingHome() {
   const doc = useData<DashboardDoc>('recruiting/dashboard.json')
   return <>
-    <PageHead title="Recruiting" lede="Who is landing the best classes, who won the transfer portal, and whose rosters hold the most recruiting talent."><RecruitingTabs active="overview" /></PageHead>
+    <PageHead title="Recruiting"><RecruitingTabs active="overview" /></PageHead>
     <DataGate source={doc} label="Recruiting">{d => {
       const o1 = d.open_top[0], l1 = d.latest_top[0], p1 = d.portal.top[0], t1 = d.talent[0]
       const hs = '/recruiting/high-school/', portalLink = '/recruiting/transfers/'
@@ -97,7 +97,7 @@ export function HighSchool() {
   const [tabParam, setTab] = useQueryParam('tab', 'teams')
   const tab = (TABS.some(t => t.value === tabParam) ? tabParam : 'teams') as Tab
   return <>
-    <PageHead title="High School Recruiting" lede="Team class rankings, every rated recruit and where each has committed, by class, from CollegeFootballData (247Sports Composite)."><RecruitingTabs active="hs" /></PageHead>
+    <PageHead title="High School Recruiting"><RecruitingTabs active="hs" /></PageHead>
     <DataGate source={dash} label="Recruiting classes">{d => {
       const year = d.classes.includes(Number(yearParam)) ? Number(yearParam) : d.open_class
       return <>

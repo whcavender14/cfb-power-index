@@ -280,7 +280,7 @@ export async function exportPlayoffHuntPng({ teams, season, week, updatedAt, asO
 type BracketOptions = Common & { model?: MarginModel; ineligible?: string[] }
 
 const ROW = 40, CARD_W = 226
-const AUTO_LABEL = (t: Seeded) => t.autoBid === 'champion' ? `${confShort(t.conference).toUpperCase()} CHAMP` : t.autoBid === 'g6' ? 'TOP G6' : t.autoBid === 'notre-dame' ? 'TOP-12 IND.' : 'AT-LARGE'
+const AUTO_LABEL = (t: Seeded, current = false) => t.autoBid === 'champion' ? `${confShort(t.conference).toUpperCase()} ${current ? 'LEADER' : 'CHAMP'}` : t.autoBid === 'g6' ? 'TOP G6' : t.autoBid === 'notre-dame' ? 'TOP-12 IND.' : 'AT-LARGE'
 
 type Box = { x: number; y: number; w: number; game: Game; rowH: number }
 const rowCenter = (b: Box, top: boolean) => b.y + b.rowH * (top ? 0.5 : 1.5)
@@ -362,9 +362,11 @@ export async function exportBracketPng({ teams, season, week, updatedAt, asOf, s
 }
 
 export type BracketRender = { field: Seeded[]; rounds: Game[][]; champion: Seeded; teams: PlayoffTeam[]; season: number; week: number | null
-  updatedAt: string | null; lede: string; notes: string[]; chip: string; file?: string }
+  updatedAt: string | null; lede: string; notes: string[]; chip: string; file?: string
+  /** The bracket if the field were set today (résumé order, no simulation odds): no title odds, "leader" instead of "champion". */
+  current?: boolean }
 /** Draws the projected bracket (layout shared by the Season Simulations export and the CFPi+ Playoff page download). */
-export async function renderBracketPng({ field, rounds, champion, teams, season, week, updatedAt, lede: ledeText, notes: noteLines, chip, file }: BracketRender): Promise<ExportResult> {
+export async function renderBracketPng({ field, rounds, champion, teams, season, week, updatedAt, lede: ledeText, notes: noteLines, chip, file, current = false }: BracketRender): Promise<ExportResult> {
   await loadFonts()
   const titleOdds = rankTeams(teams).filter(t => t.title > 0).sort((a, b) => b.title - a.title).slice(0, 5)
   const logos = await loadLogos([...new Map([...field, ...titleOdds].map(t => [t.team_id, t])).values()])
@@ -373,7 +375,7 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
   const fieldY = 782, chipH = 58, footY = fieldY + 16 + chipH + 30
   const H = footY + 78
   const { canvas, ctx } = createCanvas(W, H)
-  drawMasthead(ctx, W, pad, { kicker: 'COLLEGE FOOTBALL · SEASON SIMULATIONS', title: 'Projected Playoff', chips: [weekTag(week, season), chip], updatedAt })
+  drawMasthead(ctx, W, pad, { kicker: 'COLLEGE FOOTBALL · SEASON SIMULATIONS', title: current ? 'Current Playoff' : 'Projected Playoff', chips: [weekTag(week, season), chip], updatedAt })
   lede(ctx, ledeText, pad, 182)
 
   // Columns: FR, QF, SF | final | SF, QF, FR (left half = seeds 1/4 pod, right half = 2/3 pod)
@@ -435,7 +437,7 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
   ctx.fillStyle = C.gold
   ctx.fillRect(cx - cw / 2, chY + chH - 4, cw, 4)
   ctx.restore()
-  label(ctx, 'PROJECTED CHAMPION', cx, chY + 24, { size: 11, color: '#8ab8e6', track: '2.6px', align: 'center' })
+  label(ctx, 'CHAMPION', cx, chY + 24, { size: 11, color: '#8ab8e6', track: '2.6px', align: 'center' })
   ctx.beginPath()
   ctx.arc(cx, chY + 64, 30, 0, Math.PI * 2)
   ctx.fillStyle = C.cream
@@ -450,15 +452,15 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
   ctx.textAlign = 'center'
   ctx.fillText(fit(ctx, champion.team, cw - 32), cx, chY + 118)
   spacing(ctx, '0px')
-  label(ctx, `NO. ${champion.seed} SEED · ${pct1(champion.title).toUpperCase()} TITLE ODDS`, cx, chY + 143, { size: 11, weight: 500, color: '#d1d1d6', track: '1.6px', align: 'center' })
+  label(ctx, `${pct1(champion.title).toUpperCase()} TITLE ODDS`, cx, chY + 143, { size: 11, weight: 500, color: '#d1d1d6', track: '1.6px', align: 'center' })
 
   // Title odds across all simulations, to keep the "most likely path" honest.
   const toY = finBox.y + finRow * 2 + 34
   const toH = 36 + titleOdds.length * 32 + 8
-  card(ctx, cx - cw / 2, toY, cw, toH)
-  panelHead(ctx, cx - cw / 2, toY, cw, 'TITLE ODDS', 'ALL SIMS')
+  if (!current) { card(ctx, cx - cw / 2, toY, cw, toH)
+  panelHead(ctx, cx - cw / 2, toY, cw, 'TITLE ODDS', 'ALL SIMS') }
   const maxT = Math.max(...titleOdds.map(t => t.title), 0.01)
-  titleOdds.forEach((t, j) => {
+  if (!current) titleOdds.forEach((t, j) => {
     const mid = toY + 36 + 4 + j * 32 + 16
     if (j) { ctx.fillStyle = C.line; ctx.fillRect(cx - cw / 2 + 12, mid - 16, cw - 24, 1) }
     drawLogo(ctx, logos.get(t.team_id), t.team, cx - cw / 2 + 26, mid, 20)
@@ -504,7 +506,7 @@ export async function renderBracketPng({ field, rounds, champion, teams, season,
     ctx.fillStyle = C.ink
     ctx.fillText(fit(ctx, t.team, chipW - 64), x + 60, chipY + (t.record ? 22 : 26))
     if (t.record) { ctx.font = `500 11px ${BODY}`; ctx.fillStyle = C.muted; ctx.fillText(t.record, x + 60, chipY + 35) }
-    label(ctx, AUTO_LABEL(t), x + 10, chipY + 47, { size: 9.5, weight: 600, color: t.autoBid ? C.goldInk : C.muted, track: '1.2px' })
+    label(ctx, AUTO_LABEL(t, current), x + 10, chipY + 47, { size: 9.5, weight: 600, color: t.autoBid ? C.goldInk : C.muted, track: '1.2px' })
   })
 
   // Footer

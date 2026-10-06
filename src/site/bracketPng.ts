@@ -5,7 +5,7 @@ import { G6, type Game, type PlayoffTeam, type Seeded } from '../playoff'
 import type { PlayoffDoc, TeamMeta } from './data'
 import type { BracketTeam, SimBracket } from './bracket'
 
-export async function bracketPng(doc: PlayoffDoc, b: SimBracket, dir: Map<string, TeamMeta>) {
+export async function bracketPng(doc: PlayoffDoc, b: SimBracket, dir: Map<string, TeamMeta>, current = false) {
   const team = (id: string, p: PlayoffDoc['teams'][number]): PlayoffTeam => {
     const t = dir.get(id)
     return { team_id: id, team: t?.team ?? id, conference: t?.conference ?? null, logo_url: t?.logo ?? null, power: 0,
@@ -23,6 +23,17 @@ export async function bracketPng(doc: PlayoffDoc, b: SimBracket, dir: Map<string
       winProbability: g.winner === g.top ? g.pTop : g.pBottom, shown: [g.pTop, g.pBottom] }
   }))
   const m = doc.meta
+  const wk = `wk${String(m.ratings_week ?? 0).padStart(2, '0')}`
+  if (current) return renderBracketPng({
+    field: [...seeded.values()], rounds, champion: s(b.champion), teams: [], season: m.season, week: m.ratings_week, updatedAt: m.ratings_updated_at,
+    chip: 'CFPi+ RÉSUMÉ', current: true,
+    lede: 'The 12-team field if the playoff were set today, ranked by résumé (strength of record).',
+    notes: [
+      'Field: teams ranked by résumé (strength of record), then picked under the 2026 rules with each Power 4 conference’s current leader (best conference record) standing in for its champion. Nothing is simulated.',
+      'Seeded straight by résumé; the higher seed advances in every game; higher seed hosts the first round.',
+    ],
+    file: `cfpi-current-bracket-${m.season}-${wk}.png`,
+  })
   return renderBracketPng({
     field: [...seeded.values()], rounds, champion: s(b.champion), teams: doc.teams.map(p => team(p.team_id, p)),
     season: m.season, week: m.ratings_week, updatedAt: m.sim_updated_at, chip: 'CFPi+ SIMULATIONS',

@@ -40,3 +40,7 @@ __pycache__/
 
 # iCloud eviction
 *.icloud
+
+# Locally installed agent skills (third-party, not redistributed)
+.agents/
+skills-lock.json
