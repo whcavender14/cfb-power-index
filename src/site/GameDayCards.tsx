@@ -15,6 +15,7 @@ export type DayCardsContext = {
   showWeek: boolean                            // "All weeks": say which week each card is from
 }
 
+const MARQUEE = 30   // same rule as the ticker: both teams ranked this high or better get the gold outline
 const dayKey = (g: Game) => new Date(g.kickoff).toDateString()
 const dayLabel = (g: Game) => new Date(g.kickoff).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })
 
@@ -56,7 +57,9 @@ function Card({ g, ctx, ab }: { g: Game; ctx: DayCardsContext; ab: (id: string) 
   const proj = (margin: number, favId: string) => margin < 0.05 ? 'Even' : <>{ab(favId)} <span className="cf-num">by {margin.toFixed(1)}</span></>
   const lineText = (v: number) => v === 0 ? 'Pick’em' : `${ab(v < 0 ? g.home_id : g.away_id)} −${Math.abs(v)}`
   const pickLine = (v: number) => v === 0 ? 'PK' : v < 0 ? `−${Math.abs(v)}` : `+${v}`
-  return <article className="cf-dg">
+  const ra = ctx.rankOf.get(g.away_id)?.rank, rh = ctx.rankOf.get(g.home_id)?.rank
+  const marquee = ra != null && rh != null && ra <= MARQUEE && rh <= MARQUEE
+  return <article className={`cf-dg${marquee ? ' is-marquee' : ''}`}>
     <Link to={`/games/${g.game_id}/`} className="cf-dg-link" aria-label={`${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team}: matchup breakdown`} />
     <header className="cf-dg-head"><span>{ctx.showWeek && `Wk ${g.week} · `}{kickoffText(g, false)}{g.neutral ? ' · Neutral' : ''}</span>{final ? <span>Final</span> : <Quality value={g.quality} />}</header>
     {side(g.away_id, g.away_team, false)}

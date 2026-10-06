@@ -198,6 +198,13 @@ html { background: var(--cf-mast); }                 /* no white band below a sh
 .cf-tk .cf-tk-item > a.cf-tk-marquee { box-shadow: inset 0 0 0 1.5px #d4a017; }
 .cf-tk .cf-tk-item > a.cf-tk-marquee:hover { background: var(--cf-fill-2); }
 
+/* Cards: both teams in the top 30 get the ticker's gold outline. */
+.cf-dg.is-marquee { box-shadow: inset 0 0 0 1.5px #d4a017; }
+/* Table rows: same outline, drawn per cell (a row can't take a box-shadow reliably). */
+.cf-table tr.is-marquee > td { box-shadow: inset 0 1.5px 0 #d4a017, inset 0 -1.5px 0 #d4a017; }
+.cf-table tr.is-marquee > td:first-child { box-shadow: inset 1.5px 0 0 #d4a017, inset 0 1.5px 0 #d4a017, inset 0 -1.5px 0 #d4a017; }
+.cf-table tr.is-marquee > td:last-child { box-shadow: inset -1.5px 0 0 #d4a017, inset 0 1.5px 0 #d4a017, inset 0 -1.5px 0 #d4a017; }
+
 /* "?" definition triggers stay 16px visually but get a 24px pointer target (WCAG 2.5.8). */
 .cf-info-btn { position: relative; }
 .cf-info-btn::after { content: ""; position: absolute; inset: -4px; }
