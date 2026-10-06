@@ -18,7 +18,7 @@ const check = (label, bytes, limit) => { lines.push(`${label.padEnd(34)} ${(byte
 
 check('Entry JS (every page)', gz(`${dist}assets/${entry}`), 90)
 for (const f of js.filter(f => f !== entry)) check(`Chunk ${f.replace(/-[\w-]{8}\.js$/, '')}`, gz(`${dist}assets/${f}`), f.startsWith('Legacy') ? 25 : 12)
-for (const f of assets.filter(f => f.endsWith('.css'))) check('CSS (all pages)', gz(`${dist}assets/${f}`), 20)
+for (const f of assets.filter(f => f.endsWith('.css'))) check('CSS (all pages)', gz(`${dist}assets/${f}`), 25)   // was 20; raised for the Compare teams panel, phone layout rules and gold matchup outlines
 check('Home data (index + teams)', gz(`${data}index.json`) + gz(`${data}teams.json`), 30)
 check('games.json (Games, What if)', gz(`${data}games.json`), 50)
 check('scenario.json (What if, lazy)', gz(`${data}scenario.json`), 1200)   // 10,000 simulations (was 250 KB at 1,000)
