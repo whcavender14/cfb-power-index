@@ -6,7 +6,7 @@ export const RESUME_INFO = 'Résumé rank orders teams by strength of record: wi
 
 export function RankingTabs({ active }: { active: 'predictive' | 'resume' }) {
   return <nav className="cf-seg cf-rank-tabs" aria-label="Ranking type">
-    <Link to="/rankings/" className={active === 'predictive' ? 'is-on' : ''} aria-current={active === 'predictive' ? 'page' : undefined}>CFPi+ (predictive)</Link>
+    <Link to="/rankings/" className={active === 'predictive' ? 'is-on' : ''} aria-current={active === 'predictive' ? 'page' : undefined}>CFPi+</Link>
     <Link to="/rankings/resume/" className={active === 'resume' ? 'is-on' : ''} aria-current={active === 'resume' ? 'page' : undefined}>Résumé</Link>
   </nav>
 }
@@ -25,8 +25,8 @@ export default function Resume() {
   const sort: Sort = { key: sk, desc: sd === 'desc' }
   const onSort = (s: Sort) => { setSk(s.key); setSd(s.desc ? 'desc' : 'asc') }
   return <>
-    <PageHead title="Résumé ranking"><RankingTabs active="resume" /></PageHead>
-    <DataGate source={doc} label="Résumé ranking">{({ meta, teams, method }) => {
+    <PageHead title="Résumé Ranking"><RankingTabs active="resume" /></PageHead>
+    <DataGate source={doc} label="Résumé Ranking">{({ meta, teams, method }) => {
       const val = (r: ResumeRow) => ({ resume: r.resume_rank, predictive: r.predictive_rank, sor: r.sor == null ? null : -r.sor, sos: r.sos_played == null ? null : -r.sos_played } as Record<string, number | null>)[sort.key] ?? r.resume_rank
       const rows = sortRows(teams, val, sort.desc)
       return <>

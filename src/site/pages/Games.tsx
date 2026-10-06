@@ -1,7 +1,8 @@
 import ShareButton from '../ShareButton'
 import { useMemo } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
-import { DataGate, Freshness, InfoLabel, Missing, PageHead, pctText, SortTh, sortRows, useData, useTeams, type Sort } from '../components'
+import { DataGate, Freshness, InfoLabel, Missing, PageHead, pctText, Segmented, SortTh, sortRows, useData, useTeams, type Sort } from '../components'
+import GameDayCards from '../GameDayCards'
 import type { GamesDoc, Game, HistoryDoc, IndexDoc } from '../data'
 import { GameCard, kickoffText, lineText, gradePick, Matchup, projection, ProjectionText, Quality, QUALITY_INFO, useLines, useReview, WINPROB_INFO } from '../games'
 import LineCalculator from '../LineCalculator'
@@ -33,6 +34,7 @@ export default function Games() {
   const [conf, setConf] = useQueryParam('conf')
   const [team, setTeam] = useQueryParam('team')
   const [gap, setGap] = useQueryParam('gap')
+  const [view, setView] = useQueryParam('view', 'cards')   // 'cards' (by day) or 'table'
   const [sortKey, setSortKey] = useQueryParam('sort', 'kickoff')
   const [dir, setDir] = useQueryParam('dir', '')
   const natural = (key: string) => key !== 'kickoff'
@@ -74,6 +76,7 @@ export default function Games() {
       const weekRecords = [...byWeek].sort((a, b) => a[0] - b[0]).map(([week, r]) => ({ week, ...r }))
       const showLines = upcoming.some(g => quoteOf(g) != null)
       return <>
+        <div style={{ marginTop: 12 }}><Segmented label="Games view" value={view === 'table' ? 'table' : 'cards'} onChange={setView} options={[{ value: 'cards', label: 'Cards' }, { value: 'table', label: 'Table' }]} /></div>
         <div className="cf-toolbar" style={{ marginTop: 12, marginBottom: 0, alignItems: 'center', gap: 12 }}>
           <Sel label="Week" value={week || (slug ? 'all' : String(meta.current_week ?? 'all'))} onChange={v => setWeek(v === String(meta.current_week) && !slug ? '' : v)}>
             <option value="all">All weeks</option>
@@ -94,7 +97,7 @@ export default function Games() {
           <div style={{ marginTop: 'calc(-1 * var(--s3))' }}><Freshness meta={meta} /></div>
           <ShareButton label={`Week ${slateWeek ?? ''} Slate`} disabled={slateWeek == null || slateWeek < (meta.current_week ?? 0)} run={async () => (await import('../graphics')).gamesPng(meta, games, teams, slateWeek!, g => quoteOf(g), new Map((index.data?.teams ?? []).filter(t => t.rank != null).map(t => [t.team_id, t.rank!])))} />
         </div>
-        {sorted.length === 0 ? <div className="cf-state"><p className="cf-state-title">No games match these filters</p></div> : <>
+        {sorted.length === 0 ? <div className="cf-state"><p className="cf-state-title">No games match these filters</p></div> : view !== 'table' ? <GameDayCards games={sorted} ctx={{ rankOf, quoteOf, edgeOf, openingOf, modelOf: g => review.get(g.game_id)?.model ?? null, showWeek: activeWeek == null }} /> : <>
           {upcoming.length > 0 && <div className="cf-table-wrap cf-desktop">
             <table className="cf-table cf-games-table" style={{ tableLayout: 'fixed' }}>
               <caption className="cf-sr">Games, sortable</caption>

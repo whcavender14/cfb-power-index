@@ -370,3 +370,218 @@ details.cf-details:not([open])::details-content, details.cf-rules:not([open])::d
 @keyframes cf-cc-ping { from { transform: scale(.8); opacity: .8; } to { transform: scale(2.3); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .cf-cc-ping { animation: none; opacity: 0; } .cf-cc-svg image, .cf-cc-svg .cf-hist-line { transition: none; } }
 @media (max-width: 899px) { .cf-cc-toggles { gap: 3px; } .cf-cc-toggle { padding: 0 5px; font-size: .75rem; } .cf-cc-swatch { width: 10px; margin-right: 4px; } .cf-cc-swatch.is-dot { width: 7px; } }
+
+/* Games, Cards view: day headings and compact game cards (one stretched link per card). */
+.cf-dg-day { display: flex; align-items: baseline; gap: var(--s3); margin: var(--s5) 0 var(--s3); padding-bottom: var(--s1); border-bottom: 3px solid var(--cf-rule); }
+.cf-dg-days > section:first-child .cf-dg-day { margin-top: var(--s4); }
+.cf-dg-day small { font-family: var(--cf-font); font-size: .75rem; font-weight: 600; letter-spacing: .04em; color: var(--cf-muted); text-transform: uppercase; }
+.cf-dg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 292px), 1fr)); gap: var(--s3); }
+.cf-dg { position: relative; display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--cf-line); background: var(--cf-surface); transition: border-color var(--m-quick) var(--cf-ease), background-color var(--m-quick) var(--cf-ease); }
+.cf-dg:hover { border-color: var(--cf-line-strong); background: var(--cf-fill-2); }
+.cf-dg-link { position: absolute; inset: 0; z-index: 1; }
+.cf-dg-link:focus-visible { outline: 2px solid var(--cf-accent); outline-offset: -2px; border-radius: 0; }
+.cf-dg-head { display: flex; justify-content: space-between; align-items: center; gap: var(--s2); font-family: var(--cf-font-cond); font-size: .8125rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--cf-muted); }
+.cf-dg-team { display: grid; grid-template-columns: 1.5rem 24px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 28px; }
+.cf-dg-rank { text-align: right; font-size: .8125rem; font-weight: 700; color: var(--cf-ink-2); font-variant-numeric: tabular-nums; }
+.cf-dg-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.cf-dg-name small { font-size: .75rem; font-weight: 400; color: var(--cf-muted); }
+.cf-dg-val { font-weight: 600; font-size: .9375rem; }
+.cf-dg-team.is-win .cf-dg-name, .cf-dg-team.is-win .cf-dg-val { font-weight: 800; }
+.cf-dg-team.is-lose .cf-dg-name, .cf-dg-team.is-lose .cf-dg-val, .cf-dg-team.is-lose .cf-logo { color: var(--cf-muted); opacity: .65; }
+.cf-dg-foot { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 2px; padding-top: 8px; border-top: 1px solid var(--cf-line); font-size: .8125rem; color: var(--cf-ink-2); }
+
+/* Line calculator: a matchup strip and a scoreboard-style result, no panel box. */
+.cf-calc { margin-top: var(--s6); border-top: 3px solid var(--cf-rule); border-radius: 0; background: none; box-shadow: none; }
+.cf-calc > summary { padding: var(--s3) 0; }
+.cf-calc-title { font-family: var(--cf-font-cond); font-size: 1.25rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+.cf-calc-body { padding: 0 0 var(--s4); }
+.cf-calc-match { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) minmax(0, 200px); gap: var(--s3); align-items: end; padding: var(--s3); border: 1px solid var(--cf-line); background: var(--cf-surface); }
+.cf-calc-side { display: flex; align-items: flex-end; gap: var(--s3); min-width: 0; }
+.cf-calc-side .cf-field { flex: 1; min-width: 0; }
+.cf-calc-logo { display: grid; place-items: center; flex: none; width: 52px; height: 52px; }
+.cf-calc-at { align-self: center; padding-top: 20px; font-family: var(--cf-font-cond); font-weight: 700; font-size: .875rem; letter-spacing: .08em; text-transform: uppercase; color: var(--cf-muted); }
+.cf-calc-match .cf-select, .cf-calc-match .cf-select select { width: 100%; }
+.cf-calc-out { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); margin-top: -1px; border: 1px solid var(--cf-line); border-top: 3px solid var(--cf-accent); background: var(--cf-surface); }
+.cf-calc-teams { display: grid; align-content: start; gap: var(--s2); padding: var(--s3) var(--s4); }
+.cf-calc-row { display: grid; grid-template-columns: 28px minmax(0, 9rem) minmax(40px, 1fr) 3.5rem; align-items: center; gap: var(--s3); color: var(--cf-ink); }
+.cf-calc-name { font-weight: 600; font-size: .9375rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-calc-bar { height: 6px; background: var(--cf-fill-2); }
+.cf-calc-bar i { display: block; height: 100%; background: var(--cf-muted); }
+.cf-calc-bar i { background: var(--team-a, var(--cf-muted)); }
+.cf-calc-row.is-fav .cf-calc-bar i { opacity: 1; }
+.cf-calc-pct { text-align: right; font-family: var(--cf-font-cond); font-size: 1.125rem; font-weight: 700; }
+.cf-calc-facts { display: grid; align-content: start; margin: 0; padding: var(--s2) var(--s4); border-left: 1px solid var(--cf-line); }
+.cf-calc-facts > div { display: flex; justify-content: space-between; gap: var(--s3); padding: 6px 0; font-size: .875rem; }
+.cf-calc-facts > div + div { border-top: 1px solid var(--cf-line); }
+.cf-calc-facts dt { font-family: var(--cf-font-cond); font-size: .8125rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--cf-muted); }
+.cf-calc-facts dd { margin: 0; font-weight: 600; text-align: right; }
+@media (max-width: 899px) {
+  .cf-calc-match { grid-template-columns: 1fr; }
+  .cf-calc-at { padding: 0; }
+  .cf-calc-out { grid-template-columns: minmax(0, 1fr); }
+  .cf-calc-match, .cf-calc-out { min-width: 0; }
+  .cf-calc-row { grid-template-columns: 28px minmax(0, 1fr) 3.5rem; grid-template-areas: 'l n p' '. b b'; row-gap: 4px; }
+  .cf-calc-row > :nth-child(1) { grid-area: l; } .cf-calc-name { grid-area: n; } .cf-calc-pct { grid-area: p; } .cf-calc-bar { grid-area: b; }
+  .cf-calc-facts { border-left: 0; border-top: 1px solid var(--cf-line); }
+}
+
+/* Comparison bars: away grows left from the centre line, home grows right; the stronger side is blue. */
+.cf-calc-cmp { display: grid; gap: 2px; margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--cf-line); }
+.cf-calc-cmphead { display: flex; justify-content: space-between; font-family: var(--cf-font-cond); font-size: .8125rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--cf-ink-2); }
+.cf-calc-cmprow { display: grid; grid-template-columns: 3rem minmax(0, 1fr) 3rem; grid-template-areas: '. k .' 'a t h'; align-items: center; column-gap: var(--s3); padding: 2px 0 6px; }
+.cf-calc-cmprow .cf-calc-k { grid-area: k; text-align: center; font-size: .75rem; }
+.cf-calc-cmprow > :nth-child(2) { grid-area: a; text-align: left; }
+.cf-calc-cmprow > :nth-child(3) { grid-area: t; }
+.cf-calc-cmprow > :nth-child(4) { grid-area: h; text-align: right; }
+.cf-calc-v { font-size: .9375rem; font-weight: 600; font-family: var(--cf-font-body, inherit); }
+.cf-calc-track { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; height: 8px; }
+.cf-calc-track > span { display: flex; background: var(--cf-fill-2); }
+.cf-calc-track .l { justify-content: flex-end; }
+.cf-calc-track i { display: block; height: 100%; background: var(--team-a, var(--cf-muted)); }
+.cf-calc-track i.lead { opacity: 1; }
+@keyframes cf-calc-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: no-preference) {
+  .cf-calc-bar i, .cf-calc-track i { animation: cf-calc-grow 700ms var(--cf-ease) both; animation-delay: 80ms; }
+  .cf-calc-bar i, .cf-calc-track .r i { transform-origin: left; }
+  .cf-calc-track .l i { transform-origin: right; }
+  .cf-calc-track > :nth-of-type(n) i { animation-delay: 160ms; }
+  .cf-calc-cmprow:nth-of-type(3) i { animation-delay: 260ms; }
+  .cf-calc-cmprow:nth-of-type(4) i { animation-delay: 360ms; }
+}
+
+.cf-calc-facts .cf-calc-hd, .cf-calc-facts .cf-calc-pr { display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline; gap: var(--s3); }
+.cf-calc-facts .cf-calc-hd { margin-top: var(--s2); padding-top: var(--s3); border-top: 1px solid var(--cf-line); font-family: var(--cf-font-cond); font-size: .8125rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--cf-ink-2); }
+.cf-calc-facts .cf-calc-hd > :first-child, .cf-calc-facts .cf-calc-pr > :first-child { text-align: left; }
+.cf-calc-facts .cf-calc-hd > :last-child, .cf-calc-facts .cf-calc-pr > :last-child { text-align: right; }
+.cf-calc-facts .cf-calc-hd > :nth-child(2) { color: var(--cf-muted); font-weight: 600; }
+.cf-calc-facts .cf-calc-pr { border-top: 0; padding: 4px 0; }
+.cf-calc-facts .cf-calc-pr dt { text-align: center; font-size: .75rem; }
+.cf-calc-facts .cf-calc-pr dd { font-weight: 600; text-align: inherit; }
+.cf-calc-facts > .cf-calc-pr + .cf-calc-pr { border-top: 0; }
+
+/* Head-to-head header: title and hint on the left, a chevron at the far edge. */
+.cf-calc > summary { align-items: center; gap: var(--s3); padding: var(--s3) 0; }
+.cf-calc > summary::before { content: none; }
+.cf-calc-title { padding-right: var(--s3); border-right: 1px solid var(--cf-line); line-height: 1.2; }
+.cf-calc-hint { font-family: var(--cf-font-cond); font-size: .875rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--cf-muted); }
+.cf-calc-chev { margin-left: auto; width: 8px; height: 8px; border-right: 2px solid var(--cf-ink-2); border-bottom: 2px solid var(--cf-ink-2); transform: rotate(45deg) translateY(-2px); transition: transform var(--m-quick) var(--cf-ease); }
+.cf-calc[open] .cf-calc-chev { transform: rotate(-135deg) translateY(-2px); }
+@media (max-width: 599px) { .cf-calc-title { border-right: 0; } .cf-calc-hint { flex-basis: 100%; order: 3; } }
+
+/* ---------------------------------------------------------------------------------------------
+   Phone pass (≤767px only; nothing here can reach tablet or desktop).
+   Tables scroll inside their frame, form controls are 16px (no iOS focus zoom), and tap targets
+   reach 44px, by growing the control or, inside dense tables, by an invisible hit area. */
+@media (max-width: 767px) {
+  /* Wide tables: site.css sets overflow-x:auto in a media query, but a later base rule resets it to visible. */
+  .cf-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  /* Résumé table: with the wide columns already hidden at this width, fit the five that remain in the frame (no sideways scroll). */
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] th { line-height: 1.2; padding-top: 6px; padding-bottom: 8px; white-space: normal; vertical-align: bottom; font-size: .75rem; letter-spacing: .02em; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] :is(th, td) { padding-left: 4px !important; padding-right: 4px !important; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] col:nth-child(1) { width: 19% !important; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] col:nth-child(3) { width: 14% !important; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] col:nth-child(4) { width: 14% !important; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] col:nth-child(8) { width: 17% !important; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] .cf-info-btn { display: none; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] th .cf-th, .cf-table-wrap > .cf-table[style*="table-layout: fixed"] th .cf-info { display: flex; align-items: flex-end; justify-content: center; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] th .cf-sort { line-height: 1.2; text-align: center; min-height: 0; height: auto; align-items: flex-end; }
+  /* Logo only on phones; the name stays in the accessibility tree (visually hidden, not display:none). */
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] .cf-team-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] .cf-team { justify-content: center; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] col:nth-child(2) { width: 18% !important; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] col:nth-child(1) { width: 22% !important; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] col:nth-child(3), .cf-table-wrap > .cf-table[style*="table-layout: fixed"] col:nth-child(4), .cf-table-wrap > .cf-table[style*="table-layout: fixed"] col:nth-child(8) { width: 20% !important; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] :is(th, td):nth-child(2) { text-align: center; }
+  .cf-table-wrap > .cf-table[style*="table-layout: fixed"] td:nth-child(2) .cf-team { display: flex; justify-content: center; }
+
+  /* Conference vs. hero: two 148px logos plus "vs" overflow a 375px screen. */
+  :root .cf-confhead.cf-vshead .cf-confhero-logo { width: 96px; height: 96px; }
+  :root .cf-themed .cf-confhead.cf-vshead .cf-confhero-logo img { width: 80px; height: 80px; }
+
+  /* Inputs under 16px make iOS Safari zoom the page on focus. */
+  :root :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { font-size: 16px; }
+  :root input:is([type="search"], [type="text"], :not([type])) { min-height: 44px; }
+
+  /* Tap targets: grow standalone controls to 44px. */
+  .cf-icon-btn, .cf-tk-btn { width: 44px; height: 44px; }
+  .cf-select select, .cf-btn, .cf-seg button, .cf-cc-toggle, .cf-pick { min-height: 44px; }
+  .cf-seg > a { display: inline-flex; align-items: center; min-height: 44px; }
+  .cf-check { min-height: 44px; align-items: center; }
+  .cf-check input { width: 20px; height: 20px; }
+  details > summary { min-height: 44px; display: flex; flex-wrap: wrap; align-items: center; }
+
+  /* Dense rows and inline links: an invisible 44px hit area so the layout does not move. */
+  .cf-sort, .cf-plink, .cf-more, .cf-table td > button[aria-expanded] { position: relative; }
+  .cf-sort::after, .cf-plink::after, .cf-table td > button[aria-expanded]::after { content: ""; position: absolute; inset: -12px -4px; }
+  .cf-more::after { content: ""; position: absolute; inset: -14px -4px; }
+  .cf-info-btn::after { inset: -14px; }
+
+  /* Conferences list: every row is its own grid, so the last column must be a fixed width or the header drifts off the values. */
+  :root .cf-cl-row { grid-template-columns: 64px minmax(0, 1.3fr) minmax(0, 1.2fr) 4.5rem; gap: var(--s3); }
+  :root .cf-cl-n { display: grid; place-items: center; }
+  :root .cf-cl-n img { width: 60px !important; height: 60px !important; }
+  :root .cf-cl-head { align-items: end; line-height: 1.2; }
+  :root .cf-cl-head > [role="columnheader"]:last-of-type, :root .cf-cl-head > [role="columnheader"]:nth-child(6) { text-align: center; }
+  :root .cf-cl-head .cf-info { display: inline; }
+
+  /* Conference chart toggles: Power 4 on the top row, everyone else on the bottom row, both spanning the full width
+     (28 columns = 4 x 7 = 7 x 4). The colour swatch becomes a bar above the label so the 7 labels fit. */
+  :root .cf-cc-toggles { display: grid; grid-template-columns: repeat(28, minmax(0, 1fr)); gap: 3px; overflow: visible; }
+  :root .cf-cc-toggle { grid-column: span 4; min-width: 0; flex-direction: column; gap: 4px; padding: 0 1px; font-size: .65625rem; letter-spacing: -.01em; overflow: hidden; }
+  :root .cf-cc-toggle:nth-child(-n+4) { grid-column: span 7; font-size: .8125rem; }
+  :root .cf-cc-swatch { width: 60%; height: 3px; margin: 0; flex: none; }
+  :root .cf-cc-swatch.is-dot { width: 60%; height: 3px; border-radius: 0; }
+
+  /* Projected conference standings: logo-only team column (name stays for screen readers). */
+  :root .cf-confodds :is(th, td):nth-child(2) { min-width: 3.5rem; max-width: 3.5rem; text-align: center; }
+  :root .cf-confodds td:nth-child(2) .cf-team { display: flex; justify-content: center; }
+  :root .cf-confodds td:nth-child(2) .cf-team-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  :root .cf-confodds th:nth-child(2) .cf-th { justify-content: center; }
+  /* ...and tighten the rest so all ten win-count columns fit without scrolling (10px figures, 1px padding). */
+  :root .cf-confodds :is(th, td) { padding-left: 1px; padding-right: 1px; font-size: .625rem; letter-spacing: 0; }
+  :root .cf-confodds :is(th, td):is(:nth-child(3), :nth-child(4)) { font-size: .6875rem; }
+  :root .cf-confodds .cf-co-n { min-width: 1.5rem; }
+  :root .cf-confodds :is(th, td):nth-child(2) { min-width: 2.25rem; max-width: 2.25rem; }
+  :root .cf-confodds td:nth-child(2) .cf-logo { width: 18px !important; height: 18px !important; }
+
+  /* Depth chart: wrap the formation rows to the screen instead of scrolling sideways (the 11-man row becomes 6 + 5). */
+  :root .cf-dc-hint { display: none; }
+  :root .cf-dc-scroll { overflow-x: visible; margin: 0; padding: 0; }
+  :root .cf-dc.is-flex { min-width: 0; padding: var(--s3) 6px; }
+  :root .cf-dc-row, :root .cf-dc-row.is-wide, :root .cf-dc-group, :root .cf-dc-mid { flex-wrap: wrap; justify-content: center; gap: 8px 2px; }
+  /* Offense: receivers (slot, WR2, TE, WR) on one line above the line and backfield, like the formation. */
+  :root .cf-dc-row.is-wide > :is(.cf-dc-slot, .cf-dc-group) { order: 1; }
+  :root .cf-dc-row.is-wide > .cf-dc-oline { order: 2; flex-basis: 100%; margin-top: 4px; }
+  :root .cf-dc-group.is-lift { margin-top: 0; }
+  :root .cf-dc.is-flex .cf-dc-slot { width: 54px; }
+  :root .cf-dc.is-flex .cf-dc-face { width: 40px; height: 40px; }
+  :root .cf-dc.is-flex .cf-dc-pos { font-size: .6875rem; }
+  :root .cf-dc.is-flex .cf-dc-name { font-size: .6875rem; }
+  :root .cf-dc.is-flex .cf-dc-bits, :root .cf-dc.is-flex .cf-dc-stat { font-size: .625rem; letter-spacing: -.01em; }
+  :root .cf-dc.is-flex .cf-dc-bits { white-space: normal; }
+
+  /* Players table: show every stat column (the site hid all but three on phones). The player column stays pinned
+     while the stats scroll sideways. */
+  :root .cf-players-table { table-layout: auto; min-width: 760px; }
+  :root .cf-players-table th.cf-hide-sm, :root .cf-players-table td.cf-hide-sm { display: table-cell; }
+  :root .cf-players-table tr.cf-hide-sm { display: table-row; }
+  :root .cf-players-table col:first-child { width: 11rem; }
+  :root .cf-players-table :is(th, td):first-child { position: sticky; top: auto; left: 0; z-index: 2; background: var(--cf-surface); box-shadow: 1px 0 0 var(--cf-line); }
+  :root .cf-players-table :is(th, td):not(:first-child) { padding-left: 8px; padding-right: 8px; }
+  :root .cf-players-table thead tr:last-child th:first-child { vertical-align: bottom; white-space: nowrap; line-height: 1.2; }
+  :root .cf-players-table thead tr:first-child th:first-child { position: sticky !important; top: auto; left: 0; background: var(--cf-surface); }
+
+  /* Teams table: the logo-only team column is centred under its header. */
+  :root .cf-teams-table :is(th, td):nth-child(2) { text-align: center; }
+  :root .cf-teams-table td:nth-child(2) .cf-team { justify-content: center; }
+
+  /* Recruiting hub: its tables sit in grid blocks, not .cf-table-wrap, so they pushed the page wide. */
+  :root .rc-blk { overflow-x: auto; }
+  :root .rc-tabs a { min-height: 44px; }
+}
+
+/* Résumé table: centred headers sit exactly over their centred values. The sort arrow hangs off the label
+   instead of reserving space beside it, so the label itself is what centres (SortTh pads 24px to compensate). */
+.cf-table-wrap > .cf-table[style*="table-layout: fixed"] th[style*="text-align: center"] { padding-left: 10px !important; }
+.cf-table-wrap > .cf-table[style*="table-layout: fixed"] .cf-sort { position: relative; }
+.cf-table-wrap > .cf-table[style*="table-layout: fixed"] .cf-sort-icon { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 2px; }

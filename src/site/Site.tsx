@@ -70,7 +70,7 @@ function route(path: string) {
     // What changed now lives on Home; old links land on that section.
     '/changes/': [<Redirect to="/#changed" />, 'College Football Power Ratings'],
     '/changed/': [<Redirect to="/#changed" />, 'College Football Power Ratings'],
-    '/rankings/resume/': [<Resume />, 'Résumé ranking'],
+    '/rankings/resume/': [<Resume />, 'Résumé Ranking'],
     '/whatif/': [<WhatIf />, 'What If?'],
     '/model/': [<Model />, 'Model'],
     '/simulations/': [<LegacySimulations />, 'Season simulations'],
