@@ -21,6 +21,7 @@ export default function Games() {
   const lines = useLines()
   const history = useData<HistoryDoc>('history.json')
   const index = useData<IndexDoc>('index.json')
+  const marquee = (g: Game) => { const a = rankOf.get(g.away_id)?.rank, h = rankOf.get(g.home_id)?.rank; return a != null && h != null && a <= 30 && h <= 30 }   // same rule as the ticker
   const rankOf = useMemo(() => new Map((index.data?.teams ?? []).filter(t => t.rank != null).map(t => [t.team_id, { rank: t.rank!, record: t.wins != null ? `${t.wins}–${t.losses}` : null }])), [index.data])
   const review = useReview(doc.data?.games ?? [], history.data, doc.data?.meta.season ?? 2026, doc.data?.meta.hfa ?? null)
   // Past weeks: Line = OPENING spread (home perspective, negative = home favored); Model = the pre-game projection recomputed
@@ -113,7 +114,7 @@ export default function Games() {
                 <th scope="col" className="cf-th-go"><span className="cf-sr">Open matchup</span></th>
               </tr></thead>
               <tbody>{upcoming.map(g => { const p = projection(g); const k = quoteOf(g); const e = edgeOf(g); const ab = (id: string) => teams.get(id)?.abbreviation ?? teams.get(id)?.team ?? ''
-                const when = new Date(g.kickoff); return <tr key={g.game_id} className="cf-row-link">
+                const when = new Date(g.kickoff); return <tr key={g.game_id} className={`cf-row-link${marquee(g) ? ' is-marquee' : ''}`}>
                 <td className="cf-nowrap"><Link to={`/games/${g.game_id}/`} className="cf-rowlink" aria-label={`${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team}: matchup breakdown`}>
                   <span style={{ display: 'block', fontWeight: 500 }}>{activeWeek == null && <span className="cf-muted">Wk {g.week} · </span>}{when.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                   <span className="cf-small cf-muted">{kickoffText(g, false)}</span></Link></td>
@@ -151,7 +152,7 @@ export default function Games() {
                 const actual = (g.home_points ?? 0) - (g.away_points ?? 0)
                 const mark = (good: boolean) => <b style={{ color: good ? 'var(--cf-up)' : 'var(--cf-down)' }}>{good ? '✓' : '✗'}</b>
                 const gr = gradePick(g, m, k)
-                return <tr key={g.game_id} className="cf-row-link">
+                return <tr key={g.game_id} className={`cf-row-link${marquee(g) ? ' is-marquee' : ''}`}>
                 <td className="cf-nowrap"><Link to={`/games/${g.game_id}/`} className="cf-rowlink" aria-label={`${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team}: matchup breakdown`}>
                   <span style={{ display: 'block', fontWeight: 500 }}>{activeWeek == null && <span className="cf-muted">Wk {g.week} · </span>}{when.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                   <span className="cf-small cf-muted">{kickoffText(g, false)}</span></Link></td>

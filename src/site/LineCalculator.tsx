@@ -33,7 +33,6 @@ export default function LineCalculator() {
     result = { margin, pHome: phi(margin / sigma) }
   }
   const fav = result && (result.margin >= 0 ? h! : a!)
-  const pFav = result && Math.max(result.pHome, 1 - result.pHome)
   const size = Math.abs(result?.margin ?? 0)
   // Watchability = the site's Matchup Quality (strength from current ranks x closeness of the model win probability).
   const ranked = (index.data.teams ?? []).filter(t => t.rank != null).length
