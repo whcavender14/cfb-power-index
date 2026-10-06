@@ -5,7 +5,7 @@ import { createCanvas } from '../exportImage'
 import type { Conference, Meta, TeamMeta, TeamRow } from './data'
 import { logo, logosFor, stamp, text } from './share'
 
-export const CONF_COLORS = ['#5aa5eb', '#0b1b33', '#d4a017', '#1d7a3a', '#c0362c', '#7a5ab8', '#e07b39', '#2a9d8f', '#8d6e63', '#b0397a', '#4b5563']
+import { conferenceColors } from './confColors'
 const INK = '#0b1b33', MUTE = '#5f6d82', LINE = '#dbe3ee', BG = '#f2f5f9'
 
 async function brandImage(): Promise<HTMLImageElement | null> {
@@ -16,7 +16,8 @@ async function brandImage(): Promise<HTMLImageElement | null> {
 export type ChartPoint = { id: string; x: number; y: number; size: number }
 export async function conferenceChart(meta: Meta, rows: TeamRow[], confs: Conference[], dir: Map<string, TeamMeta>) {
   const power = new Map(rows.filter(r => r.power != null).map(r => [r.team_id, r.power!]))
-  const series = confs.map((c, i) => ({ c, color: CONF_COLORS[i % CONF_COLORS.length],
+  const colors = conferenceColors(false)   // the PNG is always on the light background
+  const series = confs.map(c => ({ c, color: colors[c.slug] ?? '#4a5568',
     teams: c.team_ids.filter(id => power.has(id)).sort((a, b) => power.get(b)! - power.get(a)!) }))
   const logos = await logosFor(series.flatMap(s => s.teams), dir)
   const brand = await brandImage()

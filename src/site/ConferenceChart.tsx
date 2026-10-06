@@ -4,10 +4,9 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { Conference, TeamMeta, TeamRow } from './data'
 
-/** Same palette as the PNG export (confChart.ts), indexed by the conference's place in the full list. */
-export const CONF_PALETTE = ['#5aa5eb', '#0b1b33', '#d4a017', '#1d7a3a', '#c0362c', '#7a5ab8', '#e07b39', '#2a9d8f', '#8d6e63', '#b0397a', '#4b5563']
-/** Navy has no contrast on the dark theme, so it swaps to a light slate there. */
-export const confColor = (i: number, dark: boolean) => { const c = CONF_PALETTE[i % CONF_PALETTE.length]; return dark && c === '#0b1b33' ? '#cbd5e3' : c }
+import { conferenceColors } from './confColors'
+/** A conference's line colour: its own brand colour, or its alternate where two would be confused (see confColors.ts). */
+export const confColor = (slug: string, dark: boolean) => conferenceColors(dark)[slug] ?? '#4a5568'
 
 export type ChartPoint = { id: string; x: number; y: number; size: number }
 export type ChartLayout = { W: number; H: number; points: ChartPoint[]; plot: { x0: number; x1: number; y0: number; y1: number }
@@ -27,12 +26,13 @@ export function useElementWidth<T extends HTMLElement>() {
   return [ref, w] as const
 }
 
-export function layoutChart(W: number, chosen: Conference[], all: Conference[], rows: TeamRow[], dark: boolean): ChartLayout {
+export function layoutChart(W: number, chosen: Conference[], rows: TeamRow[], dark: boolean): ChartLayout {
   const power = new Map(rows.filter(r => r.power != null).map(r => [r.team_id, r.power!]))
   const narrow = W < 560
   const H = narrow ? 360 : Math.round(Math.min(560, Math.max(430, W * 0.46)))
   const pad = { l: narrow ? 34 : 46, r: narrow ? 8 : 14, t: 14, b: narrow ? 40 : 50 }
-  const teams = chosen.map(c => ({ c, color: confColor(all.indexOf(c), dark), ids: c.team_ids.filter(id => power.has(id)).sort((a, b) => power.get(b)! - power.get(a)!) }))
+  const colors = conferenceColors(dark)
+  const teams = chosen.map(c => ({ c, color: colors[c.slug] ?? '#4a5568', ids: c.team_ids.filter(id => power.has(id)).sort((a, b) => power.get(b)! - power.get(a)!) }))
   const vals = teams.flatMap(s => s.ids.map(id => power.get(id)!))
   const lo = Math.floor(Math.min(...vals, 0) / 5) * 5 - 5, hi = Math.ceil(Math.max(...vals, 0) / 5) * 5 + 5
   const maxN = Math.max(...teams.map(s => s.ids.length), 1)

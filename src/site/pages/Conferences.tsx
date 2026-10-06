@@ -67,7 +67,7 @@ function ConferenceComparison({ meta, conferences, rows }: { meta: ConferencesDo
   const dark = useThemeName() === 'dark'
   const [find, setFind] = useState('')
   const [wrap, width] = useElementWidth<HTMLDivElement>()
-  const chart = useMemo(() => width > 0 && chosen.length && dir.size ? layoutChart(width, chosen, conferences, rows, dark) : null, [width, chosen, conferences, rows, dark, dir])
+  const chart = useMemo(() => width > 0 && chosen.length && dir.size ? layoutChart(width, chosen, rows, dark) : null, [width, chosen, rows, dark, dir])
   const [hot, setHot] = useState<string | null>(null)
   const byId = useMemo(() => new Map(rows.map(r => [r.team_id, r])), [rows])
   // Current place in each conference's standings (by conference record, then overall record; equal records share a place, shown "T-")
@@ -116,7 +116,7 @@ function ConferenceComparison({ meta, conferences, rows }: { meta: ConferencesDo
     <div className="cf-cc-toggles" role="group" aria-label="Conferences to compare">
       {conferences.map(c => <button key={c.slug} type="button" className="cf-btn cf-cc-toggle" aria-pressed={picked.includes(c.slug)} onClick={() => toggle(c.slug)}
         style={picked.includes(c.slug) ? { background: 'var(--cf-ink)', color: 'var(--cf-bg)' } : undefined}>
-        <i className={`cf-cc-swatch${c.is_conference ? '' : ' is-dot'}`} style={{ background: confColor(conferences.indexOf(c), dark) }} aria-hidden="true" /><span className="cf-cc-full">{c.is_conference ? c.name : 'Independents'}</span><span className="cf-cc-short" aria-hidden="true">{confShort(c)}</span></button>)}
+        <i className={`cf-cc-swatch${c.is_conference ? '' : ' is-dot'}`} style={{ background: confColor(c.slug, dark) }} aria-hidden="true" /><span className="cf-cc-full">{c.is_conference ? c.name : 'Independents'}</span><span className="cf-cc-short" aria-hidden="true">{confShort(c)}</span></button>)}
     </div>
     <div className="cf-panel" ref={wrap}>
       {find.trim().length >= 2 && chart && hits && hits.size === 0 && <p className="cf-muted cf-small" role="status" style={{ margin: '4px 0 0' }}>No team matching “{find.trim()}” in the selected conferences.</p>}
