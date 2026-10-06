@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import "tailwindcss" source("./");
 
 /* ═══════════════════════ CFB Power Index design tokens ═══════════════════════
    Cream paper, charcoal ink, "stadium navy" as the working accent and brass as
