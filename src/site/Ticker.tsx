@@ -10,7 +10,7 @@ import { Link } from './router'
  *  focus or the button; static and scrollable under reduced motion. */
 const SIZE = 10
 const UNRANKED = 9999
-const MARQUEE = 30   // both teams ranked this high or better get a highlight
+const MARQUEE = 15   // both teams ranked this high or better get a highlight
 /** Static strip of logo + rank only (no scrolling). Set false for the scrolling Vegas/CFPi line ticker. */
 const LOGO_ONLY = false
 

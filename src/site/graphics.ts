@@ -168,7 +168,7 @@ export async function gamesPng(meta: Meta, games: Game[], dir: Dir, week: number
       const x = X0 + (i % COLS) * (CW + GAP), cy = y + Math.floor(i / COLS) * (CH + GAP)
       rr(ctx, x, cy, CW, CH, 6); ctx.fillStyle = '#ffffff'; ctx.fill(); ctx.strokeStyle = LINE; ctx.lineWidth = 1; ctx.stroke()
       const k = vegas(g), m = g.spread_home
-      const marquee = (ranks.get(g.away_id) ?? 999) <= 30 && (ranks.get(g.home_id) ?? 999) <= 30
+      const marquee = (ranks.get(g.away_id) ?? 999) <= 15 && (ranks.get(g.home_id) ?? 999) <= 15
       const edge = k != null && m != null ? m + k : null   // home perspective: > 0 = the model likes the home side more than the line
       // Strip: kickoff (or the final score) and the column captions
       ctx.fillStyle = '#f6f6f8'; rr(ctx, x + 1, cy + 1, CW - 2, STRIP - 1, [5, 5, 0, 0]); ctx.fill()
@@ -195,7 +195,7 @@ export async function gamesPng(meta: Meta, games: Game[], dir: Dir, week: number
         if (mFav) t(ctx, `−${Math.abs(m!).toFixed(1)}`, x + CW * 5 / 6, ry + 26, { size: 16, weight: 700, color: pick ? ACC : MUTE, align: 'center' })
         else if (m != null && Math.abs(m) < 0.05) t(ctx, 'EVEN', x + CW * 5 / 6, ry + 26, { size: 16, weight: 700, color: MUTE, align: 'center' })
       })
-      // Gold outline: both teams are top-30 CFPi+ (same rule as the home-page ticker)
+      // Gold outline: both teams are top-15 CFPi+ (same rule as the home-page ticker)
       if (marquee) { rr(ctx, x + 1.5, cy + 1.5, CW - 3, CH - 3, 6); ctx.strokeStyle = GOLD; ctx.lineWidth = 3; ctx.stroke() }
       // Footer: watchability as a labelled meter
       const fy = cy + STRIP + ROW * 2
