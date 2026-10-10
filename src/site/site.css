@@ -818,7 +818,7 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-tk-rk-solo { min-width: 0; margin-left: auto; font-size: .875rem; font-weight: 600; color: var(--cf-ink); }
 .cf-tk-static .cf-tk-team { gap: 10px; }
 
-/* Both teams in the top 30: thin gold outline. */
+/* Both teams in the top 15: thin gold outline. */
 .cf-tk .cf-tk-item > a.cf-tk-marquee { background: transparent; box-shadow: inset 0 0 0 1.5px #d4a017; }
 .cf-tk .cf-tk-item > a.cf-tk-marquee:hover { background: var(--cf-fill-2); }
 

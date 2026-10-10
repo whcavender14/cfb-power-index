@@ -15,7 +15,7 @@ export type DayCardsContext = {
   showWeek: boolean                            // "All weeks": say which week each card is from
 }
 
-const MARQUEE = 30   // same rule as the ticker: both teams ranked this high or better get the gold outline
+const MARQUEE = 15   // same rule as the ticker: both teams ranked this high or better get the gold outline
 const dayKey = (g: Game) => new Date(g.kickoff).toDateString()
 const dayLabel = (g: Game) => new Date(g.kickoff).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })
 
