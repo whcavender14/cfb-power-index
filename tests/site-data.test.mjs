@@ -87,7 +87,12 @@ test('rejects a leaderboard player without a profile file', () => {
   assert.ok(broken(leaders('rushing'), d => { d.rows[0][0] = '999999999' }).some(e => e.includes('no player/999999999.json')))
 })
 test('rejects PPA published from a pull that does not line up with the ratings week', () => {
-  assert.ok(broken(leaders('receiving'), d => { d.ppa.available = false; d.ppa.reason = 'pulled after week 5 games had started' }).some(e => e.includes('PPA published')))
+  // Plant a PPA value so the test does not depend on whether the refreshed pull published any.
+  assert.ok(broken(leaders('receiving'), d => {
+    const i = d.columns.indexOf('ppa_avg')
+    d.ppa = { available: false, reason: 'pulled after week 5 games had started', pulled_at: d.ppa?.pulled_at ?? null }
+    d.rows[0][i] = 0.5
+  }).some(e => e.includes('PPA published')))
 })
 test('rejects a leaderboard for a different week', () => {
   assert.ok(broken(leaders('defense'), d => { d.through_week -= 1 }).some(e => e.includes('ratings week')))
