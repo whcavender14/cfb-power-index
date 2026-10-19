@@ -1,7 +1,8 @@
+import { useMemo } from 'react'
 import ShareButton from '../ShareButton'
 import { DataGate, Freshness, Info, Num, PageHead, Pct, pctText, Segmented, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, type Sort } from '../components'
 import { currentBracket, ROUND_LABELS, simBracket, type BracketGame, type BracketTeam, type SimBracket } from '../bracket'
-import type { ConferencesDoc, PlayoffDoc, PlayoffTeam, ResumeDoc } from '../data'
+import type { ConferencesDoc, GamesDoc, PlayoffDoc, PlayoffTeam, ResumeDoc } from '../data'
 import { Link, useQueryParam } from '../router'
 
 const INFO: Record<string, string> = {
@@ -27,8 +28,49 @@ function BTeam({ t, won, champ }: { t: BracketTeam; won: boolean; champ?: boolea
     <TeamLink id={t.team_id} size={20} sub={t.wins != null ? `${t.wins}–${t.losses}` : undefined} />
   </div>
 }
-function BGame({ g, champion }: { g: BracketGame; champion: BracketTeam }) {
+/** Current view (field only): first round and byes are shown; later rounds are left empty and nothing is highlighted. */
+/** 2026–27 playoff sites (collegefootballplayoff.com/news/2026/2/3/2627-2728-bowls.aspx). Keyed by round and the game's
+ *  index in that round (quarterfinals: 1, 4, 2, 3 seed sides; semifinals: left, right). The championship is fixed. The
+ *  quarterfinal and semifinal bowl-to-slot assignment is PROVISIONAL: the CFP sets it with the field on Dec 6. */
+type Site = { logo?: string; teamId?: string; name: string; when: string; where: string }
+const SITES: Record<string, Site> = {
+  '1-0': { logo: 'rose', name: 'Rose Bowl', when: 'Jan 1', where: 'Pasadena, CA' },
+  '1-1': { logo: 'peach', name: 'Peach Bowl', when: 'Jan 1', where: 'Atlanta, GA' },
+  '1-2': { logo: 'cotton', name: 'Cotton Bowl', when: 'Jan 1', where: 'Arlington, TX' },
+  '1-3': { logo: 'fiesta', name: 'Fiesta Bowl', when: 'Dec 30', where: 'Glendale, AZ' },
+  '2-0': { logo: 'orange', name: 'Orange Bowl', when: 'Jan 14', where: 'Miami Gardens, FL' },
+  '2-1': { logo: 'sugar', name: 'Sugar Bowl', when: 'Jan 15', where: 'New Orleans, LA' },
+  '3-0': { logo: 'cfp-final', name: 'CFP National Championship', when: 'Jan 25', where: 'Las Vegas, NV' },
+}
+function SiteTag({ site }: { site?: Site }) {
+  if (!site) return null
+  return <div className="cf-brk-site" title={`${site.name} · ${site.when} · ${site.where}`}>
+    {site.teamId
+      ? <TeamLogo id={site.teamId} name={site.name} size={16} />
+      : <img src={`${import.meta.env.BASE_URL}logos/bowls/${site.logo}.svg`} alt={site.name} width={28} height={18} loading="lazy" />}
+    <span>{site.when} · {site.where}</span>
+  </div>
+}
+const WINNER_OF: Record<number, string> = { 8: '8/9', 9: '8/9', 5: '5/12', 12: '5/12', 7: '7/10', 10: '7/10', 6: '6/11', 11: '6/11' }
+/** An empty slot: the same height as a team row (an invisible copy of it), optionally with a muted label. */
+function Ghost({ t, label, second, final }: { t: BracketTeam; label?: string; second?: boolean; final?: boolean }) {
+  // second rows carry the 1px divider; the final's rows are 38px tall with the divider inside that height
+  return <div style={{ position: 'relative', borderTop: second ? '1px solid var(--cf-line)' : undefined, height: second && final ? 38 : undefined, overflow: second && final ? 'hidden' : undefined }}>
+    <div style={{ visibility: 'hidden' }} aria-hidden="true"><BTeam t={t} won={false} /></div>
+    {label && <span className="cf-muted cf-small" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }}>{label}</span>}
+  </div>
+}
+function BGame({ site, ...p }: { g: BracketGame; champion: BracketTeam; field?: boolean; site?: Site }) {
+  return site ? <div className={`cf-brk-slot${p.g.round === 3 ? ' is-final' : ''}`}><SiteTag site={site} /><GameBox {...p} /></div> : <GameBox {...p} />
+}
+function GameBox({ g, champion, field }: { g: BracketGame; champion: BracketTeam; field?: boolean }) {
   const final = g.round === 3
+  if (field) {   // same boxes and heights as the projected bracket (no movement between tabs); future games stay empty
+    return <div className={`cf-brk-game${final ? ' is-final' : ''}`}>
+      {g.round <= 1 ? <BTeam t={g.top} won={false} /> : <Ghost t={g.top} />}
+      {g.round === 0 ? <BTeam t={g.bottom} won={false} /> : <Ghost second final={final} t={g.bottom} label={g.round === 1 ? `Winner of the ${WINNER_OF[g.bottom.seed]} game` : undefined} />}
+    </div>
+  }
   return <div className={`cf-brk-game${final ? ' is-final' : ''}`}>
     <BTeam t={g.top} won={g.winner === g.top} champ={final && g.winner === g.top && g.top === champion} />
     <BTeam t={g.bottom} won={g.winner === g.bottom} champ={final && g.winner === g.bottom && g.bottom === champion} />
@@ -36,31 +78,36 @@ function BGame({ g, champion }: { g: BracketGame; champion: BracketTeam }) {
 }
 /** Desktop: the image's layout (first round, quarterfinals, semifinals | final | semifinals, quarterfinals, first round).
  *  Below 1100 px: collapsed by round, so nothing scrolls the page sideways. */
-function Bracket({ b, current }: { b: SimBracket; current: boolean }) {
+function Bracket({ b, current, venues }: { b: SimBracket; current: boolean; venues: Map<string, string> }) {
   const [fr, qf, sf, [fin]] = b.rounds
+  // First round is played on campus: the higher seed (the top team) hosts, on Dec 18 or 19 (which game is which is not set yet).
+  const siteOf = (g: BracketGame): Site | undefined => g.round === 0
+    ? { teamId: g.top.team_id, name: venues.get(g.top.team_id) ?? 'Campus site', when: 'Dec 18–19', where: venues.get(g.top.team_id) ?? 'Campus site' }
+    : SITES[`${g.round}-${b.rounds[g.round].indexOf(g)}`]
+  const gone = current ? { visibility: 'hidden' as const } : undefined   // champion details stay empty until decided
   const col = (label: string, games: BracketGame[], note?: string) => <div className="cf-brk-col">
     <h3 className="cf-brk-head">{label}{note && <small>{note}</small>}</h3>
-    <div className="cf-brk-games">{games.map((g, i) => <BGame key={i} g={g} champion={b.champion} />)}</div>
+    <div className="cf-brk-games">{games.map((g, i) => <BGame key={i} g={g} champion={b.champion} field={current} site={siteOf(g)} />)}</div>
   </div>
   return <>
     <div className="cf-brk" role="group" aria-label={current ? 'Current bracket' : 'Projected bracket'}>
-      {col('First round', fr.slice(0, 2), 'Higher seed hosts')}{col('Quarterfinals', qf.slice(0, 2))}{col('Semifinals', sf.slice(0, 1))}
+      {col('First round', fr.slice(0, 2))}{col('Quarterfinals', qf.slice(0, 2))}{col('Semifinals', sf.slice(0, 1))}
       <div className="cf-brk-col is-center">
         <div className="cf-brk-champ">
           <span className="cf-brk-kicker">Champion</span>
-          <TeamLogo id={b.champion.team_id} name={b.champion.team_id} size={44} />
+          <div style={{ ...gone, display: 'grid', justifyItems: 'center', gap: 2 }} aria-hidden={current || undefined}><TeamLogo id={b.champion.team_id} name={b.champion.team_id} size={44} />
           <strong><TeamLink id={b.champion.team_id} logo={false} /></strong>
-          <span className="cf-small">{pctText(b.champion.odds.p_champ)} title odds</span>
+          <span className="cf-small">{pctText(b.champion.odds.p_champ)} title odds</span></div>
         </div>
         <h3 className="cf-brk-head">National championship</h3>
-        <BGame g={fin} champion={b.champion} />
+        <BGame g={fin} champion={b.champion} field={current} site={siteOf(fin)} />
       </div>
-      {col('Semifinals', sf.slice(1))}{col('Quarterfinals', qf.slice(2))}{col('First round', fr.slice(2), 'Higher seed hosts')}
+      {col('Semifinals', sf.slice(1))}{col('Quarterfinals', qf.slice(2))}{col('First round', fr.slice(2))}
     </div>
     <div className="cf-brk-rounds">
       {b.rounds.map((games, r) => <section key={r} className="cf-brk-round" aria-label={ROUND_LABELS[r]}>
         <h3 className="cf-brk-head">{ROUND_LABELS[r]}{r === 0 && <small>Seeds 1–4 have byes · higher seed hosts</small>}</h3>
-        <div className="cf-brk-games">{games.map((g, i) => <BGame key={i} g={g} champion={b.champion} />)}</div>
+        <div className="cf-brk-games">{games.map((g, i) => <BGame key={i} g={g} champion={b.champion} field={current} site={siteOf(g)} />)}</div>
       </section>)}
     </div>
   </>
@@ -69,6 +116,12 @@ function Bracket({ b, current }: { b: SimBracket; current: boolean }) {
 export default function Playoff() {
   const doc = useData<PlayoffDoc>('playoff.json')
   const teams = useTeams()
+  const gamesDoc = useData<GamesDoc>('games.json')
+  const venues = useMemo(() => {
+    const tally = new Map<string, Map<string, number>>()
+    for (const g of gamesDoc.data?.games ?? []) if (g.venue && !g.neutral) { const m = tally.get(g.home_id) ?? new Map<string, number>(); m.set(g.venue, (m.get(g.venue) ?? 0) + 1); tally.set(g.home_id, m) }
+    return new Map([...tally].map(([id, m]) => [id, [...m].sort((a, b) => b[1] - a[1])[0][0]]))
+  }, [gamesDoc.data])
   const [sortKey, setSortKey] = useQueryParam('sort', 'p_playoff')
   const [dir, setDir] = useQueryParam('dir', '')
   const [scope, setScope] = useQueryParam('show', '')
@@ -104,9 +157,9 @@ export default function Playoff() {
             </span>
           </div>
           {bracket ? <>
-            <div className="cf-panel cf-brk-panel"><Bracket b={bracket} current={current} /></div>
+            <div className="cf-panel cf-brk-panel"><Bracket b={bracket} current={current} venues={venues} /></div>
             {current
-              ? <p className="cf-small cf-muted cf-brk-note"><span className="cf-brk-seed is-bye">1</span> Seeds 1–4 have first-round byes. Ranked by résumé (strength of record) as of Week {meta.ratings_week}; the higher seed advances in every game. Conference leaders stand in for champions until the title games are played.</p>
+              ? <p className="cf-small cf-muted cf-brk-note"><span className="cf-brk-seed is-bye">1</span> Seeds 1–4 have first-round byes. Ranked by résumé (strength of record) as of Week {meta.ratings_week}. No games are projected. Conference leaders stand in for champions until the title games are played.</p>
               : <p className="cf-small cf-muted cf-brk-note"><span className="cf-brk-seed is-bye">1</span> Seeds 1–4 have first-round byes. In each game, the team that reached the next round in more of the {meta.sim_count?.toLocaleString()} simulated seasons advances. This exact seeding occurred in {field!.sims_with_identical_field} of them.</p>}
           </> : <p className="cf-muted">{loadingCurrent ? 'Loading the current field…' : current ? 'The current bracket is unavailable right now.' : 'No projected field is available.'}</p>}
           <details className="cf-rules">

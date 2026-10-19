@@ -95,6 +95,16 @@ jobs:
           LC_ALL: C.UTF-8
         run: Rscript scripts/03_export_public_data.R
 
+      - name: Refresh opening lines (spread record)
+        if: env.REFRESH == 'true'
+        continue-on-error: true
+        env:
+          CFBD_API_KEY: ${{ secrets.CFBD_API_KEY }}
+          CFB_PROJECT_ROOT: ${{ github.workspace }}
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
+        run: Rscript R/publish/export_opening_lines.R
+
       - name: Validate public data
         run: pnpm test
 

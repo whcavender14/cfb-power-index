@@ -23,6 +23,7 @@ for (w in weeks) {
     opening_spread = as.numeric(x$spreadOpen[i]), provider = x$provider[i])
   cat(sprintf("week %d: %d games with an opening spread\n", w, nrow(x)))
 }
+if (!length(rows)) stop("no opening lines returned; keeping the existing file")
 doc <- list(schema_version = 1L, season = season, source = "CollegeFootballData via cfbfastR::cfbd_betting_lines (spreadOpen)",
             convention = "home perspective; negative = home team favored", retrieved_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
             games = rows)

@@ -593,6 +593,13 @@ a.cf-team:hover .cf-team-name { color: var(--cf-accent); }
 .cf-brk-col.is-center { justify-content: center; gap: var(--s2); }
 .cf-brk-head { margin: 0 0 var(--s2); font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--cf-muted); text-align: center; display: grid; gap: 1px; }
 .cf-brk-head small { font-size: .75rem; font-weight: 500; letter-spacing: .02em; text-transform: none; color: var(--cf-faint); }
+.cf-brk-slot { display: grid; gap: 3px; }
+/* Quarterfinal and semifinal site tags float above their box, so the boxes keep their bracket positions */
+.cf-brk .cf-brk-slot:not(.is-final) { position: relative; }
+.cf-brk .cf-brk-slot:not(.is-final) > .cf-brk-site { position: absolute; left: 0; right: 0; bottom: calc(100% + 3px); }
+.cf-brk-site { display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 0; font-size: .625rem; line-height: 1; color: var(--cf-faint); white-space: nowrap; overflow: hidden; }
+.cf-brk-site img { height: 18px; width: auto; max-width: 40px; object-fit: contain; flex: none; }
+.cf-brk-site span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .cf-brk-game { border-radius: var(--cf-radius-sm); background: var(--cf-fill-2); box-shadow: 0 0 0 1px var(--cf-line); overflow: hidden; }
 .cf-brk-row { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr) auto; align-items: center; gap: 6px; min-height: 32px; padding: 2px 8px 2px 6px; font-size: .8125rem; }
 .cf-brk-row + .cf-brk-row { border-top: 1px solid var(--cf-line); }
