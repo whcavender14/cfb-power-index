@@ -50,10 +50,11 @@ export default function Games() {
       const weeks = [...new Set(games.map(g => g.week))].sort((a, b) => a - b)
       const slug = teams.get(team) ? team : [...teams.values()].find(t => t.slug === team)?.team_id ?? ''
       const activeWeek = week === 'all' ? null : week ? Number(week) : slug ? null : meta.current_week
-      const rows = games.filter(g => (activeWeek == null || g.week === activeWeek)
+      let rows = games.filter(g => (activeWeek == null || g.week === activeWeek)
         && (!conf || g.home_conference === conf || g.away_conference === conf)
         && (!slug || g.home_id === slug || g.away_id === slug)
-        && (!gap || (gapOf(g) ?? 0) > BIG_GAP))
+        && (!gap || gap === 'top10' || (gapOf(g) ?? 0) > (Number(gap) > 1 ? Number(gap) : BIG_GAP)))
+      if (gap === 'top10') rows = rows.filter(g => gapOf(g) != null).sort((a, b) => gapOf(b)! - gapOf(a)!).slice(0, 10)
       const value: Record<string, (g: Game) => number | null> = {
         kickoff: g => Date.parse(g.kickoff), quality: g => g.quality, prob: g => projection(g)?.prob ?? null, week: g => g.week,
         edge: g => { const e = edgeOf(g); return e == null ? null : Math.abs(e) },
@@ -91,7 +92,13 @@ export default function Games() {
             <option value="">All teams</option>
             {teamOptions.map(t => <option key={t.team_id} value={t.slug}>{t.team}</option>)}
           </Sel>
-          <label className="cf-check"><input type="checkbox" checked={!!gap} onChange={e => setGap(e.target.checked ? '1' : '')} /> Model Edge &gt; {BIG_GAP} Pts</label>
+          <Sel label="Model edge" value={gap} onChange={setGap}>
+            <option value="">All edges</option>
+            <option value="3">Edge &gt; 3 pts</option>
+            <option value="5">Edge &gt; 5 pts</option>
+            <option value="7">Edge &gt; 7 pts</option>
+            <option value="top10">Top 10 edges</option>
+          </Sel>
           <p className="cf-muted cf-small" style={{ margin: 0 }} role="status">{sorted.length} {sorted.length === 1 ? 'game' : 'games'}</p>
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, margin: '6px 0 12px' }}>

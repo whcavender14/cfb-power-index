@@ -70,16 +70,24 @@ function SwingFigure({ sw, team }: { sw: Swing; team: string }) {
   </span>
 }
 /** The two teams of a card, each with its playoff chance if it wins (▲) or loses (▼) this game. */
-function SwingMatchup({ g, swing }: { g: Game; swing: GameSwing }) {
-  const row = (id: string, name: string, sw?: Swing) => <div className="cf-swing-row"><TeamLink id={id} name={name} size={26} />{sw && <SwingFigure sw={sw} team={name} />}</div>
-  return <div className="cf-swing-rows">{row(g.away_id, g.away_team, swing.away)}{row(g.home_id, g.home_team, swing.home)}</div>
+function SwingMatchup({ g, swing, line }: { g: Game; swing: GameSwing; line?: Line }) {
+  // Ticker style: the sportsbook favorite gets its spread "(−7.5)", the underdog gets the total "O/U 51.5".
+  const tag = (home: boolean) => {
+    const sp = line?.market_spread
+    if (sp == null) return null
+    const fav = sp === 0 || (sp < 0) === home
+    const txt = fav ? (sp === 0 ? 'PK' : `−${Math.abs(sp)}`) : line?.market_total != null ? `${line.market_total}` : null
+    return txt && <span className="cf-small cf-muted cf-num" style={{ whiteSpace: 'nowrap' }}>{txt}</span>
+  }
+  const row = (id: string, name: string, home: boolean, sw?: Swing) => <div className="cf-swing-row"><span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, minWidth: 0 }}><TeamLink id={id} name={name} size={26} />{tag(home)}</span>{sw && <SwingFigure sw={sw} team={name} />}</div>
+  return <div className="cf-swing-rows">{row(g.away_id, g.away_team, false, swing.away)}{row(g.home_id, g.home_team, true, swing.home)}</div>
 }
 
-export function GameCard({ g, swing }: { g: Game; swing?: GameSwing }) {
+export function GameCard({ g, swing, line }: { g: Game; swing?: GameSwing; line?: Line }) {
   const p = projection(g)
   return <article className="cf-gamecard">
     <div className="cf-gamecard-top"><Link to={`/games/${g.game_id}/`} className="cf-rowlink cf-muted" aria-label={`${g.away_team} ${g.neutral ? 'vs' : 'at'} ${g.home_team}: matchup breakdown`}>{kickoffText(g)}{g.neutral ? ' · Neutral' : ''}</Link><Quality value={g.quality} /></div>
-    {swing && (swing.home || swing.away) ? <SwingMatchup g={g} swing={swing} /> : <Matchup g={g} size={26} />}
+    {swing && (swing.home || swing.away) ? <SwingMatchup g={g} swing={swing} line={line} /> : <Matchup g={g} size={26} />}
     <div className="cf-gamecard-foot">
       <ProjectionText g={g} />
       {p?.prob != null && <span className="cf-muted">Win prob. <span className="cf-num">{pctText(p.prob)}</span> <Info text={WINPROB_INFO} label="About win probability" /></span>}

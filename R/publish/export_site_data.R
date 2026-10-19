@@ -364,6 +364,13 @@ if (!is.null(games)) {
   o <- order(-resume$sor, lo, -resume$sos_played, as.integer(resume$team_id))
   o <- o[ok[o]]
   resume$resume_rank <- NA_integer_; resume$resume_rank[o] <- seq_along(o)
+  # Previous-week resume rank (week-over-week movement): the same formula and the same current ratings, over the games
+  # played before the ratings week only, so the change reflects the new results.
+  fp <- fb[fb$known & fb$week < week, ]
+  prv <- do.call(rbind, lapply(meta$team_id, function(i) { k <- fp[fp$team_id == i, ]
+    data.frame(sor = if (nrow(k)) sum((k$margin > 0) - k$bench_p) else NA, lo = sum(k$margin < 0), sp = if (nrow(k)) mean(k$opp_power) else NA) }))
+  po <- order(-prv$sor, prv$lo, -prv$sp, as.integer(meta$team_id)); po <- po[!is.na(prv$sor[po])]
+  resume$prev_resume_rank <- NA_integer_; resume$prev_resume_rank[po] <- seq_along(po)
 }
 game_note <- function(k) {
   # Best win / worst loss among final games, by the opponent's current rating.
@@ -560,7 +567,7 @@ write_site_json(list(meta = meta_block, method = list(
     proposal = "docs/website/RESUME_PROPOSAL.md"),
   teams = if (is.null(resume)) list() else lapply(meta$team_id, function(id) {
     k <- sides[sides$team_id == id & sides$known, ]
-    c(list(team_id = id, resume_rank = pick(resume, id, "resume_rank"), sor = r4(pick(resume, id, "sor")),
+    c(list(team_id = id, resume_rank = pick(resume, id, "resume_rank"), prev_resume_rank = pick(resume, id, "prev_resume_rank"), sor = r4(pick(resume, id, "sor")),
            sos_played = r4(pick(resume, id, "sos_played")), sos_played_rank = pick(resume, id, "sos_played_rank"),
            wins = pick(records, id, "w"), losses = pick(records, id, "l"), games = nrow(k), predictive_rank = pick(rat, id, "rank")),
       game_note(k)) })), file.path(site_out, "resume.json"))

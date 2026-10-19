@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
-import { DataGate, Freshness, Info, Movement, Num, Pct, TeamLink, useData } from '../components'
-import type { ChangesDoc, HistoryDoc, IndexDoc, TeamChange, TeamRow } from '../data'
-import { GameCard, QUALITY_INFO } from '../games'
+import { DataGate, Freshness, Info, Movement, Num, TeamLink, useData } from '../components'
+import type { ChangesDoc, HistoryDoc, IndexDoc, ResumeDoc, TeamChange, TeamRow } from '../data'
+import { GameCard, QUALITY_INFO, useLines } from '../games'
 import { Link } from '../router'
 import Ticker from '../Ticker'
 
@@ -103,10 +103,10 @@ function WhatChanged({ teams }: { teams: TeamRow[] }) {
 export default function Home() {
   useEffect(() => { const prev = document.body.style.overflowX; document.body.style.overflowX = 'clip'; return () => { document.body.style.overflowX = prev } }, [])
   const index = useData<IndexDoc>('index.json')
+  const lines = useLines()
+  const resume = useData<ResumeDoc>('resume.json')
   return <DataGate source={index} label="Ratings">{({ meta, teams, top_games, top_swing }) => {
     const ranked = teams.filter(t => t.rank != null).sort((a, b) => a.rank! - b.rank!)
-    const contenders = teams.filter(t => t.p_playoff != null && t.p_playoff > 0).sort((a, b) => b.p_playoff! - a.p_playoff! || (a.rank ?? 999) - (b.rank ?? 999)).slice(0, 12)
-    const sims = meta.sim_status === 'available'
     return <>
       <h1 className="cf-sr">CFPi+, Cavender Football Power Index</h1>
       {/* Ticker: a full-width strip directly under the header, same surface, so the two read as one bar */}
@@ -127,19 +127,21 @@ export default function Home() {
           </ol>
         </Question>
 
-        <Question id="q-playoff" q="Playoff Hunt" more="Playoff odds and projected field" to="/playoff/">
-          {sims ? <ol className="cf-list">
-            {contenders.map(t => <li key={t.team_id} className="cf-list-row">
-              <TeamLink id={t.team_id} size={24} sub={t.rank ? `No. ${t.rank}` : undefined} />
-              <span className="cf-list-val cf-list-wide"><Pct value={t.p_playoff} bar /></span>
+        <Question id="q-resume" q="Résumé Rankings" more="Full résumé rankings" to="/rankings/resume/">
+          {resume.data ? <ol className="cf-list">
+            {resume.data.teams.filter(r => r.resume_rank != null).sort((a, b) => a.resume_rank! - b.resume_rank!).slice(0, 12).map(r => <li key={r.team_id} className="cf-list-row">
+              <span className="cf-rank">{r.resume_rank}</span>
+              <TeamLink id={r.team_id} size={24} sub={`${r.wins}–${r.losses}`} />
+              <span className="cf-list-move"><Movement change={r.prev_resume_rank != null ? r.prev_resume_rank - r.resume_rank! : null} compared={meta.movement_compared_to_week} /></span>
+              <span className="cf-list-val"><Num value={r.sor} signed digits={2} /></span>
             </li>)}
-          </ol> : <p className="cf-muted">Simulation results are unavailable for this update.</p>}
+          </ol> : <p className="cf-muted">Résumé rankings are unavailable for this update.</p>}
         </Question>
 
         <Question id="q-games" q="Games of the Week" more="All games" to={meta.current_week != null ? `/games/?week=${meta.current_week}` : '/games/'}
           info={<Info text={QUALITY_INFO} label="How games are chosen" />}>
           {top_games && top_games.length
-            ? <><div className="cf-q-games">{top_games.slice(0, 4).map(g => <GameCard key={g.game_id} g={g} swing={top_swing?.[g.game_id]} />)}</div>
+            ? <><div className="cf-q-games">{top_games.slice(0, 4).map(g => <GameCard key={g.game_id} g={g} swing={top_swing?.[g.game_id]} line={lines.get(g.game_id)} />)}</div>
               {top_swing && <p className="cf-small cf-muted cf-swing-note"><b className="cf-swing-w">▲</b> / <b className="cf-swing-l">▼</b> = the team’s playoff chance if it wins / loses that game, from the simulated seasons (same filter as <Link to="/whatif/">What If?</Link>).</p>}</>
             : <p className="cf-muted">No upcoming games with projections.</p>}
         </Question>
