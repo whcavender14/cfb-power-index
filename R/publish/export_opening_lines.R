@@ -12,7 +12,11 @@ priority <- c("DraftKings", "ESPN Bet", "Bovada", "Caesars", "consensus")
 rows <- list()
 for (w in weeks) {
   x <- tryCatch(as.data.frame(suppressMessages(cfbfastR::cfbd_betting_lines(year = season, week = w, season_type = "regular"))), error = function(e) NULL)
-  if (is.null(x) || !nrow(x) || !all(c("id", "homeTeam", "awayTeam", "provider", "spreadOpen") %in% names(x))) next
+  if (is.null(x) || !nrow(x)) { cat(sprintf("week %d: no response\n", w)); next }
+  # cfbfastR names these columns in snake_case in current versions (game_id, home_team, spread_open) and camelCase in older ones
+  ren <- c(game_id = "id", home_team = "homeTeam", away_team = "awayTeam", spread_open = "spreadOpen")
+  for (nm in names(ren)) if (nm %in% names(x) && !ren[[nm]] %in% names(x)) x[[ren[[nm]]]] <- x[[nm]]
+  if (!all(c("id", "homeTeam", "awayTeam", "provider", "spreadOpen") %in% names(x))) { cat(sprintf("week %d: unexpected columns: %s\n", w, paste(names(x), collapse = ", "))); next }
   x <- x[!is.na(x$provider) & is.finite(suppressWarnings(as.numeric(x$spreadOpen))), , drop = FALSE]
   if (!nrow(x)) next
   p <- match(x$provider, priority); p[is.na(p)] <- 99L
