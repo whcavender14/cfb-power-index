@@ -3,7 +3,7 @@
   "season": 2026,
   "source": "CollegeFootballData via cfbfastR::cfbd_betting_lines (spreadOpen)",
   "convention": "home perspective; negative = home team favored",
-  "retrieved_at": "2026-10-19T20:15:59Z",
+  "retrieved_at": "2026-10-26T13:03:37Z",
   "games": [
     {
       "game_id": "401856634",
@@ -7166,6 +7166,438 @@
       "provider": "DraftKings"
     },
     {
+      "game_id": "401866670",
+      "week": 8,
+      "home_team": "Rhode Island",
+      "away_team": "UAlbany",
+      "opening_spread": -6.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401866671",
+      "week": 8,
+      "home_team": "Maine",
+      "away_team": "Campbell",
+      "opening_spread": 8.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401866672",
+      "week": 8,
+      "home_team": "Bryant",
+      "away_team": "Stony Brook",
+      "opening_spread": 3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401866673",
+      "week": 8,
+      "home_team": "Hampton",
+      "away_team": "Monmouth",
+      "opening_spread": 26.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401866674",
+      "week": 8,
+      "home_team": "Merrimack",
+      "away_team": "New Hampshire",
+      "opening_spread": -1.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867689",
+      "week": 8,
+      "home_team": "Lindenwood",
+      "away_team": "Chicago State",
+      "opening_spread": -23.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867808",
+      "week": 8,
+      "home_team": "Brown",
+      "away_team": "Cornell",
+      "opening_spread": 1.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867822",
+      "week": 8,
+      "home_team": "Columbia",
+      "away_team": "Dartmouth",
+      "opening_spread": 1.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867842",
+      "week": 8,
+      "home_team": "Harvard",
+      "away_team": "Princeton",
+      "opening_spread": -10.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867850",
+      "week": 8,
+      "home_team": "Illinois State",
+      "away_team": "Indiana State",
+      "opening_spread": -22.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867871",
+      "week": 8,
+      "home_team": "South Dakota State",
+      "away_team": "Murray State",
+      "opening_spread": -40.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867879",
+      "week": 8,
+      "home_team": "South Dakota",
+      "away_team": "North Dakota",
+      "opening_spread": -2.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867892",
+      "week": 8,
+      "home_team": "Southern Illinois",
+      "away_team": "Northern Iowa",
+      "opening_spread": -3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867902",
+      "week": 8,
+      "home_team": "Central Connecticut",
+      "away_team": "New Haven",
+      "opening_spread": -14.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867913",
+      "week": 8,
+      "home_team": "Long Island University",
+      "away_team": "Stonehill",
+      "opening_spread": -3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867921",
+      "week": 8,
+      "home_team": "Robert Morris",
+      "away_team": "Mercyhurst",
+      "opening_spread": -5.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867931",
+      "week": 8,
+      "home_team": "Duquesne",
+      "away_team": "Wagner",
+      "opening_spread": -14,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867955",
+      "week": 8,
+      "home_team": "Delaware State",
+      "away_team": "North Carolina Central",
+      "opening_spread": -5.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867962",
+      "week": 8,
+      "home_team": "Morgan State",
+      "away_team": "Howard",
+      "opening_spread": -7,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867975",
+      "week": 8,
+      "home_team": "South Carolina State",
+      "away_team": "Norfolk State",
+      "opening_spread": -14.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401867994",
+      "week": 8,
+      "home_team": "Holy Cross",
+      "away_team": "Bucknell",
+      "opening_spread": -10,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868003",
+      "week": 8,
+      "home_team": "Richmond",
+      "away_team": "Colgate",
+      "opening_spread": -3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868013",
+      "week": 8,
+      "home_team": "Fordham",
+      "away_team": "Lafayette",
+      "opening_spread": 2.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868019",
+      "week": 8,
+      "home_team": "William & Mary",
+      "away_team": "Georgetown",
+      "opening_spread": -6,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868035",
+      "week": 8,
+      "home_team": "Villanova",
+      "away_team": "Lehigh",
+      "opening_spread": 6.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868067",
+      "week": 8,
+      "home_team": "North Alabama",
+      "away_team": "Austin Peay",
+      "opening_spread": 11.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868080",
+      "week": 8,
+      "home_team": "Cal Poly",
+      "away_team": "Utah Tech",
+      "opening_spread": -17.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868097",
+      "week": 8,
+      "home_team": "Idaho",
+      "away_team": "Southern Utah",
+      "opening_spread": -3.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868106",
+      "week": 8,
+      "home_team": "Idaho State",
+      "away_team": "Portland State",
+      "opening_spread": -14,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868121",
+      "week": 8,
+      "home_team": "Montana State",
+      "away_team": "Weber State",
+      "opening_spread": -25.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868132",
+      "week": 8,
+      "home_team": "UC Davis",
+      "away_team": "Northern Colorado",
+      "opening_spread": -9.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868135",
+      "week": 8,
+      "home_team": "Central Arkansas",
+      "away_team": "UT Rio Grande Valley",
+      "opening_spread": -3.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868146",
+      "week": 8,
+      "home_team": "Eastern Kentucky",
+      "away_team": "West Florida",
+      "opening_spread": 1.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868174",
+      "week": 8,
+      "home_team": "Tennessee State",
+      "away_team": "Charleston Southern",
+      "opening_spread": 3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868182",
+      "week": 8,
+      "home_team": "Eastern Illinois",
+      "away_team": "Southeast Missouri State",
+      "opening_spread": 7,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868201",
+      "week": 8,
+      "home_team": "Western Illinois",
+      "away_team": "UT Martin",
+      "opening_spread": -1.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868214",
+      "week": 8,
+      "home_team": "Drake",
+      "away_team": "Butler",
+      "opening_spread": 3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868230",
+      "week": 8,
+      "home_team": "Dayton",
+      "away_team": "San Diego",
+      "opening_spread": -6,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868238",
+      "week": 8,
+      "home_team": "West Georgia",
+      "away_team": "Tarleton State",
+      "opening_spread": 21.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868266",
+      "week": 8,
+      "home_team": "Marist",
+      "away_team": "St. Thomas (MN)",
+      "opening_spread": 4,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868271",
+      "week": 8,
+      "home_team": "Morehead State",
+      "away_team": "Stetson",
+      "opening_spread": -1.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868278",
+      "week": 8,
+      "home_team": "Valparaiso",
+      "away_team": "Presbyterian",
+      "opening_spread": -3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868311",
+      "week": 8,
+      "home_team": "Stephen F. Austin",
+      "away_team": "SE Louisiana",
+      "opening_spread": -20.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868341",
+      "week": 8,
+      "home_team": "Western Carolina",
+      "away_team": "Chattanooga",
+      "opening_spread": -3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868348",
+      "week": 8,
+      "home_team": "VMI",
+      "away_team": "East Tennessee State",
+      "opening_spread": 30.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868377",
+      "week": 8,
+      "home_team": "Furman",
+      "away_team": "Samford",
+      "opening_spread": -9.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868392",
+      "week": 8,
+      "home_team": "The Citadel",
+      "away_team": "Tennessee Tech",
+      "opening_spread": 19.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868937",
+      "week": 8,
+      "home_team": "Florida A&M",
+      "away_team": "Arkansas-Pine Bluff",
+      "opening_spread": -3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868944",
+      "week": 8,
+      "home_team": "Bethune-Cookman",
+      "away_team": "Jackson State",
+      "opening_spread": 7,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868969",
+      "week": 8,
+      "home_team": "East Texas A&M",
+      "away_team": "Prairie View A&M",
+      "opening_spread": -3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401868972",
+      "week": 8,
+      "home_team": "Texas Southern",
+      "away_team": "Southern",
+      "opening_spread": -1.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401869133",
+      "week": 8,
+      "home_team": "Northwestern State",
+      "away_team": "Nicholls",
+      "opening_spread": 9.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401869138",
+      "week": 8,
+      "home_team": "Incarnate Word",
+      "away_team": "McNeese",
+      "opening_spread": -14,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401869145",
+      "week": 8,
+      "home_team": "Lamar",
+      "away_team": "Houston Christian",
+      "opening_spread": -11.5,
+      "provider": "DraftKings"
+    },
+    {
       "game_id": "401869845",
       "week": 8,
       "home_team": "App State",
@@ -7187,6 +7619,14 @@
       "home_team": "Southern Miss",
       "away_team": "Louisiana",
       "opening_spread": 10.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401870841",
+      "week": 8,
+      "home_team": "Pennsylvania",
+      "away_team": "Yale",
+      "opening_spread": 4.5,
       "provider": "DraftKings"
     },
     {
@@ -7246,11 +7686,123 @@
       "provider": "DraftKings"
     },
     {
+      "game_id": "401856733",
+      "week": 9,
+      "home_team": "Arkansas",
+      "away_team": "Missouri",
+      "opening_spread": 10.5,
+      "provider": "DraftKings"
+    },
+    {
       "game_id": "401856734",
       "week": 9,
       "home_team": "Georgia",
       "away_team": "Florida",
       "opening_spread": -12.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401856735",
+      "week": 9,
+      "home_team": "Ole Miss",
+      "away_team": "Auburn",
+      "opening_spread": -10.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401856736",
+      "week": 9,
+      "home_team": "Oklahoma",
+      "away_team": "South Carolina",
+      "opening_spread": -5.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401856737",
+      "week": 9,
+      "home_team": "Texas",
+      "away_team": "Mississippi State",
+      "opening_spread": -20.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401856842",
+      "week": 9,
+      "home_team": "Texas Tech",
+      "away_team": "Arizona",
+      "opening_spread": -7.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401856843",
+      "week": 9,
+      "home_team": "BYU",
+      "away_team": "Arizona State",
+      "opening_spread": -17.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401856844",
+      "week": 9,
+      "home_team": "UCF",
+      "away_team": "Baylor",
+      "opening_spread": -1.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401856845",
+      "week": 9,
+      "home_team": "TCU",
+      "away_team": "Kansas",
+      "opening_spread": -4.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401856846",
+      "week": 9,
+      "home_team": "Colorado",
+      "away_team": "Kansas State",
+      "opening_spread": 3.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401856847",
+      "week": 9,
+      "home_team": "Iowa State",
+      "away_team": "Oklahoma State",
+      "opening_spread": 9.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401856848",
+      "week": 9,
+      "home_team": "Cincinnati",
+      "away_team": "Utah",
+      "opening_spread": 9.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858277",
+      "week": 9,
+      "home_team": "NC State",
+      "away_team": "California",
+      "opening_spread": -8.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858278",
+      "week": 9,
+      "home_team": "Syracuse",
+      "away_team": "SMU",
+      "opening_spread": 12.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858279",
+      "week": 9,
+      "home_team": "Duke",
+      "away_team": "Boston College",
+      "opening_spread": -7,
       "provider": "DraftKings"
     },
     {
@@ -7262,11 +7814,323 @@
       "provider": "DraftKings"
     },
     {
+      "game_id": "401858281",
+      "week": 9,
+      "home_team": "Pittsburgh",
+      "away_team": "Georgia Tech",
+      "opening_spread": -7,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858282",
+      "week": 9,
+      "home_team": "North Carolina",
+      "away_team": "Miami",
+      "opening_spread": 14.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858283",
+      "week": 9,
+      "home_team": "Louisville",
+      "away_team": "Stanford",
+      "opening_spread": -21,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858284",
+      "week": 9,
+      "home_team": "Wake Forest",
+      "away_team": "Virginia",
+      "opening_spread": -13.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858501",
+      "week": 9,
+      "home_team": "Indiana",
+      "away_team": "Minnesota",
+      "opening_spread": -22.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858502",
+      "week": 9,
+      "home_team": "Iowa",
+      "away_team": "Wisconsin",
+      "opening_spread": -4.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858503",
+      "week": 9,
+      "home_team": "Maryland",
+      "away_team": "Illinois",
+      "opening_spread": 3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858504",
+      "week": 9,
+      "home_team": "Nebraska",
+      "away_team": "Washington",
+      "opening_spread": -9.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858505",
+      "week": 9,
+      "home_team": "Oregon",
+      "away_team": "Northwestern",
+      "opening_spread": -7.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858506",
+      "week": 9,
+      "home_team": "Penn State",
+      "away_team": "Purdue",
+      "opening_spread": -8.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858507",
+      "week": 9,
+      "home_team": "Rutgers",
+      "away_team": "Michigan",
+      "opening_spread": 14,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401858508",
+      "week": 9,
+      "home_team": "UCLA",
+      "away_team": "Nevada",
+      "opening_spread": -23.5,
+      "provider": "DraftKings"
+    },
+    {
       "game_id": "401858509",
       "week": 9,
       "home_team": "USC",
       "away_team": "Ohio State",
       "opening_spread": 7.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401859185",
+      "week": 9,
+      "home_team": "Navy",
+      "away_team": "Notre Dame",
+      "opening_spread": 28.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401860908",
+      "week": 9,
+      "home_team": "Boise State",
+      "away_team": "Texas State",
+      "opening_spread": -12.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401860909",
+      "week": 9,
+      "home_team": "San Diego State",
+      "away_team": "Washington State",
+      "opening_spread": -2.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401860910",
+      "week": 9,
+      "home_team": "Utah State",
+      "away_team": "Colorado State",
+      "opening_spread": -3.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401860924",
+      "week": 9,
+      "home_team": "Fresno State",
+      "away_team": "Oregon State",
+      "opening_spread": 7,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401861966",
+      "week": 9,
+      "home_team": "Air Force",
+      "away_team": "UConn",
+      "opening_spread": -3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401862812",
+      "week": 9,
+      "home_team": "North Texas",
+      "away_team": "Florida Atlantic",
+      "opening_spread": -12.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401862813",
+      "week": 9,
+      "home_team": "Charlotte",
+      "away_team": "Tulane",
+      "opening_spread": 13.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401862814",
+      "week": 9,
+      "home_team": "Memphis",
+      "away_team": "Army",
+      "opening_spread": -6,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401862815",
+      "week": 9,
+      "home_team": "East Carolina",
+      "away_team": "Temple",
+      "opening_spread": -4.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401862816",
+      "week": 9,
+      "home_team": "South Florida",
+      "away_team": "UAB",
+      "opening_spread": -9.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401864529",
+      "week": 9,
+      "home_team": "San José State",
+      "away_team": "New Mexico",
+      "opening_spread": 14.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401864530",
+      "week": 9,
+      "home_team": "UNLV",
+      "away_team": "Northern Illinois",
+      "opening_spread": -24.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401864531",
+      "week": 9,
+      "home_team": "North Dakota State",
+      "away_team": "UTEP",
+      "opening_spread": -27.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401866451",
+      "week": 9,
+      "home_team": "Sacramento State",
+      "away_team": "Kent State",
+      "opening_spread": 9.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401866452",
+      "week": 9,
+      "home_team": "Western Michigan",
+      "away_team": "Bowling Green",
+      "opening_spread": -15.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401869846",
+      "week": 9,
+      "home_team": "Georgia Southern",
+      "away_team": "App State",
+      "opening_spread": -3.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401869944",
+      "week": 9,
+      "home_team": "Georgia State",
+      "away_team": "Coastal Carolina",
+      "opening_spread": -6.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401869963",
+      "week": 9,
+      "home_team": "James Madison",
+      "away_team": "Troy",
+      "opening_spread": -17.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401871057",
+      "week": 9,
+      "home_team": "New Mexico State",
+      "away_team": "Jacksonville State",
+      "opening_spread": 3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401871058",
+      "week": 9,
+      "home_team": "Middle Tennessee",
+      "away_team": "Kennesaw State",
+      "opening_spread": -2.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401871059",
+      "week": 9,
+      "home_team": "Liberty",
+      "away_team": "Florida International",
+      "opening_spread": -11.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401871071",
+      "week": 9,
+      "home_team": "Western Kentucky",
+      "away_team": "Delaware",
+      "opening_spread": 2.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401871072",
+      "week": 9,
+      "home_team": "Missouri State",
+      "away_team": "Sam Houston",
+      "opening_spread": -6,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401871095",
+      "week": 9,
+      "home_team": "UL Monroe",
+      "away_team": "Southern Miss",
+      "opening_spread": 3,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401871096",
+      "week": 9,
+      "home_team": "Old Dominion",
+      "away_team": "Marshall",
+      "opening_spread": 2.5,
+      "provider": "DraftKings"
+    },
+    {
+      "game_id": "401871097",
+      "week": 9,
+      "home_team": "South Alabama",
+      "away_team": "Louisiana Tech",
+      "opening_spread": 3.5,
       "provider": "DraftKings"
     },
     {
