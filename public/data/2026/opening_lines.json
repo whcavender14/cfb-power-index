@@ -3,7 +3,7 @@
   "season": 2026,
   "source": "CollegeFootballData via cfbfastR::cfbd_betting_lines (spreadOpen)",
   "convention": "home perspective; negative = home team favored",
-  "retrieved_at": "2026-10-26T13:21:29Z",
+  "retrieved_at": "2026-10-26T15:03:56Z",
   "games": [
     {
       "game_id": "401856634",
