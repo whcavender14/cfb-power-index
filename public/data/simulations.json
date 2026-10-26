@@ -2,14 +2,14 @@
   "schema_version": 1,
   "season": 2026,
   "week": 8,
-  "updated_at": "2026-10-26T14:29:40Z",
+  "updated_at": "2026-10-26T17:06:16Z",
   "status": "available",
   "model": "vCurrent / C2_current + cfbseedR",
   "teams": [
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2005",
       "team": "Air Force",
       "conference": "Mountain West",
@@ -24,7 +24,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2006",
       "team": "Akron",
       "conference": "Mid-American",
@@ -39,7 +39,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "333",
       "team": "Alabama",
       "conference": "SEC",
@@ -54,7 +54,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2026",
       "team": "App State",
       "conference": "Sun Belt",
@@ -69,7 +69,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "12",
       "team": "Arizona",
       "conference": "Big 12",
@@ -84,7 +84,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "9",
       "team": "Arizona State",
       "conference": "Big 12",
@@ -99,7 +99,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "8",
       "team": "Arkansas",
       "conference": "SEC",
@@ -114,7 +114,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2032",
       "team": "Arkansas State",
       "conference": "Sun Belt",
@@ -129,7 +129,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "349",
       "team": "Army",
       "conference": "American Athletic",
@@ -144,7 +144,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2",
       "team": "Auburn",
       "conference": "SEC",
@@ -159,7 +159,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2050",
       "team": "Ball State",
       "conference": "Mid-American",
@@ -174,7 +174,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "239",
       "team": "Baylor",
       "conference": "Big 12",
@@ -189,7 +189,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "68",
       "team": "Boise State",
       "conference": "Pac-12",
@@ -204,7 +204,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "103",
       "team": "Boston College",
       "conference": "ACC",
@@ -219,7 +219,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "189",
       "team": "Bowling Green",
       "conference": "Mid-American",
@@ -234,7 +234,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2084",
       "team": "Buffalo",
       "conference": "Mid-American",
@@ -249,7 +249,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "252",
       "team": "BYU",
       "conference": "Big 12",
@@ -264,7 +264,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "25",
       "team": "California",
       "conference": "ACC",
@@ -279,7 +279,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2117",
       "team": "Central Michigan",
       "conference": "Mid-American",
@@ -294,7 +294,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2429",
       "team": "Charlotte",
       "conference": "American Athletic",
@@ -309,7 +309,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2132",
       "team": "Cincinnati",
       "conference": "Big 12",
@@ -324,7 +324,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "228",
       "team": "Clemson",
       "conference": "ACC",
@@ -339,7 +339,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "324",
       "team": "Coastal Carolina",
       "conference": "Sun Belt",
@@ -354,7 +354,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "38",
       "team": "Colorado",
       "conference": "Big 12",
@@ -369,7 +369,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "36",
       "team": "Colorado State",
       "conference": "Pac-12",
@@ -384,7 +384,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "48",
       "team": "Delaware",
       "conference": "Conference USA",
@@ -399,7 +399,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "150",
       "team": "Duke",
       "conference": "ACC",
@@ -414,7 +414,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "151",
       "team": "East Carolina",
       "conference": "American Athletic",
@@ -429,7 +429,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2199",
       "team": "Eastern Michigan",
       "conference": "Mid-American",
@@ -444,7 +444,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "57",
       "team": "Florida",
       "conference": "SEC",
@@ -459,7 +459,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2226",
       "team": "Florida Atlantic",
       "conference": "American Athletic",
@@ -474,7 +474,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2229",
       "team": "Florida International",
       "conference": "Conference USA",
@@ -489,7 +489,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "52",
       "team": "Florida State",
       "conference": "ACC",
@@ -504,7 +504,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "278",
       "team": "Fresno State",
       "conference": "Pac-12",
@@ -519,7 +519,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "61",
       "team": "Georgia",
       "conference": "SEC",
@@ -534,7 +534,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "290",
       "team": "Georgia Southern",
       "conference": "Sun Belt",
@@ -549,7 +549,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2247",
       "team": "Georgia State",
       "conference": "Sun Belt",
@@ -564,7 +564,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "59",
       "team": "Georgia Tech",
       "conference": "ACC",
@@ -579,7 +579,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "62",
       "team": "Hawai'i",
       "conference": "Mountain West",
@@ -594,7 +594,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "248",
       "team": "Houston",
       "conference": "Big 12",
@@ -609,7 +609,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "356",
       "team": "Illinois",
       "conference": "Big Ten",
@@ -624,7 +624,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "84",
       "team": "Indiana",
       "conference": "Big Ten",
@@ -639,7 +639,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2294",
       "team": "Iowa",
       "conference": "Big Ten",
@@ -654,7 +654,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "66",
       "team": "Iowa State",
       "conference": "Big 12",
@@ -669,7 +669,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "55",
       "team": "Jacksonville State",
       "conference": "Conference USA",
@@ -684,7 +684,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "256",
       "team": "James Madison",
       "conference": "Sun Belt",
@@ -699,7 +699,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2305",
       "team": "Kansas",
       "conference": "Big 12",
@@ -714,7 +714,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2306",
       "team": "Kansas State",
       "conference": "Big 12",
@@ -729,7 +729,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "338",
       "team": "Kennesaw State",
       "conference": "Conference USA",
@@ -744,7 +744,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2309",
       "team": "Kent State",
       "conference": "Mid-American",
@@ -759,7 +759,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "96",
       "team": "Kentucky",
       "conference": "SEC",
@@ -774,7 +774,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2335",
       "team": "Liberty",
       "conference": "Conference USA",
@@ -789,7 +789,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "309",
       "team": "Louisiana",
       "conference": "Sun Belt",
@@ -804,7 +804,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2348",
       "team": "Louisiana Tech",
       "conference": "Sun Belt",
@@ -819,7 +819,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "97",
       "team": "Louisville",
       "conference": "ACC",
@@ -834,7 +834,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "99",
       "team": "LSU",
       "conference": "SEC",
@@ -849,7 +849,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "276",
       "team": "Marshall",
       "conference": "Sun Belt",
@@ -864,7 +864,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "120",
       "team": "Maryland",
       "conference": "Big Ten",
@@ -879,7 +879,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "113",
       "team": "Massachusetts",
       "conference": "Mid-American",
@@ -894,7 +894,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "235",
       "team": "Memphis",
       "conference": "American Athletic",
@@ -909,7 +909,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2390",
       "team": "Miami",
       "conference": "ACC",
@@ -924,7 +924,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "193",
       "team": "Miami (OH)",
       "conference": "Mid-American",
@@ -939,7 +939,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "130",
       "team": "Michigan",
       "conference": "Big Ten",
@@ -954,7 +954,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "127",
       "team": "Michigan State",
       "conference": "Big Ten",
@@ -969,7 +969,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2393",
       "team": "Middle Tennessee",
       "conference": "Conference USA",
@@ -984,7 +984,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "135",
       "team": "Minnesota",
       "conference": "Big Ten",
@@ -999,7 +999,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "344",
       "team": "Mississippi State",
       "conference": "SEC",
@@ -1014,7 +1014,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "142",
       "team": "Missouri",
       "conference": "SEC",
@@ -1029,7 +1029,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2623",
       "team": "Missouri State",
       "conference": "Conference USA",
@@ -1044,7 +1044,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2426",
       "team": "Navy",
       "conference": "American Athletic",
@@ -1059,7 +1059,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "152",
       "team": "NC State",
       "conference": "ACC",
@@ -1074,7 +1074,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "158",
       "team": "Nebraska",
       "conference": "Big Ten",
@@ -1089,7 +1089,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2440",
       "team": "Nevada",
       "conference": "Mountain West",
@@ -1104,7 +1104,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "167",
       "team": "New Mexico",
       "conference": "Mountain West",
@@ -1119,7 +1119,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "166",
       "team": "New Mexico State",
       "conference": "Conference USA",
@@ -1134,7 +1134,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "153",
       "team": "North Carolina",
       "conference": "ACC",
@@ -1149,7 +1149,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2449",
       "team": "North Dakota State",
       "conference": "Mountain West",
@@ -1164,7 +1164,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2459",
       "team": "Northern Illinois",
       "conference": "Mountain West",
@@ -1179,7 +1179,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "249",
       "team": "North Texas",
       "conference": "American Athletic",
@@ -1194,7 +1194,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "77",
       "team": "Northwestern",
       "conference": "Big Ten",
@@ -1209,7 +1209,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "87",
       "team": "Notre Dame",
       "conference": "FBS Independents",
@@ -1224,7 +1224,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "195",
       "team": "Ohio",
       "conference": "Mid-American",
@@ -1239,7 +1239,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "194",
       "team": "Ohio State",
       "conference": "Big Ten",
@@ -1254,7 +1254,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "201",
       "team": "Oklahoma",
       "conference": "SEC",
@@ -1269,7 +1269,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "197",
       "team": "Oklahoma State",
       "conference": "Big 12",
@@ -1284,7 +1284,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "295",
       "team": "Old Dominion",
       "conference": "Sun Belt",
@@ -1299,7 +1299,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "145",
       "team": "Ole Miss",
       "conference": "SEC",
@@ -1314,7 +1314,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2483",
       "team": "Oregon",
       "conference": "Big Ten",
@@ -1329,7 +1329,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "204",
       "team": "Oregon State",
       "conference": "Pac-12",
@@ -1344,7 +1344,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "213",
       "team": "Penn State",
       "conference": "Big Ten",
@@ -1359,7 +1359,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "221",
       "team": "Pittsburgh",
       "conference": "ACC",
@@ -1374,7 +1374,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2509",
       "team": "Purdue",
       "conference": "Big Ten",
@@ -1389,7 +1389,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "242",
       "team": "Rice",
       "conference": "American Athletic",
@@ -1404,7 +1404,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "164",
       "team": "Rutgers",
       "conference": "Big Ten",
@@ -1419,7 +1419,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "16",
       "team": "Sacramento State",
       "conference": "Mid-American",
@@ -1434,7 +1434,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2534",
       "team": "Sam Houston",
       "conference": "Conference USA",
@@ -1449,7 +1449,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "21",
       "team": "San Diego State",
       "conference": "Pac-12",
@@ -1464,7 +1464,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "23",
       "team": "San José State",
       "conference": "Mountain West",
@@ -1479,7 +1479,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2567",
       "team": "SMU",
       "conference": "ACC",
@@ -1494,7 +1494,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "6",
       "team": "South Alabama",
       "conference": "Sun Belt",
@@ -1509,7 +1509,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2579",
       "team": "South Carolina",
       "conference": "SEC",
@@ -1524,7 +1524,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2572",
       "team": "Southern Miss",
       "conference": "Sun Belt",
@@ -1539,7 +1539,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "58",
       "team": "South Florida",
       "conference": "American Athletic",
@@ -1554,7 +1554,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "24",
       "team": "Stanford",
       "conference": "ACC",
@@ -1569,7 +1569,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "183",
       "team": "Syracuse",
       "conference": "ACC",
@@ -1584,7 +1584,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2628",
       "team": "TCU",
       "conference": "Big 12",
@@ -1599,7 +1599,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "218",
       "team": "Temple",
       "conference": "American Athletic",
@@ -1614,7 +1614,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2633",
       "team": "Tennessee",
       "conference": "SEC",
@@ -1629,7 +1629,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "251",
       "team": "Texas",
       "conference": "SEC",
@@ -1644,7 +1644,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "245",
       "team": "Texas A&M",
       "conference": "SEC",
@@ -1659,7 +1659,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "326",
       "team": "Texas State",
       "conference": "Pac-12",
@@ -1674,7 +1674,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2641",
       "team": "Texas Tech",
       "conference": "Big 12",
@@ -1689,7 +1689,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2649",
       "team": "Toledo",
       "conference": "Mid-American",
@@ -1704,7 +1704,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2653",
       "team": "Troy",
       "conference": "Sun Belt",
@@ -1719,7 +1719,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2655",
       "team": "Tulane",
       "conference": "American Athletic",
@@ -1734,7 +1734,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "202",
       "team": "Tulsa",
       "conference": "American Athletic",
@@ -1749,7 +1749,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "5",
       "team": "UAB",
       "conference": "American Athletic",
@@ -1764,7 +1764,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2116",
       "team": "UCF",
       "conference": "Big 12",
@@ -1779,7 +1779,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "26",
       "team": "UCLA",
       "conference": "Big Ten",
@@ -1794,7 +1794,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "41",
       "team": "UConn",
       "conference": "FBS Independents",
@@ -1809,7 +1809,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2433",
       "team": "UL Monroe",
       "conference": "Sun Belt",
@@ -1824,7 +1824,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2439",
       "team": "UNLV",
       "conference": "Mountain West",
@@ -1839,7 +1839,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "30",
       "team": "USC",
       "conference": "Big Ten",
@@ -1854,7 +1854,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "254",
       "team": "Utah",
       "conference": "Big 12",
@@ -1869,7 +1869,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "328",
       "team": "Utah State",
       "conference": "Pac-12",
@@ -1884,7 +1884,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2638",
       "team": "UTEP",
       "conference": "Mountain West",
@@ -1899,7 +1899,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2636",
       "team": "UTSA",
       "conference": "American Athletic",
@@ -1914,7 +1914,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "238",
       "team": "Vanderbilt",
       "conference": "SEC",
@@ -1929,7 +1929,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "258",
       "team": "Virginia",
       "conference": "ACC",
@@ -1944,7 +1944,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "259",
       "team": "Virginia Tech",
       "conference": "ACC",
@@ -1959,7 +1959,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "154",
       "team": "Wake Forest",
       "conference": "ACC",
@@ -1974,7 +1974,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "264",
       "team": "Washington",
       "conference": "Big Ten",
@@ -1989,7 +1989,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "265",
       "team": "Washington State",
       "conference": "Pac-12",
@@ -2004,7 +2004,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "98",
       "team": "Western Kentucky",
       "conference": "Conference USA",
@@ -2019,7 +2019,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2711",
       "team": "Western Michigan",
       "conference": "Mid-American",
@@ -2034,7 +2034,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "277",
       "team": "West Virginia",
       "conference": "Big 12",
@@ -2049,7 +2049,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "275",
       "team": "Wisconsin",
       "conference": "Big Ten",
@@ -2064,7 +2064,7 @@
     {
       "season": 2026,
       "week": 8,
-      "updated_at": "2026-10-26T14:29:40Z",
+      "updated_at": "2026-10-26T17:06:16Z",
       "team_id": "2751",
       "team": "Wyoming",
       "conference": "Mountain West",
