@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { DataGate, Info, PageHead, Segmented, Select, SortTh, sortRows, TeamLink, TeamLogo, useData, useTeams, type Sort } from '../components'
 import { PlayerLink } from '../player'
+import { RecruitMap } from '../RecruitMap'
 import { Link, navigate, useQueryParam } from '../router'
 import '../recruiting.css'
 import { ATTRIBUTION, STAR_CHURN_INFO, rating, rowsOf, stars, type ClassDoc, type ClassRow, type DashboardDoc, type HsDoc, type Recruit } from '../recruiting'
@@ -105,7 +106,7 @@ export function HighSchool() {
           <Select label="Class" value={String(year)} onChange={v => setYear(v === String(d.open_class) ? '' : v)}>{[...d.classes].reverse().map(y => <option key={y} value={y}>{y}{y === d.open_class ? ' (in progress)' : ''}</option>)}</Select>
           <Segmented label="View" value={tab} options={TABS} onChange={v => setTab(v)} />
         </div>
-        {tab === 'teams' ? <ClassTable year={year} /> : <RecruitList year={year} committedOnly={tab === 'commits'} />}
+        {tab === 'teams' ? <ClassTable year={year} /> : <RecruitList year={year} committedOnly={tab === 'commits'} years={d.classes} openClass={d.open_class} onYear={y => setYear(y === d.open_class ? '' : String(y))} />}
         <Foot />
       </>
     }}</DataGate>
@@ -164,7 +165,7 @@ function Face({ id }: { id: string | null }) {
     style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', objectPosition: 'top', background: 'var(--cf-fill-2)', flex: 'none' }} onError={() => setBroken(true)} />
 }
 
-function RecruitList({ year, committedOnly }: { year: number; committedOnly: boolean }) {
+function RecruitList({ year, committedOnly, years, openClass, onYear }: { year: number; committedOnly: boolean; years: number[]; openClass: number; onYear: (y: number) => void }) {
   const doc = useData<HsDoc>(`recruiting/hs_${year}.json`)
   const teams = useTeams()
   const [conf, setConf] = useQueryParam('conf')
@@ -186,9 +187,15 @@ function RecruitList({ year, committedOnly }: { year: number; committedOnly: boo
     const confs = [...new Set(all.map(r => r.team_id && teams.get(r.team_id)?.conference).filter(Boolean) as string[])].sort()
     const teamOpts = [...new Set(all.map(r => r.team_id).filter(Boolean) as string[])].filter(id => !conf || teams.get(id)?.conference === conf)
       .sort((a, b) => (teams.get(a)?.team ?? '').localeCompare(teams.get(b)?.team ?? ''))
-    const shown = all.filter(r => (!committedOnly || r.team_id) && (!pos || GROUPS[r.position ?? ''] === pos) && (!st || r.state === st)
+    // Every filter but State, so the map keeps showing the whole class while a state is picked. The map applies the same test
+    // to the other classes it scrubs through; matchKey names the filters so it knows when to recount.
+    const match = (r: Recruit) => !!((!committedOnly || r.team_id) && (!pos || GROUPS[r.position ?? ''] === pos)
       && (!minStars || (r.stars ?? 0) >= Number(minStars)) && (committedOnly || !commit || (commit === 'no' ? !r.team_id && !r.committed_other : !!(r.team_id || r.committed_other)))
       && (!conf || (r.team_id && teams.get(r.team_id)?.conference === conf)) && (!team || r.team_id === team))
+    const matchKey = [committedOnly, pos, minStars, commit, conf, team].join('|')
+    const pool = all.filter(match)
+    const shown = st ? pool.filter(r => r.state === st) : pool
+    const teamInfo = team ? teams.get(team) : undefined
     const list = more ? shown : shown.slice(0, SHOW)
     const groupCounts = team ? ORDER.map(g => [g, shown.filter(r => GROUPS[r.position ?? ''] === g).length] as const).filter(([, n]) => n > 0) : []
     return <>
@@ -201,6 +208,8 @@ function RecruitList({ year, committedOnly }: { year: number; committedOnly: boo
         {!committedOnly && <Select label="Commitment" value={commit} onChange={setCommit}><option value="">Any</option><option value="yes">Committed</option><option value="no">Uncommitted</option></Select>}
         <p className="cf-muted cf-small cf-toolbar-end" style={{ margin: 0, paddingBottom: 8 }} role="status">{shown.length} recruits</p>
       </div>
+      <RecruitMap year={year} years={years} onYear={onYear} openClass={openClass} match={match} matchKey={matchKey} team={teamInfo ?? { team: conf || 'All FBS', color: null, alt_color: null }}
+        subject={teamInfo ? 'class' : `${conf ? `${conf} ` : ''}${committedOnly ? 'commits' : 'recruits'}`} selected={st} onSelect={setSt} hint="Filters the list below to that state." />
       {groupCounts.length > 0 && <p className="cf-small" style={{ margin: '14px 0 16px' }}>{teams.get(team)?.team} {year} commits by position: {groupCounts.map(([g, n]) => `${g} ${n}`).join(' · ')}</p>}
       {shown.length === 0 ? <div className="cf-state"><p className="cf-state-title">No recruits match</p></div> :
       <div className="cf-table-wrap"><table className="cf-table">

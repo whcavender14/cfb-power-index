@@ -34,3 +34,80 @@ a.rc-snap-k:hover { color: var(--cf-accent); text-decoration: none; }
 .rc-tbl td:first-child { font-weight: 700; color: var(--cf-muted); }
 .rc-tbl .cf-logo { flex: none; }
 .rc-note { margin: 6px 0 0; font-size: .75rem; color: var(--cf-muted); }
+
+/* Recruit origin map (RecruitMap.tsx): real state outlines shaded in the team's color, with a sidebar that holds the class
+   (large year, timeline scrubber) and the top home states. Motion is short and critically damped; reduced motion drops it. */
+.rc-map { --rc-heat: rgb(var(--team-rgb)); --rc-heat-ink: var(--team-ink); --rc-ease: cubic-bezier(.25, 1, .5, 1);
+  margin: var(--s4) 0 var(--s3); padding: 16px 18px 14px; background: var(--cf-surface); border-top: 3px solid var(--team-a); border-bottom: 1px solid var(--cf-line); }
+:root[data-theme="dark"] .rc-map { --rc-heat: color-mix(in srgb, rgb(var(--team-rgb)) 55%, #fff); --rc-heat-ink: #0b1b33; }
+.rc-map-body { display: grid; gap: var(--s5) var(--s6); grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 900px) { .rc-map-body { grid-template-columns: minmax(0, 1fr) minmax(270px, 320px); } }
+.rc-map-main { min-width: 0; }
+.rc-map-read { margin: 0 0 6px; min-height: 1.5em; font-size: .8125rem; color: var(--cf-ink-2); }
+.rc-map-read b { color: var(--cf-ink); font-weight: 650; margin-right: 4px; }
+.rc-map-read .rc-d { margin-left: 8px; }
+.rc-d { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--cf-muted); }
+.rc-d.is-up { color: var(--cf-up); }
+.rc-d.is-down { color: var(--cf-down); }
+
+.rc-map-svg { display: block; width: 100%; height: auto; }
+.rc-st { fill: var(--cf-fill-2); stroke: var(--cf-surface); stroke-width: 1.2; stroke-linejoin: round; outline: none; transition: fill 500ms var(--rc-ease), filter 120ms ease-out; }
+.rc-st.is-hit { cursor: pointer; }
+.rc-st.is-hit:hover, .rc-st.is-hit:focus-visible { filter: brightness(.9) saturate(1.1); stroke: var(--cf-ink); stroke-width: 1.5; }
+.rc-st.is-on { stroke: var(--cf-ink); stroke-width: 2.2; }
+.rc-st-n, .rc-co text { font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; pointer-events: none; fill: var(--cf-ink); }
+.rc-co { cursor: pointer; outline: none; }
+.rc-co line { stroke: var(--cf-line-strong); stroke-width: 1; }
+.rc-co rect { stroke: var(--cf-surface); stroke-width: 1.2; transition: fill 500ms var(--rc-ease); }
+.rc-co:hover rect, .rc-co:focus-visible rect, .rc-co.is-on rect { stroke: var(--cf-ink); stroke-width: 1.6; }
+.rc-co text { font-size: 13px; }
+.rc-l0 { fill: var(--cf-fill-2); }
+.rc-tinv { fill: var(--rc-heat-ink) !important; }
+.rc-map-key { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin-top: 10px; font-size: .6875rem; color: var(--cf-muted); }
+.rc-ramp { display: inline-block; width: 96px; height: 8px; border-radius: 4px; background: linear-gradient(to right, color-mix(in srgb, var(--rc-heat) 14%, var(--cf-surface)), var(--rc-heat)); }
+.rc-map-key > span:first-child { margin-right: 4px; }
+.rc-map-key > span:nth-of-type(2) { margin-left: 4px; }
+.rc-map-x { margin-left: auto; }
+
+/* Sidebar: one column that reads top to bottom — which class, how many, scrub, then where they came from. */
+.rc-side { min-width: 0; }
+@media (min-width: 900px) { .rc-side { padding-left: var(--s5); border-left: 1px solid var(--cf-line); align-self: stretch; } }
+@media (max-width: 899px) { .rc-side { padding-top: var(--s4); border-top: 1px solid var(--cf-line); } }
+.rc-side-h { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.rc-side-y { margin: 0; font-size: 2.5rem; line-height: 1; font-weight: 700; letter-spacing: -.035em; font-variant-numeric: tabular-nums; transition: opacity 150ms ease-out; }
+.rc-side-y.is-pending { opacity: .4; }
+.rc-side-sub { margin: 6px 0 0; font-size: .8125rem; color: var(--cf-ink-2); display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+.rc-tag { font-size: .6875rem; font-weight: 600; letter-spacing: .01em; padding: 1px 8px; border-radius: 999px; color: var(--cf-ink); background: color-mix(in srgb, var(--rc-heat) 16%, transparent); }
+.rc-side-total { display: grid; justify-items: end; text-align: right; line-height: 1.2; }
+.rc-side-total b { font-size: 1.25rem; font-weight: 650; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.rc-side-total span { font-size: .75rem; color: var(--cf-muted); }
+.rc-side-total .rc-d { font-size: .75rem; }
+
+/* Timeline: a segmented control over the class years. The thumb is a raised surface on a recessed track. */
+.rc-scrub { display: flex; align-items: center; gap: 8px; margin-top: var(--s4); }
+.rc-scrub-play { display: inline-grid; place-items: center; width: 32px; height: 32px; flex: none; padding: 0; border: 0; border-radius: 10px; background: var(--cf-fill-2); color: var(--cf-ink); cursor: pointer; transition: transform 100ms ease-out, background-color 120ms ease-out; }
+.rc-scrub-play:hover { background: var(--cf-fill); }
+.rc-scrub-play:active { transform: scale(.94); }
+.rc-tl { position: relative; flex: 1; min-width: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; height: 32px; border-radius: 10px; background: var(--cf-fill-2); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; outline: none; }
+.rc-tl:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--cf-accent) 45%, transparent); }
+.rc-tl-thumb { position: absolute; top: 0; bottom: 0; left: 0; border: 2px solid transparent; background-clip: padding-box; border-radius: 10px; background-color: var(--cf-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 2px 6px rgb(0 0 0 / .06); transition: transform 320ms var(--rc-ease); will-change: transform; }
+.rc-tl.is-drag .rc-tl-thumb { transition: none; }
+:root[data-theme="dark"] .rc-tl-thumb { background-color: color-mix(in srgb, var(--cf-surface) 82%, #fff); box-shadow: 0 1px 2px rgb(0 0 0 / .4); }
+.rc-tl-y { position: relative; display: grid; place-items: center; font-size: .75rem; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--cf-muted); transition: color 120ms ease-out; }
+.rc-tl-y.is-on { color: var(--cf-ink); font-weight: 650; }
+@media (max-width: 360px) { .rc-tl-y { font-size: .6875rem; } }
+
+/* Top home states: rank, name and count on one line, a hairline share bar beneath (the bars separate the rows). */
+.rc-side-k { margin: var(--s5) 0 4px; font-size: .8125rem; font-weight: 650; color: var(--cf-ink); }
+.rc-top { list-style: none; margin: 0 -6px; padding: 0; }
+.rc-top button { display: grid; grid-template-columns: 1.4em minmax(0, 1fr) auto 3.2ch; grid-template-rows: auto auto; align-items: baseline; column-gap: 8px; row-gap: 5px; width: 100%; padding: 8px 6px 9px; border: 0; border-radius: 8px; background: transparent; color: var(--cf-ink); font: inherit; text-align: left; cursor: pointer; transition: background-color 120ms ease-out; }
+.rc-top button:hover, .rc-top button.is-on { background: var(--cf-fill-2); }
+.rc-top-r { font-size: .75rem; color: var(--cf-muted); font-variant-numeric: tabular-nums; }
+.rc-top-s { font-size: .875rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rc-top-m { display: flex; gap: 8px; font-size: .75rem; color: var(--cf-muted); font-variant-numeric: tabular-nums; }
+.rc-top-n { font-size: .875rem; font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; }
+.rc-top-b { grid-column: 2 / -1; height: 3px; border-radius: 2px; background: var(--cf-fill-2); overflow: hidden; }
+.rc-top-b i { display: block; height: 100%; border-radius: 2px; background: var(--rc-heat); transform-origin: left center; transition: transform 500ms var(--rc-ease); }
+.rc-map-team .rc-map { margin-top: var(--s3); }
+@media (prefers-reduced-motion: reduce) { .rc-st, .rc-co rect, .rc-top-b i, .rc-tl-thumb, .rc-side-y { transition: none; } }
