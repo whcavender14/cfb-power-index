@@ -2,7 +2,7 @@ import { Fragment, useMemo, useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { DataGate, PageHead, SortTh, sortRows, useData, type Sort } from '../components'
 import type { GamesDoc, HistoryDoc } from '../data'
-import { gameQualities, kickoffText, Matchup, Quality } from '../games'
+import { qualityText, gameQualities, kickoffText, Matchup, Quality } from '../games'
 import { Link, useQueryParam } from '../router'
 
 const C = { textAlign: 'center' } as const
@@ -62,7 +62,7 @@ export default function GameQuality() {
                   <span className="cf-bar" style={{ flex: 1, maxWidth: 140 }} aria-hidden="true"><i style={{ width: `${100 * w.rating / maxRating}%` }} /></span></span></td>
                 <td className="cf-num" style={C}>{w.n}</td>
                 <td><Matchup g={w.best.g} /></td>
-                <td className="cf-num" style={C}>{w.best.q}</td>
+                <td className="cf-num" style={C}>{qualityText(w.best.q)}</td>
               </tr>
               {on && <tr><td colSpan={6} style={{ padding: 0, background: 'var(--cf-fill-2)' }}>
                 <table className="cf-table" style={{ tableLayout: 'fixed', background: 'transparent' }}>
