@@ -1,7 +1,7 @@
 # Generates src/site/usStates.ts: SVG outlines of the 50 states + DC for the recruiting maps (RecruitMap.tsx).
 # Source: R `maps` package (public-domain US boundaries). Lower 48 in Albers conic; Alaska and Hawaii as insets.
 suppressMessages(library(maps))
-TOL <- 2.6
+TOL <- 3.6
 abbr <- c(setNames(state.abb, tolower(state.name)), "district of columbia" = "DC")
 rad <- pi / 180
 albers <- function(lon, lat, p1, p2, p0, l0) {
