@@ -112,7 +112,7 @@ export async function allTeamsPng(meta: Meta, rows: TeamRow[], dir: Dir) {
 /** The weekly slate: every game of one week as a compact scoreboard card with logos only (no team names).
  *  Each team row shows the Vegas line on the favorite (bold) and the model's implied line on the team the model favors;
  *  the team the model picks against the spread (the side it likes more than the Vegas line) is highlighted in the
- *  site's blue. Each card ends with the game's watchability (matchup quality, 0-100) as a labelled meter. Lines are
+ *  site's blue. Each card ends with the game's watchability (matchup quality, 0-10) as a labelled meter. Lines are
  *  home-perspective in the data (negative = home favored) and are shown as the favorite's "-N", the underdog's "+N". */
 export async function gamesPng(meta: Meta, games: Game[], dir: Dir, week: number, vegas: (g: Game) => number | null, ranks: Map<string, number>) {
   const slate = games.filter(g => g.week === week).sort((a, b) => Date.parse(a.kickoff) - Date.parse(b.kickoff))
@@ -152,9 +152,9 @@ export async function gamesPng(meta: Meta, games: Game[], dir: Dir, week: number
   t(ctx, '−7', lx, ly, { size: 15, weight: 800 }); t(ctx, 'VEGAS LINE', lx + 26, ly, { size: 11.5, track: '0.6px' }); lx += 130
   t(ctx, '−9.3', lx, ly, { size: 14, weight: 700, color: MUTE }); t(ctx, 'MODEL’S IMPLIED LINE', lx + 40, ly, { size: 11.5, track: '0.6px' }); lx += 200
   rr(ctx, lx, ly - 8, 46, 6, 3); ctx.fillStyle = '#d8d8dd'; ctx.fill(); rr(ctx, lx, ly - 8, 33, 6, 3); ctx.fillStyle = ACC; ctx.fill()
-  t(ctx, 'WATCHABILITY: HOW GOOD THE GAME SHOULD BE, 0–100', lx + 58, ly, { size: 11.5, track: '0.6px' })
+  t(ctx, 'WATCHABILITY: HOW GOOD THE GAME SHOULD BE, 0–10', lx + 58, ly, { size: 11.5, track: '0.6px' })
   ctx.font = `700 11.5px ${FONT}`
-  lx += 58 + ctx.measureText('WATCHABILITY: HOW GOOD THE GAME SHOULD BE, 0–100').width + 60
+  lx += 58 + ctx.measureText('WATCHABILITY: HOW GOOD THE GAME SHOULD BE, 0–10').width + 60
   rr(ctx, lx, ly - 13, 22, 17, 3); ctx.strokeStyle = GOLD; ctx.lineWidth = 2.5; ctx.stroke()
   t(ctx, 'BOTH TEAMS TOP 30 IN CFPi+', lx + 30, ly, { size: 11.5, track: '0.6px' })
   let y = HEAD + LEG
@@ -203,8 +203,8 @@ export async function gamesPng(meta: Meta, games: Game[], dir: Dir, week: number
       if (g.quality != null) {
         t(ctx, 'WATCHABILITY', x + 10, fy + 17, { size: 8.5, weight: 700, color: FAINT, track: '0.4px' })
         rr(ctx, x + 84, fy + 10, CW - 84 - 50, 6, 3); ctx.fillStyle = '#e3e3e8'; ctx.fill()
-        rr(ctx, x + 84, fy + 10, Math.max(4, (CW - 84 - 50) * g.quality / 100), 6, 3); ctx.fillStyle = ACC; ctx.fill()
-        t(ctx, `${g.quality}`, x + CW - 24, fy + 18, { size: 14, weight: 800, align: 'right' })
+        rr(ctx, x + 84, fy + 10, Math.max(4, (CW - 84 - 50) * g.quality / 10), 6, 3); ctx.fillStyle = ACC; ctx.fill()
+        t(ctx, g.quality.toFixed(1), x + CW - 24, fy + 18, { size: 14, weight: 800, align: 'right' })
         t(ctx, '/100', x + CW - 22, fy + 18, { size: 8.5, weight: 600, color: FAINT })
       } else t(ctx, 'WATCHABILITY —', x + 12, fy + 17, { size: 9.5, weight: 700, color: FAINT, track: '0.8px' })
     })

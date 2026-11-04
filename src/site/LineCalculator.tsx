@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { fmt, pctText, Select, TeamLogo, useData, useTeams } from './components'
 import type { IndexDoc } from './data'
-import { Quality, QUALITY_INFO } from './games'
+import { matchupQuality, Quality, QUALITY_INFO } from './games'
 import { teamTheme } from './teamTheme'
 
 // Implied line for any two FBS teams, computed in the browser from published numbers only: the same formula the site
@@ -34,10 +34,11 @@ export default function LineCalculator() {
   }
   const fav = result && (result.margin >= 0 ? h! : a!)
   const size = Math.abs(result?.margin ?? 0)
-  // Watchability = the site's Matchup Quality (strength from current ranks x closeness of the model win probability).
+  // Watchability = the site's Matchup Quality: the weaker team's rating (in FBS SDs) and the closeness of the model win probability.
   const ranked = (index.data.teams ?? []).filter(t => t.rank != null).length
-  const strength = (r: number | null) => r != null && ranked > 1 ? 1 - Math.sqrt((r - 1) / (ranked - 1)) : 0
-  const watch = result ? Math.round(100 * ((strength(a!.rank) + strength(h!.rank)) / 2) * (1 - (2 * result.pHome - 1) ** 2)) : null
+  const pw = (index.data.teams ?? []).map(t => t.power).filter((x): x is number => x != null)
+  const pMean = pw.reduce((s, x) => s + x, 0) / (pw.length || 1), pSd = Math.sqrt(pw.reduce((s, x) => s + (x - pMean) ** 2, 0) / (pw.length || 1))
+  const watch = result && pSd > 0 ? matchupQuality((Math.min(a!.power!, h!.power!) - pMean) / pSd, result.pHome) : null
   const ab = (t: { team_id: string; name: string }) => dir.get(t.team_id)?.abbreviation ?? t.name
   const rk = (n: number | null) => n == null ? '—' : `#${n}`
   const share = (r: number | null) => r != null && ranked > 1 ? 1 - (r - 1) / (ranked - 1) : 0

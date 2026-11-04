@@ -116,7 +116,7 @@ export function validateSiteData(dir = root) {
     if (g.status === 'final' && (g.spread_home !== null || g.win_prob_home !== null)) fail(`${w}: completed game carries a projection`)
     if (g.status === 'scheduled' && (g.home_points !== null || g.away_points !== null)) fail(`${w}: scheduled game has a score`)
     prob(g.win_prob_home, `${w}.win_prob_home`); prob(g.sim_home_win, `${w}.sim_home_win`)
-    if (g.quality !== null && !(Number.isInteger(g.quality) && g.quality >= 0 && g.quality <= 100)) fail(`${w}.quality`)
+    if (g.quality !== null && !(typeof g.quality === 'number' && g.quality >= 0 && g.quality <= 10 && Math.abs(g.quality * 10 - Math.round(g.quality * 10)) < 1e-9)) fail(`${w}.quality`)
     if (g.home_fbs && !dirIds.has(g.home_id)) fail(`${w}: FBS home team not in directory`)
     if (g.away_fbs && !dirIds.has(g.away_id)) fail(`${w}: FBS away team not in directory`)
   }

@@ -209,12 +209,16 @@ if (!is.null(sim) && !is.null(sim$schedule) && !is.null(sim$team_power)) {
   neutral <- as.logical(g$neutral)
   mu <- hp - ap + ifelse(neutral, 0, hfa)
   p_home <- pnorm(mu / sigma)
-  # Strength: 1 - sqrt((rank - 1) / (N - 1)) among the N rated FBS teams (1 = best rated, 0 = worst; the square root keeps the top 25 clearly apart from the rest without flattening ranks 8-25); non-FBS teams count as 0.
-  pct <- if (!is.null(rat)) setNames(1 - sqrt((rat$rank - 1) / (nrow(rat) - 1)), rat$team_id) else numeric(0)
-  sh <- ifelse(g$home_fbs, pct[as.character(g$home_id)], 0); sa <- ifelse(g$away_fbs, pct[as.character(g$away_id)], 0)
-  sh[is.na(sh)] <- 0; sa[is.na(sa)] <- 0
-  # Closeness is quadratic, so near toss-ups are barely penalised and real mismatches still fall off sharply.
-  quality <- round(100 * ((sh + sa) / 2) * (1 - (2 * p_home - 1)^2))
+  # Matchup quality, shaped like PEARatings' Game Quality Index (fitted to its 60 Week 10 2026 games: R^2 0.98 on its 1-10 scale).
+  #   quality = 10 * logistic((z_weaker - Z_MID) / Z_SCALE) * C^CLOSE_EXP
+  # z_weaker is the WEAKER team's power rating in FBS standard deviations: a game is only good if both teams are, so the
+  # better team cannot carry it. C = 1 - (2p - 1)^2 is closeness; the small exponent makes it a mild adjustment, because
+  # a lopsided game between two good teams is still more watchable than a toss-up between two bad ones. FCS opponents are
+  # rated on the same scale (sim$team_power), so they score near 0 without a special case.
+  Z_MID <- -1.126; Z_SCALE <- 0.805; CLOSE_EXP <- 0.2
+  fbs_pow <- if (!is.null(rat)) rat$power_rating else tp
+  z_weaker <- (pmin(hp, ap) - mean(fbs_pow)) / sd(fbs_pow)
+  quality <- round(10 * plogis((z_weaker - Z_MID) / Z_SCALE) * (1 - (2 * p_home - 1)^2)^CLOSE_EXP, 1)
   gs <- as.data.frame(sim$game_summary); gs <- gs[gs$game_type == "REG", ]
   gsm <- match(paste(g$week, g$home_team, g$away_team), paste(gs$week, gs$home_team, gs$away_team))
   conf_game <- if ("conference_game" %in% names(g)) as.logical(g$conference_game) else

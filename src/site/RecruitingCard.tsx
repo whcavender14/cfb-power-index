@@ -1,4 +1,5 @@
-import { Info, useData } from './components'
+import { Info, useData, useTeams } from './components'
+import { TeamRecruitMap } from './RecruitMap'
 import { Link } from './router'
 import { ATTRIBUTION, STAR_CHURN_INFO, rating, type CardsDoc } from './recruiting'
 
@@ -6,6 +7,7 @@ import { ATTRIBUTION, STAR_CHURN_INFO, rating, type CardsDoc } from './recruitin
 // values, plus counts and averages of those rows made in R. Loaded with the team page's lazy sections.
 export default function RecruitingCard({ id }: { id: string }) {
   const doc = useData<CardsDoc>('recruiting/cards.json')
+  const team = useTeams().get(id)
   const c = doc.data?.teams.find(t => t.team_id === id)
   if (!doc.data || !c) return null
   const latest = c.classes[c.classes.length - 1]
@@ -21,6 +23,7 @@ export default function RecruitingCard({ id }: { id: string }) {
       {c.portal && <div><b className="cf-num">{c.portal.in}<span className="cf-muted" style={{ fontSize: '1.25rem' }}> / {c.portal.out}</span></b><span>{c.portal.year} portal in / out <Info text={`Transfers in and out (withdrawn entries excluded). ${STAR_CHURN_INFO}`} label="About the portal tile" /></span><small className="cf-muted">{c.portal.star_churn == null ? 'No Star Churn (stars missing on one side)' : `Star Churn ${c.portal.star_churn > 0 ? '+' : ''}${c.portal.star_churn.toFixed(1).replace('-', '−')}`} · No. {c.portal.rank} of {c.portal.teams} (CFPi+ derived)</small></div>}
       {c.talent && <div><b className="cf-num">{c.talent.rank}</b><span>Roster talent rank <Info text="247Sports Team Talent Composite (via CollegeFootballData): the recruiting ratings of the current roster, among all programs." label="About roster talent" /></span><small className="cf-muted">{c.talent.value.toFixed(1)}</small></div>}
     </div>
+    {team && <TeamRecruitMap id={id} team={team} />}
     <p className="cf-small cf-muted">{ATTRIBUTION} Portal: CollegeFootballData. Not a CFPi+ model input. <Link to="/recruiting/">Recruiting</Link> · <Link to={`/recruiting/high-school/?team=${id}&tab=commits`}>Commitments</Link> · <Link to={`/recruiting/transfers/?tab=in&team=${id}`}>Transfers</Link></p>
   </section>
 }

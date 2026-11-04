@@ -5,7 +5,7 @@ import { Link } from './router'
 
 // Display helpers for games. Every number comes precomputed from games.json (R/publish/export_site_data.R).
 
-export const QUALITY_INFO = 'Matchup quality (0–100) = 100 × average strength × closeness. Strength is 1 − √((rank − 1) ÷ (ranked teams − 1)), so the top teams stand well apart without flattening the rest of the top 25 (non-FBS = 0); closeness is 1 − (2p − 1)², where p is the model win probability. High scores mean two highly ranked teams in a close game.'
+export const QUALITY_INFO = 'Game quality (0–10) = 10 × strength × closeness. Strength rests on the weaker team: its power rating, in standard deviations from the FBS average, run through a logistic curve (a team 1 SD below average scores 5.4, an average team 8.0, one 1 SD above 9.3), so a game is only as good as its worse team. Closeness is (1 − (2p − 1)²)^0.2, where p is the model win probability. The small exponent makes it a mild adjustment: a lopsided game between two strong teams still beats a toss-up between two weak ones. Shaped after PEARatings’ Game Quality Index.'
 export const WINPROB_INFO = 'Probability the favorite wins under the model’s own game model: margin ~ Normal(projected margin, σ = 15.65 points), the same model the season simulation draws from.'
 
 export function kickoffText(g: Game, withDate = true): string {
@@ -38,9 +38,9 @@ export function ProjectionText({ g }: { g: Game }) {
 
 export function Quality({ value }: { value: number | null }) {
   if (value == null) return <Missing why="Quality is shown for upcoming games" />
-  return <span className="cf-quality" aria-label={`Matchup quality ${value} of 100`}>
-    <span className="cf-quality-meter" aria-hidden="true"><i style={{ width: `${value}%` }} /></span>
-    <span className="cf-num">{value}</span>
+  return <span className="cf-quality" aria-label={`Matchup quality ${qualityText(value)} of 10`}>
+    <span className="cf-quality-meter" aria-hidden="true"><i style={{ width: `${value * 10}%` }} /></span>
+    <span className="cf-num">{qualityText(value)}</span>
   </span>
 }
 
@@ -152,24 +152,40 @@ export function gradePick(g: Game, model: number | null, market: number | null):
 }
 
 /** Game Quality for every game of the season. Upcoming games use the published score (current ratings). Finished games
- *  are scored as they looked BEFORE kickoff: the same formula (100 x average strength x closeness) applied to the ratings
- *  published before that game's week (history.json; week 1 uses the preseason ratings). Non-FBS teams count as 0 strength. */
-const phi = (z: number) => { const t = 1 / (1 + 0.2316419 * Math.abs(z)), d = 0.3989423 * Math.exp(-z * z / 2)
+ *  are scored as they looked BEFORE kickoff: the same formula applied to the ratings published before that game's week
+ *  (history.json; week 1 uses the preseason ratings). Games with an unrated (non-FBS) side are skipped.
+ *  Keep Z_MID / Z_SCALE / CLOSE_EXP identical to R/publish/export_site_data.R. */
+const Z_MID = -1.126, Z_SCALE = 0.805, CLOSE_EXP = 0.2
+/** Game quality on a 0-10 scale, to one decimal. zWeaker = the weaker team's rating in FBS standard deviations; p = win probability. */
+export const matchupQuality = (zWeaker: number, p: number) =>
+  Math.round(100 / (1 + Math.exp(-(zWeaker - Z_MID) / Z_SCALE)) * (1 - (2 * p - 1) ** 2) ** CLOSE_EXP) / 10
+/** One decimal, always shown ("8.0", not "8"). */
+export const qualityText = (v: number) => v.toFixed(1)
+export const phi = (z: number) => { const t = 1 / (1 + 0.2316419 * Math.abs(z)), d = 0.3989423 * Math.exp(-z * z / 2)
   const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); return z > 0 ? 1 - p : p }
 export function gameQualities(games: Game[], history: HistoryDoc | null, hfa: number | null, sigma: number | null): Map<string, number> {
   const out = new Map<string, number>()
+  const fields = new Map<number, { mean: number; sd: number } | null>()   // FBS rating mean and SD at each history point
+  const fieldAt = (at: number) => {
+    if (!history) return null
+    if (!fields.has(at)) {
+      const v = Object.values(history.teams).map(t => t.power[at]).filter((x): x is number => x != null)
+      const mean = v.reduce((a, b) => a + b, 0) / (v.length || 1), sd = Math.sqrt(v.reduce((a, b) => a + (b - mean) ** 2, 0) / (v.length || 1))
+      fields.set(at, v.length > 1 && sd > 0 ? { mean, sd } : null)
+    }
+    return fields.get(at) ?? null
+  }
   for (const g of games) {
     if (g.status !== 'final') { if (g.quality != null) out.set(g.game_id, g.quality); continue }
     if (!history || hfa == null || !sigma) continue
     const at = g.week <= 1 ? 0 : history.points.findIndex(p => p.week === g.week - 1)
     if (at < 0) continue
     const series = (id: string) => history.teams[id]
-    const ranked = Object.values(history.teams).filter(t => t.rank[at] != null).length
-    const strength = (id: string, fbs: boolean) => { const r = series(id)?.rank[at]; return fbs && r != null && ranked > 1 ? 1 - Math.sqrt((r - 1) / (ranked - 1)) : 0 }
+    const field = fieldAt(at)
     const ph = series(g.home_id)?.power[at], pa = series(g.away_id)?.power[at]
-    if (ph == null || pa == null) continue
+    if (ph == null || pa == null || !field) continue
     const p = phi((ph - pa + (g.neutral ? 0 : hfa)) / sigma)
-    out.set(g.game_id, Math.round(100 * ((strength(g.home_id, g.home_fbs) + strength(g.away_id, g.away_fbs)) / 2) * (1 - (2 * p - 1) ** 2)))
+    out.set(g.game_id, matchupQuality((Math.min(ph, pa) - field.mean) / field.sd, p))
   }
   return out
 }
