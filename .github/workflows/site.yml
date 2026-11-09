@@ -6,9 +6,12 @@ on:
   schedule:
     # Mondays, August–January (January belongs to the previous season).
     # Odd minutes off the top of the hour: GitHub delays/drops busy slots like 09:00 by hours.
-    - cron: '37 5 * 8-12,1 1'
-    # Backup: refreshes only if the primary run produced no data commit in the last 3 days.
-    - cron: '41 12 * 8-12,1 1'
+    # 08:03 UTC = 4:03 AM EDT; 09:03 UTC = 4:03 AM EST (the later one is skipped by the guard below if the first worked).
+    - cron: '3 8 * 8-12,1 1'
+    - cron: '3 9 * 8-12,1 1'
+    # Retries: GitHub often drops or delays scheduled runs. Every retry is a no-op
+    # unless no data commit landed in the last 3 days, so extra slots are harmless.
+    - cron: '23 10-20 * 8-12,1 1'
   workflow_dispatch:
     inputs:
       refresh_data:
@@ -42,8 +45,8 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
           fetch-depth: 50
-      - name: Skip backup run if already refreshed
-        if: github.event_name == 'schedule' && github.event.schedule == '41 12 * 8-12,1 1'
+      - name: Skip scheduled run if already refreshed
+        if: github.event_name == 'schedule'
         run: |
           if [ -n "$(git log --since='3 days ago' --format=%h --grep='^data: refresh' -- public/data)" ]; then
             echo 'REFRESH=false' >> "$GITHUB_ENV"
